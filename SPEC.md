@@ -15,7 +15,7 @@
 
 - CLI demo: peak table for synthetic fixtures (`python -m chemspec.demo`)
 - Matplotlib plot demo: `chemspec/plot_demo.py`
-- NiceGUI / Streamlit: optional extras, not required for Phase 0 green
+- NiceGUI + Plotly MVP: optional `[ui]` extra (`python -m chemspec.ui_app`); core demos run without it
 
 ## Primary format
 

@@ -12,6 +12,7 @@ These rules bind humans and coding agents. Prefer under-claiming.
 4. **No clinical / regulated diagnostic language.**
 5. **Do not invent JCAMP support.** Stub is fine; claiming parse support is not.
 6. **Do not replace synthetic fixtures with unlabeled “real” spectra** without Chemistry review.
+7. **Do not rewrite `spectrum_core` inside the UI** — call ingest / peaks / baseline / overlay.
 
 ## Always
 
@@ -21,11 +22,12 @@ These rules bind humans and coding agents. Prefer under-claiming.
 4. **Keep `spectrum_core` reusable** — no ChemSpec-only assumptions baked into the model.
 5. **Tests for ingest / peaks / baseline** must stay green before claiming those features.
 6. **Follow Project Truth** — feelings we protect beat feature greed.
+7. **UI is optional.** Core + CLI/matplotlib demos must run without `pip install -e ".[ui]"`.
 
 ## Preferred stack notes
 
 - Python + numpy/scipy; matplotlib for offline plots
-- NiceGUI/Streamlit are optional (`[ui]` extra); demos must run without them
+- NiceGUI + Plotly for the interactive MVP (`[ui]` extra); demos must run without them
 - Prefer fixing tests over deleting them
 
 ## When unsure
