@@ -28,7 +28,7 @@ python -m chemspec.ui_app
 Then open **http://localhost:8080**. The app autoloads the UV-Vis synthetic
 fixture. You can:
 
-- Load a CSV by path or file picker; sniff / map x,y columns
+- Load a CSV or JCAMP-DX (`.jdx` / `.dx`) by path or file picker; sniff / map CSV columns
 - Zoom and pan the Plotly plot
 - Tune peak prominence and view the peak table
 - Toggle polynomial baseline correction
@@ -63,10 +63,10 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 
 | Path | Role |
 |------|------|
-| `spectrum_core/` | Shared Spectrum model, CSV ingest, peaks, baseline, overlay/stack |
+| `spectrum_core/` | Shared Spectrum model, CSV + JCAMP ingest, peaks, baseline, overlay/stack |
 | `chemspec/` | Demos + NiceGUI MVP (`ui_app`, `ui_helpers`) |
-| `fixtures/` | Synthetic UV-Vis + IR CSVs |
-| `tests/` | pytest coverage for ingest / peaks / baseline / UI helpers |
+| `fixtures/` | Synthetic UV-Vis + IR CSVs and JCAMP-DX (`.jdx`/`.dx`) |
+| `tests/` | pytest coverage for ingest / JCAMP / peaks / baseline / UI helpers |
 
 ## Docs
 
@@ -78,4 +78,5 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 
 ## Non-goals (Phase 0 / MVP)
 
-Hardware drivers, JCAMP (stub only), NMR/FID, RTL-SDR, compound libraries / ID claims.
+Hardware drivers, NMR/FID, RTL-SDR, compound libraries / ID claims.
+JCAMP-DX basic ingest is Implemented (MIT `jcamp`); advanced JCAMP features remain Planned.

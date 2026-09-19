@@ -14,6 +14,7 @@ dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
     "matplotlib>=3.7",
+    "jcamp>=1.2",
 ]
 
 [project.optional-dependencies]
