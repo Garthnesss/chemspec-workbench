@@ -25,11 +25,13 @@ These rules bind humans and coding agents. Prefer under-claiming.
 5. **Tests for ingest / peaks / baseline** must stay green before claiming those features.
 6. **Follow Project Truth** — feelings we protect beat feature greed.
 7. **UI is optional.** Core + CLI/matplotlib demos must run without `pip install -e ".[ui]"`.
+8. **Advanced baselines are optional.** Polynomial must work without `pip install -e ".[baselines]"`; pybaselines is BSD-3 — note the license; never imply baseline correction identifies compounds.
 
 ## Preferred stack notes
 
 - Python + numpy/scipy; matplotlib for offline plots
 - NiceGUI + Plotly for the interactive MVP (`[ui]` extra); demos must run without them
+- Optional `pybaselines` (`[baselines]` extra, BSD-3) for AsLS / MPLS; polynomial remains default
 - Prefer fixing tests over deleting them
 
 ## When unsure

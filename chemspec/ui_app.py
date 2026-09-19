@@ -1,6 +1,6 @@
 """ChemSpec Workbench — interactive MVP UI (NiceGUI + Plotly).
 
-Requires optional deps: ``pip install -e ".[ui]"``
+Requires optional deps: ``pip install -e ".[ui]"`` (add ``,baselines`` for pybaselines methods)
 
 Launch:
     python -m chemspec.ui_app
@@ -16,11 +16,13 @@ from typing import Any
 from spectrum_core import (
     Peak,
     Spectrum,
-    baseline_polynomial,
+    available_baseline_methods,
+    baseline_correct,
     can_convert_y,
     convert_spectrum_y,
     find_peaks,
     folder_waterfall,
+    has_pybaselines,
     ingest_csv,
     ingest_folder,
     ingest_jcamp,
@@ -76,6 +78,7 @@ class WorkbenchState:
         self.prominence: float = 0.15
         self.use_auto_prominence: bool = False
         self.baseline_on: bool = False
+        self.baseline_method: str = "polynomial"
         self.baseline_degree: int = 1
         self.flip_y_unit: bool = False  # A ↔ %T display conversion when allowed
         self.peaks: list[Peak] = []
@@ -100,7 +103,11 @@ def _working_spectrum(state: WorkbenchState, spec: Spectrum | None) -> Spectrum 
         return None
     work = spec
     if state.baseline_on:
-        work = baseline_polynomial(work, degree=state.baseline_degree)
+        work = baseline_correct(
+            work,
+            method=state.baseline_method,
+            degree=state.baseline_degree,
+        )
     return _apply_y_flip(state, work)
 
 
@@ -343,7 +350,7 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
     xlabel, ylabel = axis_label(work.x_unit, work.y_unit)
     label = work.title or "primary"
     if state.baseline_on:
-        label += " (baseline on)"
+        label += f" (baseline {state.baseline_method})"
     if state.flip_y_unit and can_convert_y(
         state.primary.y_unit if state.primary else work.y_unit
     ):
@@ -465,7 +472,9 @@ def create_app() -> WorkbenchState:
         widgets["y_unit_select"].value = state.y_unit
         widgets["prom_slider"].value = state.prominence
         widgets["baseline_toggle"].value = state.baseline_on
+        widgets["baseline_method"].value = state.baseline_method
         widgets["degree_input"].value = state.baseline_degree
+        widgets["degree_input"].set_enabled(state.baseline_method == "polynomial")
         widgets["flip_y"].value = state.flip_y_unit
         convertible = bool(
             state.primary is not None and can_convert_y(state.primary.y_unit)
@@ -528,6 +537,7 @@ def create_app() -> WorkbenchState:
         state.prominence = float(widgets["prom_slider"].value)
         state.use_auto_prominence = bool(widgets["auto_prom"].value)
         state.baseline_on = bool(widgets["baseline_toggle"].value)
+        state.baseline_method = str(widgets["baseline_method"].value or "polynomial")
         state.baseline_degree = int(widgets["degree_input"].value or 1)
         state.flip_y_unit = bool(widgets["flip_y"].value)
         if state.primary is not None:
@@ -546,9 +556,14 @@ def create_app() -> WorkbenchState:
                     work = _working_spectrum(state, state.primary)
                     if work is not None and state.flip_y_unit:
                         y_note = f", display y={work.y_unit}"
+                    bl = (
+                        f"on/{state.baseline_method}"
+                        if state.baseline_on
+                        else "off"
+                    )
                     state.status = (
                         f"{state.primary.title}: peaks={len(state.peaks)}, "
-                        f"baseline={'on' if state.baseline_on else 'off'}"
+                        f"baseline={bl}"
                         f"{y_note}"
                     )
             except Exception as exc:  # noqa: BLE001
@@ -716,16 +731,31 @@ def create_app() -> WorkbenchState:
                 "Auto prominence (10% y-range)", value=False
             )
             widgets["baseline_toggle"] = ui.checkbox(
-                "Baseline correction (polynomial)", value=False
+                "Baseline correction", value=False
             )
+            _bl_options = available_baseline_methods()
+            if not has_pybaselines():
+                ui.label(
+                    'Advanced methods need: pip install -e ".[baselines]" '
+                    "(pybaselines, BSD-3)."
+                ).classes("text-caption text-grey-7")
+            widgets["baseline_method"] = ui.select(
+                _bl_options,
+                label="Baseline method",
+                value="polynomial",
+            ).classes("w-full")
             widgets["degree_input"] = ui.number(
-                label="Baseline degree",
+                label="Polynomial degree",
                 value=1,
                 min=0,
                 max=5,
                 step=1,
                 format="%.0f",
             ).classes("w-40")
+            ui.label(
+                "Polynomial is the default/fallback. asls / mpls use optional "
+                "pybaselines (BSD-3) — correction only; no compound ID."
+            ).classes("text-caption text-grey-7")
             widgets["flip_y"] = ui.checkbox(
                 "A ↔ %T display (when y is A or percent_T)",
                 value=False,

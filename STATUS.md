@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** MVP polish — peak CSV export, A↔%T helper, folder waterfall
+**As of:** Optional pybaselines baseline methods (AsLS / MPLS) + method picker
 
 ## Implemented
 
@@ -10,6 +10,8 @@
 - `ingest(path)` — dispatches `.jdx`/`.dx` → JCAMP, else CSV
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
 - `baseline_polynomial` — poly fit / subtract; baseline stored in `meta`
+- **`baseline_correct(spectrum, method=...)`** — polynomial always; optional **pybaselines** (BSD-3) methods `asls` / `mpls` via `[baselines]` extra; clear ImportError if missing
+- `available_baseline_methods()` / `has_pybaselines()` helpers
 - `overlay` / `stack` helpers for lists of spectra
 - **`peaks_to_csv`** — pure peak-table CSV helper (+ UI download)
 - **A ↔ %T** — `absorbance_to_percent_t` / `percent_t_to_absorbance` / `convert_spectrum_y`
@@ -24,11 +26,11 @@
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
   - Prominence control + peak table + **Export peaks CSV**
-  - Baseline on/off via `baseline_polynomial`
+  - Baseline on/off + **method dropdown** (polynomial / asls / mpls) via `baseline_correct`
   - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)
   - **Folder waterfall** (path or demo `fixtures/waterfall/`)
-- Optional extra: `pip install -e ".[ui]"` (`nicegui`, `plotly`)
+- Optional extras: `pip install -e ".[ui]"` (`nicegui`, `plotly`); `pip install -e ".[baselines]"` (`pybaselines`, BSD-3); recommended UI try: `pip install -e ".[ui,baselines]"`
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
 - JCAMP-DX **basic** ingest Implemented (MIT `jcamp`); clear UI error on parse failure
 

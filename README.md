@@ -16,11 +16,19 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
+Optional baseline algorithms (BSD-3 [`pybaselines`](https://github.com/derb12/pybaselines)):
+
+```bash
+pip install -e ".[baselines]"
+# UI + baselines:
+pip install -e ".[ui,baselines]"
+```
+
 ## Interactive UI (NiceGUI)
 
 ```bash
 pip install -e ".[ui]"
-# or with tests: pip install -e ".[dev,ui]"
+# or with tests + advanced baselines: pip install -e ".[dev,ui,baselines]"
 python -m chemspec.ui_app
 # or: chemspec-ui
 ```
@@ -32,7 +40,7 @@ fixture. You can:
 - Zoom and pan the Plotly plot
 - Tune peak prominence and view the peak table
 - **Export the current peak table as CSV** (download button)
-- Toggle polynomial baseline correction
+- Toggle baseline correction with a **method picker** (polynomial default; optional AsLS / MPLS via pybaselines BSD-3)
 - **A ↔ %T display** when `y_unit` is absorbance or percent transmittance
   (intensity cannot convert; invalid A / `%T ≤ 0` → NaN — see `spectrum_core.units`)
 - Overlay a second spectrum (path or the other fixture; units must match)
@@ -79,7 +87,7 @@ print([t.title for t in folder_waterfall('fixtures/waterfall', x_col='wavelength
 
 | Path | Role |
 |------|------|
-| `spectrum_core/` | Shared Spectrum model, CSV + JCAMP ingest, peaks, baseline, overlay/stack, A↔%T, peak CSV export, folder waterfall |
+| `spectrum_core/` | Shared Spectrum model, CSV + JCAMP ingest, peaks, baseline (`baseline_correct` / polynomial + optional pybaselines), overlay/stack, A↔%T, peak CSV export, folder waterfall |
 | `chemspec/` | Demos + NiceGUI MVP (`ui_app`, `ui_helpers`) |
 | `fixtures/` | Synthetic UV-Vis + IR CSVs and JCAMP-DX (`.jdx`/`.dx`); `waterfall/` demo folder |
 | `tests/` | pytest coverage for ingest / JCAMP / peaks / baseline / units / export / folder / UI helpers |
@@ -95,4 +103,5 @@ print([t.title for t in folder_waterfall('fixtures/waterfall', x_col='wavelength
 ## Non-goals (Phase 0 / MVP)
 
 Hardware drivers, NMR/FID, RTL-SDR, compound libraries / ID claims.
+Baseline correction (including pybaselines) does **not** identify compounds.
 JCAMP-DX basic ingest is Implemented (MIT `jcamp`); advanced JCAMP features remain Planned.
