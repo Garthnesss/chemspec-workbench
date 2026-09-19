@@ -6,8 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from spectrum_core.spectrum import XUnit, YUnit
+
 _ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = _ROOT / "fixtures"
+WATERFALL_FIXTURE_DIR = FIXTURES_DIR / "waterfall"
 
 FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
     "uvvis": {
@@ -45,8 +47,6 @@ FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
         "baseline_degree": 1,
     },
 }
-
-
 
 
 def sniff_csv_header(path: Path | str) -> list[str]:
@@ -135,3 +135,12 @@ def axis_label(x_unit: XUnit, y_unit: YUnit) -> tuple[str, str]:
         "intensity": "Intensity",
     }[y_unit]
     return xlabel, ylabel
+
+
+def peak_export_filename(title: str | None = None) -> str:
+    """Safe download basename for a peak-table CSV."""
+    stem = (title or "").strip()
+    if not stem:
+        return "peaks.csv"
+    safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in stem)
+    return f"{safe}_peaks.csv"

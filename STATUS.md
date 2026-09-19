@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** JCAMP-DX basic ingest (MIT `jcamp`) + MVP interactive UI
+**As of:** MVP polish — peak CSV export, A↔%T helper, folder waterfall
 
 ## Implemented
 
@@ -11,26 +11,29 @@
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
 - `baseline_polynomial` — poly fit / subtract; baseline stored in `meta`
 - `overlay` / `stack` helpers for lists of spectra
-- Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`)
-- pytest: CSV + JCAMP ingest; peaks within tolerance; baseline keeps peaks; UI helper sniff/guess
+- **`peaks_to_csv`** — pure peak-table CSV helper (+ UI download)
+- **A ↔ %T** — `absorbance_to_percent_t` / `percent_t_to_absorbance` / `convert_spectrum_y`
+  (intensity blocked; non-finite A and `%T ≤ 0` → NaN; `%T > 100` allowed with note)
+- **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
+- Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
+- pytest: CSV + JCAMP ingest; peaks; baseline; units; export; folder; UI helper sniff/guess
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
   - CSV / JCAMP (`.jdx`/`.dx`) path + file picker; one-click UV-Vis / IR / JCAMP fixtures
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
-  - Prominence control + peak table
+  - Prominence control + peak table + **Export peaks CSV**
   - Baseline on/off via `baseline_polynomial`
+  - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)
+  - **Folder waterfall** (path or demo `fixtures/waterfall/`)
 - Optional extra: `pip install -e ".[ui]"` (`nicegui`, `plotly`)
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
 - JCAMP-DX **basic** ingest Implemented (MIT `jcamp`); clear UI error on parse failure
 
 ## Planned (not Implemented)
 
-- Absorbance ↔ transmittance toggle helper
-- Peak table export / CSV download from UI
-- Folder waterfall for time-stamped spectra
 - Multi-user / persisted sessions (UI is local single-session MVP)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
@@ -38,6 +41,7 @@
 - NMR/FID and RTL-SDR adapters (beyond stubs)
 - Vendor-format certification
 - Chemistry sign-off on real (non-synthetic) example files
+- Time-axis metadata from filenames beyond sort-by-name / mtime (waterfall is stack offsets only)
 
 ## Blocked / human gates
 

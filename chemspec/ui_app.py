@@ -17,17 +17,24 @@ from spectrum_core import (
     Peak,
     Spectrum,
     baseline_polynomial,
+    can_convert_y,
+    convert_spectrum_y,
     find_peaks,
+    folder_waterfall,
     ingest_csv,
+    ingest_folder,
     ingest_jcamp,
     is_jcamp_path,
     overlay,
+    peaks_to_csv,
 )
 
 from chemspec.ui_helpers import (
     FIXTURE_PRESETS,
+    WATERFALL_FIXTURE_DIR,
     axis_label,
     guess_column_mapping,
+    peak_export_filename,
     sniff_csv_header,
 )
 
@@ -39,6 +46,18 @@ except ImportError as exc:  # pragma: no cover - exercised only without [ui]
         'NiceGUI/Plotly not installed. Run: pip install -e ".[ui]"\n'
         f"Original error: {exc}"
     ) from exc
+
+
+_PLOTLY_COLORS = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+]
 
 
 class WorkbenchState:
@@ -58,17 +77,31 @@ class WorkbenchState:
         self.use_auto_prominence: bool = False
         self.baseline_on: bool = False
         self.baseline_degree: int = 1
+        self.flip_y_unit: bool = False  # A ↔ %T display conversion when allowed
         self.peaks: list[Peak] = []
+        self.waterfall: list[Spectrum] = []
+        self.waterfall_folder: str = ""
+        self.waterfall_mode: bool = False
         self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic fixture to begin."
         self.error: str = ""
+
+
+def _apply_y_flip(state: WorkbenchState, spec: Spectrum) -> Spectrum:
+    if not state.flip_y_unit:
+        return spec
+    if not can_convert_y(spec.y_unit):
+        return spec
+    target = "percent_T" if spec.y_unit == "A" else "A"
+    return convert_spectrum_y(spec, target)
 
 
 def _working_spectrum(state: WorkbenchState, spec: Spectrum | None) -> Spectrum | None:
     if spec is None:
         return None
+    work = spec
     if state.baseline_on:
-        return baseline_polynomial(spec, degree=state.baseline_degree)
-    return spec
+        work = baseline_polynomial(work, degree=state.baseline_degree)
+    return _apply_y_flip(state, work)
 
 
 def _prominence_arg(state: WorkbenchState) -> float | None:
@@ -163,12 +196,15 @@ def _load_from_path(
         state.primary_path = str(path)
         state.overlay_spec = None
         state.overlay_path = ""
+        state.waterfall = []
+        state.waterfall_mode = False
+        state.waterfall_folder = ""
+        state.flip_y_unit = False
         _recompute_peaks(state)
         state.status = (
             f"Loaded {path.name} — {len(spec)} pts, "
             f"x={spec.x_unit}, y={spec.y_unit}, peaks={len(state.peaks)}"
         )
-
 
 
 def _load_fixture(
@@ -196,8 +232,92 @@ def _load_fixture(
         state.status += f" (fixture: {cfg['label']})"
 
 
+def _load_waterfall_folder(state: WorkbenchState, folder: Path | str) -> None:
+    folder = Path(folder)
+    state.error = ""
+    if not folder.is_dir():
+        state.error = f"Not a folder: {folder}"
+        return
+    try:
+        raw = ingest_folder(
+            folder,
+            x_col=state.x_col,
+            y_col=state.y_col,
+            x_unit=state.x_unit,  # type: ignore[arg-type]
+            y_unit=state.y_unit,  # type: ignore[arg-type]
+        )
+        stacked = folder_waterfall(
+            folder,
+            x_col=state.x_col,
+            y_col=state.y_col,
+            x_unit=state.x_unit,  # type: ignore[arg-type]
+            y_unit=state.y_unit,  # type: ignore[arg-type]
+        )
+    except Exception as exc:  # noqa: BLE001
+        state.error = f"Folder waterfall failed: {exc}"
+        return
+    if not raw:
+        state.error = f"No CSV/JCAMP spectra found in {folder}"
+        return
+    state.waterfall = stacked
+    state.waterfall_folder = str(folder)
+    state.waterfall_mode = True
+    state.overlay_spec = None
+    state.overlay_path = ""
+    state.primary = raw[0]
+    state.primary_path = str(raw[0].meta.get("source", folder))
+    state.x_unit = raw[0].x_unit
+    state.y_unit = raw[0].y_unit
+    state.flip_y_unit = False
+    _recompute_peaks(state)
+    state.status = (
+        f"Waterfall: {len(stacked)} spectra from {folder.name} "
+        f"(stacked offsets; peaks from first: {raw[0].title})"
+    )
+
+
 def _build_figure(state: WorkbenchState) -> go.Figure:
     fig = go.Figure()
+
+    if state.waterfall_mode and state.waterfall:
+        first = state.waterfall[0]
+        xlabel, ylabel = axis_label(first.x_unit, first.y_unit)
+        for i, tr in enumerate(state.waterfall):
+            color = _PLOTLY_COLORS[i % len(_PLOTLY_COLORS)]
+            fig.add_trace(
+                go.Scatter(
+                    x=tr.x.tolist(),
+                    y=tr.y.tolist(),
+                    mode="lines",
+                    name=tr.title or f"trace_{i}",
+                    line=dict(width=1.4, color=color),
+                )
+            )
+        fig.update_layout(
+            title=f"ChemSpec — waterfall ({len(state.waterfall)} stacked)",
+            xaxis_title=xlabel,
+            yaxis_title=f"{ylabel} (+ stack offset)",
+            template="plotly_white",
+            height=500,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
+            margin=dict(l=60, r=20, t=60, b=60),
+            dragmode="zoom",
+        )
+        if first.x_unit == "cm-1":
+            fig.update_xaxes(autorange="reversed")
+        fig.add_annotation(
+            text="Synthetic fixtures are not real compounds — no ID claims. "
+            "Stack offsets are for display only.",
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=-0.16,
+            showarrow=False,
+            font=dict(size=11, color="#666"),
+            xanchor="left",
+        )
+        return fig
+
     work = _working_spectrum(state, state.primary)
     if work is None:
         fig.update_layout(
@@ -224,6 +344,10 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
     label = work.title or "primary"
     if state.baseline_on:
         label += " (baseline on)"
+    if state.flip_y_unit and can_convert_y(
+        state.primary.y_unit if state.primary else work.y_unit
+    ):
+        label += f" (as {work.y_unit})"
     fig.add_trace(
         go.Scatter(
             x=work.x.tolist(),
@@ -251,7 +375,10 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
 
     if state.overlay_spec is not None:
         try:
-            pair = overlay([work, state.overlay_spec])
+            ov_work = _working_spectrum(state, state.overlay_spec)
+            assert ov_work is not None
+            # overlay validates x_unit against primary working x
+            pair = overlay([work, ov_work])
             ov = pair[1]
             fig.add_trace(
                 go.Scatter(
@@ -322,7 +449,6 @@ def create_app() -> WorkbenchState:
     status_label = ui.label(state.status).classes("text-body2 q-px-md q-pt-sm")
     error_label = ui.label("").classes("text-negative q-px-md")
 
-    # Forward-declare refresh via closure box
     widgets: dict[str, Any] = {}
 
     def refresh_ui() -> None:
@@ -340,8 +466,15 @@ def create_app() -> WorkbenchState:
         widgets["prom_slider"].value = state.prominence
         widgets["baseline_toggle"].value = state.baseline_on
         widgets["degree_input"].value = state.baseline_degree
+        widgets["flip_y"].value = state.flip_y_unit
+        convertible = bool(
+            state.primary is not None and can_convert_y(state.primary.y_unit)
+        )
+        widgets["flip_y"].set_enabled(convertible)
         if state.overlay_path:
             widgets["overlay_path_input"].value = state.overlay_path
+        if state.waterfall_folder:
+            widgets["folder_input"].value = state.waterfall_folder
 
     def on_load_path() -> None:
         state.x_col = _parse_col(str(widgets["x_col_input"].value or "0"))
@@ -396,14 +529,28 @@ def create_app() -> WorkbenchState:
         state.use_auto_prominence = bool(widgets["auto_prom"].value)
         state.baseline_on = bool(widgets["baseline_toggle"].value)
         state.baseline_degree = int(widgets["degree_input"].value or 1)
+        state.flip_y_unit = bool(widgets["flip_y"].value)
         if state.primary is not None:
             try:
-                _recompute_peaks(state)
-                state.error = ""
-                state.status = (
-                    f"{state.primary.title}: peaks={len(state.peaks)}, "
-                    f"baseline={'on' if state.baseline_on else 'off'}"
-                )
+                if state.flip_y_unit and not can_convert_y(state.primary.y_unit):
+                    state.flip_y_unit = False
+                    widgets["flip_y"].value = False
+                    state.error = (
+                        "A ↔ %T only when y_unit is A or percent_T "
+                        f"(got {state.primary.y_unit!r})"
+                    )
+                else:
+                    _recompute_peaks(state)
+                    state.error = ""
+                    y_note = ""
+                    work = _working_spectrum(state, state.primary)
+                    if work is not None and state.flip_y_unit:
+                        y_note = f", display y={work.y_unit}"
+                    state.status = (
+                        f"{state.primary.title}: peaks={len(state.peaks)}, "
+                        f"baseline={'on' if state.baseline_on else 'off'}"
+                        f"{y_note}"
+                    )
             except Exception as exc:  # noqa: BLE001
                 state.error = f"Peak/baseline error: {exc}"
         refresh_ui()
@@ -417,10 +564,12 @@ def create_app() -> WorkbenchState:
             state.error = ""
             refresh_ui()
             return
+        state.waterfall_mode = False
         _load_from_path(state, raw, as_overlay=True)
         refresh_ui()
 
     def on_overlay_fixture(key: str) -> None:
+        state.waterfall_mode = False
         _load_fixture(state, key, as_overlay=True)
         refresh_ui()
 
@@ -429,6 +578,46 @@ def create_app() -> WorkbenchState:
         state.overlay_path = ""
         widgets["overlay_path_input"].value = ""
         state.status = "Overlay cleared"
+        state.error = ""
+        refresh_ui()
+
+    def on_export_peaks() -> None:
+        if not state.peaks:
+            state.error = "No peaks to export — load a spectrum and adjust prominence."
+            refresh_ui()
+            return
+        text = peaks_to_csv(state.peaks)
+        name = peak_export_filename(
+            state.primary.title if state.primary else "peaks"
+        )
+        ui.download(text.encode("utf-8"), name)
+        state.status = f"Exported {len(state.peaks)} peaks → {name}"
+        state.error = ""
+        refresh_ui()
+
+    def on_load_folder() -> None:
+        state.x_col = _parse_col(str(widgets["x_col_input"].value or "0"))
+        state.y_col = _parse_col(str(widgets["y_col_input"].value or "1"))
+        state.x_unit = str(widgets["x_unit_select"].value)
+        state.y_unit = str(widgets["y_unit_select"].value)
+        folder = str(widgets["folder_input"].value or "").strip()
+        _load_waterfall_folder(state, folder)
+        refresh_ui()
+
+    def on_waterfall_fixture() -> None:
+        state.x_col = "wavelength_nm"
+        state.y_col = "absorbance"
+        state.x_unit = "nm"
+        state.y_unit = "A"
+        widgets["folder_input"].value = str(WATERFALL_FIXTURE_DIR)
+        _load_waterfall_folder(state, WATERFALL_FIXTURE_DIR)
+        refresh_ui()
+
+    def on_clear_waterfall() -> None:
+        state.waterfall = []
+        state.waterfall_mode = False
+        state.waterfall_folder = ""
+        state.status = "Waterfall cleared (primary spectrum kept)"
         state.error = ""
         refresh_ui()
 
@@ -452,7 +641,8 @@ def create_app() -> WorkbenchState:
         with ui.card().classes("col-12 col-md-5"):
             ui.label("1 · Load spectrum").classes("text-subtitle1")
             ui.label(
-                "CSV-first; also .jdx/.dx (JCAMP-DX via MIT jcamp). Synthetic fixtures are labeled — no compound ID."
+                "CSV-first; also .jdx/.dx (JCAMP-DX via MIT jcamp). "
+                "Synthetic fixtures are labeled — no compound ID."
             ).classes("text-caption text-grey-7")
 
             widgets["path_input"] = (
@@ -472,7 +662,9 @@ def create_app() -> WorkbenchState:
                 label="Or pick a CSV / JCAMP file",
                 on_upload=on_upload,
                 auto_upload=True,
-            ).props('accept=".csv,.jdx,.dx,text/csv,chemical/x-jcamp-dx"').classes("w-full")
+            ).props('accept=".csv,.jdx,.dx,text/csv,chemical/x-jcamp-dx"').classes(
+                "w-full"
+            )
 
             with ui.row().classes("q-gutter-sm q-mt-sm"):
                 ui.button(
@@ -534,7 +726,18 @@ def create_app() -> WorkbenchState:
                 step=1,
                 format="%.0f",
             ).classes("w-40")
-            ui.button("Apply", on_click=on_params_change).props("color=primary")
+            widgets["flip_y"] = ui.checkbox(
+                "A ↔ %T display (when y is A or percent_T)",
+                value=False,
+            )
+            ui.label(
+                "Limits: intensity cannot convert; %T ≤ 0 or non-finite A → NaN."
+            ).classes("text-caption text-grey-7")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button("Apply", on_click=on_params_change).props("color=primary")
+                ui.button("Export peaks CSV", on_click=on_export_peaks).props(
+                    "outline color=primary"
+                )
 
             ui.separator()
             ui.label("3 · Overlay second spectrum").classes("text-subtitle1")
@@ -555,6 +758,28 @@ def create_app() -> WorkbenchState:
                     on_click=lambda: on_overlay_fixture("ir"),
                 ).props("dense outline")
 
+            ui.separator()
+            ui.label("4 · Folder waterfall").classes("text-subtitle1")
+            ui.label(
+                "Load a folder of CSV/JCAMP into a stacked waterfall "
+                "(uses spectrum_core.stack)."
+            ).classes("text-caption text-grey-7")
+            widgets["folder_input"] = ui.input(
+                label="Folder path",
+                value=str(WATERFALL_FIXTURE_DIR),
+                placeholder=str(WATERFALL_FIXTURE_DIR),
+            ).classes("w-full")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button("Load folder", on_click=on_load_folder).props(
+                    "color=primary"
+                )
+                ui.button(
+                    "Demo waterfall fixture", on_click=on_waterfall_fixture
+                ).props("unelevated color=secondary")
+                ui.button("Clear waterfall", on_click=on_clear_waterfall).props(
+                    "flat"
+                )
+
         with ui.card().classes("col-12 col-md-7"):
             ui.label(
                 "Interactive plot (Plotly zoom / pan / box zoom)"
@@ -564,7 +789,11 @@ def create_app() -> WorkbenchState:
                 .classes("w-full")
                 .style("min-height: 500px")
             )
-            ui.label("Peak table").classes("text-subtitle1 q-mt-md")
+            with ui.row().classes("items-center justify-between w-full q-mt-md"):
+                ui.label("Peak table").classes("text-subtitle1")
+                ui.button(
+                    "Download peaks CSV", on_click=on_export_peaks
+                ).props("dense outline")
             widgets["peak_table"] = ui.table(
                 columns=[
                     {
