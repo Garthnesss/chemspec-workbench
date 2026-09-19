@@ -14,3 +14,13 @@ def uvvis_csv() -> Path:
 @pytest.fixture
 def ir_csv() -> Path:
     return FIXTURES / "ir_synthetic.csv"
+
+
+@pytest.fixture
+def uvvis_jdx() -> Path:
+    return FIXTURES / "uvvis_synthetic.jdx"
+
+
+@pytest.fixture
+def ir_dx() -> Path:
+    return FIXTURES / "ir_synthetic.dx"

@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from spectrum_core.spectrum import XUnit, YUnit
-
 _ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = _ROOT / "fixtures"
 
@@ -31,7 +30,23 @@ FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
         "prominence": 0.15,
         "baseline_degree": 1,
     },
+    "uvvis_jcamp": {
+        "label": "UV-Vis JCAMP synthetic",
+        "path": FIXTURES_DIR / "uvvis_synthetic.jdx",
+        "format": "jcamp",
+        "prominence": 0.15,
+        "baseline_degree": 1,
+    },
+    "ir_jcamp": {
+        "label": "IR JCAMP synthetic",
+        "path": FIXTURES_DIR / "ir_synthetic.dx",
+        "format": "jcamp",
+        "prominence": 0.15,
+        "baseline_degree": 1,
+    },
 }
+
+
 
 
 def sniff_csv_header(path: Path | str) -> list[str]:

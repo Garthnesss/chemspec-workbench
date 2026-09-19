@@ -19,6 +19,8 @@ from spectrum_core import (
     baseline_polynomial,
     find_peaks,
     ingest_csv,
+    ingest_jcamp,
+    is_jcamp_path,
     overlay,
 )
 
@@ -57,7 +59,7 @@ class WorkbenchState:
         self.baseline_on: bool = False
         self.baseline_degree: int = 1
         self.peaks: list[Peak] = []
-        self.status: str = "Load a CSV or pick a synthetic fixture to begin."
+        self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic fixture to begin."
         self.error: str = ""
 
 
@@ -93,6 +95,7 @@ def _load_from_path(
     x_unit: str | None = None,
     y_unit: str | None = None,
     title: str | None = None,
+    force_jcamp: bool = False,
 ) -> None:
     path = Path(path)
     state.error = ""
@@ -100,35 +103,50 @@ def _load_from_path(
         state.error = f"File not found: {path}"
         return
 
-    headers = sniff_csv_header(path)
-    guess = guess_column_mapping(headers)
+    use_jcamp = force_jcamp or is_jcamp_path(path)
 
-    if not as_overlay:
-        state.headers = headers
-        state.x_col = x_col if x_col is not None else guess["x_col"]
-        state.y_col = y_col if y_col is not None else guess["y_col"]
-        state.x_unit = x_unit if x_unit is not None else guess["x_unit"]
-        state.y_unit = y_unit if y_unit is not None else guess["y_unit"]
-        xc, yc = state.x_col, state.y_col
-        xu, yu = state.x_unit, state.y_unit
+    if use_jcamp:
+        try:
+            spec = ingest_jcamp(path, title=title)
+        except Exception as exc:  # noqa: BLE001 — surface to UI
+            state.error = f"JCAMP parse failed: {exc}"
+            return
+        if not as_overlay:
+            state.headers = []
+            state.x_col = 0
+            state.y_col = 1
+            state.x_unit = spec.x_unit
+            state.y_unit = spec.y_unit
     else:
-        xc = x_col if x_col is not None else guess["x_col"]
-        yc = y_col if y_col is not None else guess["y_col"]
-        xu = x_unit if x_unit is not None else guess["x_unit"]
-        yu = y_unit if y_unit is not None else guess["y_unit"]
+        headers = sniff_csv_header(path)
+        guess = guess_column_mapping(headers)
 
-    try:
-        spec = ingest_csv(
-            path,
-            x_col=xc,
-            y_col=yc,
-            x_unit=xu,  # type: ignore[arg-type]
-            y_unit=yu,  # type: ignore[arg-type]
-            title=title,
-        )
-    except Exception as exc:  # noqa: BLE001 — surface to UI
-        state.error = f"Ingest failed: {exc}"
-        return
+        if not as_overlay:
+            state.headers = headers
+            state.x_col = x_col if x_col is not None else guess["x_col"]
+            state.y_col = y_col if y_col is not None else guess["y_col"]
+            state.x_unit = x_unit if x_unit is not None else guess["x_unit"]
+            state.y_unit = y_unit if y_unit is not None else guess["y_unit"]
+            xc, yc = state.x_col, state.y_col
+            xu, yu = state.x_unit, state.y_unit
+        else:
+            xc = x_col if x_col is not None else guess["x_col"]
+            yc = y_col if y_col is not None else guess["y_col"]
+            xu = x_unit if x_unit is not None else guess["x_unit"]
+            yu = y_unit if y_unit is not None else guess["y_unit"]
+
+        try:
+            spec = ingest_csv(
+                path,
+                x_col=xc,
+                y_col=yc,
+                x_unit=xu,  # type: ignore[arg-type]
+                y_unit=yu,  # type: ignore[arg-type]
+                title=title,
+            )
+        except Exception as exc:  # noqa: BLE001 — surface to UI
+            state.error = f"Ingest failed: {exc}"
+            return
 
     if as_overlay:
         if state.primary is not None and spec.x_unit != state.primary.x_unit:
@@ -152,20 +170,25 @@ def _load_from_path(
         )
 
 
+
 def _load_fixture(
     state: WorkbenchState, key: str, *, as_overlay: bool = False
 ) -> None:
     cfg = FIXTURE_PRESETS[key]
-    _load_from_path(
-        state,
-        cfg["path"],
-        as_overlay=as_overlay,
-        x_col=cfg["x_col"],
-        y_col=cfg["y_col"],
-        x_unit=cfg["x_unit"],
-        y_unit=cfg["y_unit"],
-        title=cfg["path"].stem,
-    )
+    jcamp = cfg.get("format") == "jcamp" or is_jcamp_path(cfg["path"])
+    kwargs: dict = {
+        "as_overlay": as_overlay,
+        "title": cfg["path"].stem,
+        "force_jcamp": jcamp,
+    }
+    if not jcamp:
+        kwargs.update(
+            x_col=cfg["x_col"],
+            y_col=cfg["y_col"],
+            x_unit=cfg["x_unit"],
+            y_unit=cfg["y_unit"],
+        )
+    _load_from_path(state, cfg["path"], **kwargs)
     if not as_overlay and not state.error:
         state.prominence = float(cfg["prominence"])
         state.baseline_degree = int(cfg["baseline_degree"])
@@ -341,6 +364,14 @@ def create_app() -> WorkbenchState:
             state.error = f"File not found: {p}"
             refresh_ui()
             return
+        if is_jcamp_path(p):
+            state.status = (
+                f"{p.name}: JCAMP-DX detected — units come from file headers "
+                "(column mapping applies to CSV only)."
+            )
+            state.error = ""
+            refresh_ui()
+            return
         headers = sniff_csv_header(p)
         guess = guess_column_mapping(headers)
         state.headers = headers
@@ -410,19 +441,23 @@ def create_app() -> WorkbenchState:
         )
         await e.file.save(tmp)
         widgets["path_input"].value = str(tmp)
-        on_sniff()
-        on_load_path()
+        if is_jcamp_path(tmp):
+            _load_from_path(state, tmp, force_jcamp=True)
+            refresh_ui()
+        else:
+            on_sniff()
+            on_load_path()
 
     with ui.row().classes("w-full q-px-md q-gutter-md items-start no-wrap"):
         with ui.card().classes("col-12 col-md-5"):
             ui.label("1 · Load spectrum").classes("text-subtitle1")
             ui.label(
-                "CSV-first. Synthetic fixtures are labeled — no compound ID."
+                "CSV-first; also .jdx/.dx (JCAMP-DX via MIT jcamp). Synthetic fixtures are labeled — no compound ID."
             ).classes("text-caption text-grey-7")
 
             widgets["path_input"] = (
                 ui.input(
-                    label="CSV path",
+                    label="CSV / JCAMP path",
                     placeholder=str(FIXTURE_PRESETS["uvvis"]["path"]),
                     value=str(FIXTURE_PRESETS["uvvis"]["path"]),
                 )
@@ -434,10 +469,10 @@ def create_app() -> WorkbenchState:
                 ui.button("Load path", on_click=on_load_path).props("color=primary")
 
             ui.upload(
-                label="Or pick a CSV file",
+                label="Or pick a CSV / JCAMP file",
                 on_upload=on_upload,
                 auto_upload=True,
-            ).props('accept=".csv,text/csv"').classes("w-full")
+            ).props('accept=".csv,.jdx,.dx,text/csv,chemical/x-jcamp-dx"').classes("w-full")
 
             with ui.row().classes("q-gutter-sm q-mt-sm"):
                 ui.button(
@@ -448,9 +483,18 @@ def create_app() -> WorkbenchState:
                     "Load IR fixture",
                     on_click=lambda: on_fixture("ir"),
                 ).props("unelevated color=secondary")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button(
+                    "Load UV-Vis JCAMP",
+                    on_click=lambda: on_fixture("uvvis_jcamp"),
+                ).props("outline color=secondary")
+                ui.button(
+                    "Load IR JCAMP",
+                    on_click=lambda: on_fixture("ir_jcamp"),
+                ).props("outline color=secondary")
 
             ui.separator()
-            ui.label("Column mapping").classes("text-subtitle2")
+            ui.label("Column mapping (CSV only)").classes("text-subtitle2")
             with ui.row().classes("w-full q-gutter-sm"):
                 widgets["x_col_input"] = ui.input(
                     label="X column (name or index)", value="wavelength_nm"
@@ -495,7 +539,7 @@ def create_app() -> WorkbenchState:
             ui.separator()
             ui.label("3 · Overlay second spectrum").classes("text-subtitle1")
             widgets["overlay_path_input"] = ui.input(
-                label="Overlay CSV path (optional)",
+                label="Overlay CSV / JCAMP path (optional)",
                 placeholder="Second spectrum path…",
             ).classes("w-full")
             with ui.row().classes("q-gutter-sm"):

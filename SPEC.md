@@ -6,10 +6,12 @@
 |--------|----------------|
 | `Spectrum` | x (nm \| cm⁻¹), y (A \| %T \| intensity), title/meta |
 | `ingest_csv` | CSV primary; column index or header name |
+| `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers |
+| `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
 | `find_peaks` | `scipy.signal.find_peaks`, configurable prominence |
 | `baseline_polynomial` | poly fit / subtract |
 | `overlay` / `stack` | multi-spectrum helpers |
-| JCAMP | stub (`NotImplementedError`) only |
+| JCAMP advanced | Planned (multi-block / certification) |
 
 ## ChemSpec layer
 
@@ -19,7 +21,8 @@
 
 ## Primary format
 
-CSV with column mapping. Fixtures: synthetic UV-Vis + IR.
+CSV with column mapping (primary). JCAMP-DX basic (`.jdx`/`.dx`) via MIT `jcamp`.
+Fixtures: synthetic UV-Vis + IR (CSV and JCAMP).
 
 ## Non-goals
 
