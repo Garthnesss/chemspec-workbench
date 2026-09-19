@@ -9,7 +9,8 @@
 | `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers |
 | `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
 | `find_peaks` | `scipy.signal.find_peaks`, configurable prominence |
-| `baseline_polynomial` | poly fit / subtract |
+| `baseline_polynomial` | poly fit / subtract (always available) |
+| `baseline_correct` | dispatch: polynomial default; optional pybaselines `asls` / `mpls` (`[baselines]`, BSD-3) |
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
 | `export_peaks` | `peaks_to_csv` peak table serialization |
@@ -22,6 +23,7 @@
 - Matplotlib plot demo: `chemspec/plot_demo.py`
 - NiceGUI + Plotly MVP: optional `[ui]` extra (`python -m chemspec.ui_app`); core demos run without it
   - Peak CSV download, A↔%T display toggle, folder waterfall
+  - Baseline method picker (polynomial + optional AsLS/MPLS)
 
 ## Primary format
 
@@ -31,3 +33,4 @@ Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` stack de
 ## Non-goals
 
 Hardware, compound libraries, NMR/FID, RTL-SDR, clinical claims, SaaS.
+Baseline tools correct continuum only — **no compound-ID claims**.
