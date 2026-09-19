@@ -50,3 +50,19 @@ def test_fixture_presets_exist() -> None:
 def test_axis_labels() -> None:
     assert axis_label("nm", "A") == ("Wavelength (nm)", "Absorbance")
     assert "cm" in axis_label("cm-1", "intensity")[0]
+
+
+def test_waterfall_fixture_dir_exists() -> None:
+    from chemspec.ui_helpers import WATERFALL_FIXTURE_DIR
+
+    assert WATERFALL_FIXTURE_DIR.is_dir()
+    csvs = list(WATERFALL_FIXTURE_DIR.glob("*.csv"))
+    assert len(csvs) >= 3
+
+
+def test_peak_export_filename() -> None:
+    from chemspec.ui_helpers import peak_export_filename
+
+    assert peak_export_filename("uvvis synthetic") == "uvvis_synthetic_peaks.csv"
+    assert peak_export_filename(None) == "peaks.csv"
+    assert peak_export_filename("") == "peaks.csv"

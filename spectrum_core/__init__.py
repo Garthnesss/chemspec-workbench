@@ -5,6 +5,14 @@ from spectrum_core.ingest import ingest, ingest_csv, ingest_jcamp, is_jcamp_path
 from spectrum_core.peaks import find_peaks, Peak
 from spectrum_core.baseline import baseline_polynomial
 from spectrum_core.overlay import overlay, stack
+from spectrum_core.units import (
+    absorbance_to_percent_t,
+    can_convert_y,
+    convert_spectrum_y,
+    percent_t_to_absorbance,
+)
+from spectrum_core.export_peaks import PEAK_CSV_FIELDS, peaks_to_csv
+from spectrum_core.folder import folder_waterfall, ingest_folder, list_spectrum_files
 
 __all__ = [
     "Spectrum",
@@ -19,6 +27,15 @@ __all__ = [
     "baseline_polynomial",
     "overlay",
     "stack",
+    "absorbance_to_percent_t",
+    "percent_t_to_absorbance",
+    "convert_spectrum_y",
+    "can_convert_y",
+    "peaks_to_csv",
+    "PEAK_CSV_FIELDS",
+    "list_spectrum_files",
+    "ingest_folder",
+    "folder_waterfall",
 ]
 
 __version__ = "0.1.0"
