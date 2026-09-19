@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** scaffold Phase 1 (software-only core + demos + tests)
+**As of:** MVP interactive UI (NiceGUI) on `spectrum_core`
 
 ## Implemented
 
@@ -10,18 +10,26 @@
 - `baseline_polynomial` — poly fit / subtract; baseline stored in `meta`
 - `overlay` / `stack` helpers for lists of spectra
 - Synthetic fixtures: `fixtures/uvvis_synthetic.csv`, `fixtures/ir_synthetic.csv`
-- pytest: ingest loads fixtures; peaks within tolerance; baseline keeps peaks
+- pytest: ingest loads fixtures; peaks within tolerance; baseline keeps peaks; UI helper sniff/guess
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
+- **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
+  - CSV path + file picker; one-click UV-Vis / IR fixtures
+  - Header sniff + simple column / unit mapping
+  - Zoomable / pannable Plotly plot
+  - Prominence control + peak table
+  - Baseline on/off via `baseline_polynomial`
+  - Overlay second spectrum (path or fixture; matching `x_unit` required)
+- Optional extra: `pip install -e ".[ui]"` (`nicegui`, `plotly`)
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
 - JCAMP stub that raises `NotImplementedError` (explicit non-claim)
 
 ## Planned (not Implemented)
 
-- Interactive MVP UI (NiceGUI / Streamlit) with zoom/pan and column-mapping UI
 - Absorbance ↔ transmittance toggle helper
-- Peak table export from UI
+- Peak table export / CSV download from UI
 - Folder waterfall for time-stamped spectra
+- Multi-user / persisted sessions (UI is local single-session MVP)
 - JCAMP-DX real parser
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
 - Hardware / TeachSpec drivers
