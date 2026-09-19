@@ -1,0 +1,33 @@
+# AGENTS.md — ChemSpec Workbench (hard rules)
+
+These rules bind humans and coding agents. Prefer under-claiming.
+
+## Never
+
+1. **No compound-ID claims.** Do not say the software “identifies,” “matches a library,”
+   or “tells you what the sample is” unless a reviewed, cited library feature is
+   Implemented **and** STATUS.md says so. Synthetic fixtures are not real compounds.
+2. **No Planned-as-Done.** If it is not tested or demoed, it is Planned. Update STATUS.md.
+3. **No hardware / NMR / RTL claims** in Phase 0 marketing copy or README badges.
+4. **No clinical / regulated diagnostic language.**
+5. **Do not invent JCAMP support.** Stub is fine; claiming parse support is not.
+6. **Do not replace synthetic fixtures with unlabeled “real” spectra** without Chemistry review.
+
+## Always
+
+1. **CSV-first.** Primary ingest path is CSV with explicit column mapping.
+2. **Honest units.** Store and display `nm` / `cm-1` and `A` / `percent_T` / `intensity` correctly.
+3. **Label synthetics.** Fixture README and plot titles must say synthetic.
+4. **Keep `spectrum_core` reusable** — no ChemSpec-only assumptions baked into the model.
+5. **Tests for ingest / peaks / baseline** must stay green before claiming those features.
+6. **Follow Project Truth** — feelings we protect beat feature greed.
+
+## Preferred stack notes
+
+- Python + numpy/scipy; matplotlib for offline plots
+- NiceGUI/Streamlit are optional (`[ui]` extra); demos must run without them
+- Prefer fixing tests over deleting them
+
+## When unsure
+
+Under-claim, add a Planned row to STATUS.md, and ask Chemistry / JARTH for gates.
