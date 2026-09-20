@@ -1,0 +1,45 @@
+{
+  "disclaimer": "Educational presets only — not regulatory advice. Band edges are approximate teaching aids for lab EMI awareness. Always follow local spectrum rules; LabRF is receive-only.",
+  "presets": [
+    {
+      "id": "fm_broadcast",
+      "name": "FM broadcast (educational)",
+      "center_hz": 98000000,
+      "span_hz": 2048000,
+      "sample_rate_hz": 2048000,
+      "notes": "Approx. mid-band FM broadcast region — educational only."
+    },
+    {
+      "id": "ism_433",
+      "name": "433 MHz ISM (educational)",
+      "center_hz": 433920000,
+      "span_hz": 1024000,
+      "sample_rate_hz": 1024000,
+      "notes": "Common short-range ISM / remote region — educational only."
+    },
+    {
+      "id": "ism_915",
+      "name": "915 MHz ISM (educational)",
+      "center_hz": 915000000,
+      "span_hz": 2048000,
+      "sample_rate_hz": 2048000,
+      "notes": "Approx. 900 MHz ISM / IoT region — educational only."
+    },
+    {
+      "id": "ism_24",
+      "name": "2.4 GHz ISM (educational)",
+      "center_hz": 2440000000,
+      "span_hz": 2048000,
+      "sample_rate_hz": 2048000,
+      "notes": "Wi-Fi / Bluetooth / microwave ISM — educational only; RTL-SDR tuning limits apply."
+    },
+    {
+      "id": "aircraft_adsb",
+      "name": "1090 MHz ADS-B vicinity (educational)",
+      "center_hz": 1090000000,
+      "span_hz": 2048000,
+      "sample_rate_hz": 2048000,
+      "notes": "Power-spectrum awareness only — no demodulation in LabRF v1."
+    }
+  ]
+}

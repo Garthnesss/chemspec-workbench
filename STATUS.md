@@ -1,10 +1,10 @@
 # Status — ChemSpec Workbench
 
-**As of:** UV-Vis absorbance mapping fix + NiceGUI provenance strip
+**As of:** 2026-09-19 (PT) — LabRF Phase-1 mock scaffold + ChemSpec MVP
 
 ## Implemented
 
-- `spectrum_core.Spectrum` with `x` / `y`, `x_unit` (`nm` \| `cm-1`), `y_unit` (`A` \| `percent_T` \| `intensity`), title/meta
+- `spectrum_core.Spectrum` with `x` / `y`, `x_unit` (`nm` \| `cm-1` \| `Hz` \| `MHz`), `y_unit` (`A` \| `percent_T` \| `intensity` \| `dB`), title/meta
 - `ingest_csv(path, x_col, y_col, ...)` — header names or indices; `#` comments
 - `ingest_jcamp(path)` — JCAMP-DX via MIT `jcamp.readfile`; maps x/y + units from headers
 - `ingest(path)` — dispatches `.jdx`/`.dx` → JCAMP, else CSV
@@ -39,13 +39,22 @@
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
 - JCAMP-DX **basic** ingest Implemented (MIT `jcamp`); clear UI error on parse failure
 
+## LabRF Monitor (sibling app)
+
+- Package `labrf/` — mock IQ → FFT power spectrum → `Spectrum`; waterfall buffer; educational presets JSON
+- Minimal NiceGUI UI: `python -m labrf.ui_app` (port 8081); disclaimer banner; no dongle required
+- Optional `[labrf]` / `[rtlsdr]` → pyrtlsdr adapter with clear ImportError if missing
+- pytest: mock FFT, presets, waterfall, RTL missing-extra guard (CI without hardware)
+- Docs: `docs/family/labrf-monitor/status.md` (Phase 1 scaffold); AGENTS receive-only / no chem-ID / educational-presets rules
+- **Not** Implemented: live hardware-verified RTL captures, demodulation, TX, compliance claims
+
 ## Planned (not Implemented)
 
 - Multi-user / persisted sessions (UI is local single-session MVP)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
 - Hardware / TeachSpec drivers
-- NMR/FID and RTL-SDR adapters (beyond stubs)
+- NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
 - Chemistry sign-off on real (non-synthetic) example files
 - Time-axis metadata from filenames beyond sort-by-name / mtime (waterfall is stack offsets only)

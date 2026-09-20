@@ -34,3 +34,12 @@ Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` stack de
 
 Hardware, compound libraries, NMR/FID, RTL-SDR, clinical claims, SaaS.
 Baseline tools correct continuum only — **no compound-ID claims**.
+
+## LabRF Monitor (sibling, Phase 1 mock)
+
+- Package `labrf/`: mock IQ → FFT power spectrum → `spectrum_core.Spectrum` (`Hz`/`MHz`, `dB`)
+- Waterfall buffer; educational presets JSON (not regulatory advice)
+- Optional pyrtlsdr behind protocol (`[labrf]` / `[rtlsdr]`); CI uses mock only
+- UI: `python -m labrf.ui_app` (NiceGUI `[ui]` extra)
+- Non-goals: demodulation, TX, compliance claims, chemical ID
+

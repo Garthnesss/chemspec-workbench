@@ -1,11 +1,16 @@
-# ChemSpec Workbench
+# ChemSpec Workbench (+ LabRF Monitor)
 
 Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks,
 correct a simple baseline, overlay/stack traces, export peaks, A↔%T display, and
 folder waterfall. Built on a reusable `spectrum_core` package (Spectrum Family).
 
-**Honesty:** Phase 0 / MVP does **not** identify compounds, drive spectrometers, or
-read NMR/FID/RTL-SDR. Synthetic fixtures are labeled as synthetic.
+Sibling app **LabRF Monitor** (`labrf/`): receive-only RF power spectrum + waterfall
+from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness —
+**not** chemical ID, **not** regulatory advice, **no transmit**.
+
+**Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
+LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
+Synthetic fixtures are labeled as synthetic.
 
 ## Install
 
@@ -16,40 +21,41 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
-Optional baseline algorithms (BSD-3 [`pybaselines`](https://github.com/derb12/pybaselines)):
+Optional extras:
 
 ```bash
-pip install -e ".[baselines]"
-# UI + baselines:
+pip install -e ".[baselines]"          # pybaselines (BSD-3)
+pip install -e ".[ui]"                 # NiceGUI + Plotly
 pip install -e ".[ui,baselines]"
+pip install -e ".[labrf]"              # optional pyrtlsdr (hardware not required for CI)
 ```
 
-## Interactive UI (NiceGUI)
+## ChemSpec interactive UI (NiceGUI)
 
 ```bash
 pip install -e ".[ui]"
-# or with tests + advanced baselines: pip install -e ".[dev,ui,baselines]"
 python -m chemspec.ui_app
 # or: chemspec-ui
 ```
 
-Then open **http://localhost:8080**. The app autoloads the UV-Vis synthetic
-fixture. You can:
+Then open **http://localhost:8080**.
 
-- Load a CSV or JCAMP-DX (`.jdx` / `.dx`) by path or file picker; sniff / map CSV columns
-- Zoom and pan the Plotly plot
-- Tune peak prominence and view the peak table
-- **Export the current peak table as CSV** (download button)
-- Toggle baseline correction with a **method picker** (polynomial default; optional AsLS / MPLS via pybaselines BSD-3)
-- **A ↔ %T display** when `y_unit` is absorbance or percent transmittance
-  (intensity cannot convert; invalid A / `%T ≤ 0` → NaN — see `spectrum_core.units`)
-- **Provenance strip** under the status line (source, units, baseline, peaks, version)
-- Default UV-Vis synthetic fixture / column sniff maps `y_unit` to absorbance (`A`)
-- Overlay a second spectrum (path or the other fixture; units must match)
-- **Folder waterfall** — load a folder of CSV/JCAMP into a stacked view
-  (`Demo waterfall fixture` uses `fixtures/waterfall/`)
+## LabRF Monitor (mock IQ UI)
 
-Core demos still run **without** `[ui]`.
+```bash
+pip install -e ".[ui]"
+python -m labrf.ui_app
+# or: python -m labrf
+# or: labrf-ui
+```
+
+Then open **http://localhost:8081**.
+
+- Educational presets (FM / ISM / …) with disclaimer banner
+- Capture mock spectrum / load `fixtures/labrf/mock_iq.npz`
+- Spectrum + simple waterfall heatmap + peak markers
+- Live RTL-SDR only if `pip install -e ".[labrf]"` **and** a dongle is present
+  (not required for tests or the mock UI)
 
 ## Test
 
@@ -57,53 +63,33 @@ Core demos still run **without** `[ui]`.
 pytest
 ```
 
-## Run demos (no UI)
+ChemSpec tests and LabRF mock tests (no dongle) should both pass.
 
-Peak table (CLI):
+## Run ChemSpec demos (no UI)
 
 ```bash
 python -m chemspec.demo
-python -m chemspec.demo --fixture ir
-# or: chemspec-demo --fixture uvvis
-```
-
-Matplotlib plot:
-
-```bash
-python chemspec/plot_demo.py
 python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
-```
-
-Core helpers (examples):
-
-```bash
-python -c "from spectrum_core import peaks_to_csv, find_peaks, ingest_csv; \
-s=ingest_csv('fixtures/uvvis_synthetic.csv', x_col='wavelength_nm', y_col='absorbance', x_unit='nm', y_unit='A'); \
-print(peaks_to_csv(find_peaks(s, prominence=0.15)))"
-
-python -c "from spectrum_core import folder_waterfall; \
-print([t.title for t in folder_waterfall('fixtures/waterfall', x_col='wavelength_nm', y_col='absorbance', x_unit='nm', y_unit='A')])"
 ```
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `spectrum_core/` | Shared Spectrum model, CSV + JCAMP ingest, peaks, baseline (`baseline_correct` / polynomial + optional pybaselines), overlay/stack, A↔%T, peak CSV export, folder waterfall |
-| `chemspec/` | Demos + NiceGUI MVP (`ui_app`, `ui_helpers` incl. provenance + column guess) |
-| `fixtures/` | Synthetic UV-Vis + IR CSVs and JCAMP-DX (`.jdx`/`.dx`); `waterfall/` demo folder |
-| `tests/` | pytest coverage for ingest / JCAMP / peaks / baseline / units / export / folder / UI helpers |
+| `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks, baseline, overlay/stack, folder waterfall |
+| `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
+| `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, waterfall buffer, presets, optional RTL-SDR stub, NiceGUI UI |
+| `fixtures/` | Synthetic UV-Vis/IR + `waterfall/` + `labrf/mock_iq.npz` |
+| `tests/` | pytest (ChemSpec + LabRF mock; no hardware) |
+| `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 
 ## Docs
 
-- `PROJECT_TRUTH.md` — goal and feelings we protect
-- `SPEC.md` — Phase 0 product surface
-- `ROADMAP.md` — phases
-- `STATUS.md` — Implemented vs Planned (honest)
-- `AGENTS.md` — hard rules for agents and humans
+- `PROJECT_TRUTH.md` / `SPEC.md` / `ROADMAP.md` / `STATUS.md` — ChemSpec
+- `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
+- `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
 
-## Non-goals (Phase 0 / MVP)
+## Non-goals
 
-Hardware drivers, NMR/FID, RTL-SDR, compound libraries / ID claims.
-Baseline correction (including pybaselines) does **not** identify compounds.
-JCAMP-DX basic ingest is Implemented (MIT `jcamp`); advanced JCAMP features remain Planned.
+Hardware drivers for ChemSpec; compound libraries / ID claims; LabRF demodulation, TX,
+compliance certification, or chemical ID via RF.

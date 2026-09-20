@@ -70,9 +70,9 @@ def convert_spectrum_y(spectrum: Spectrum, target: YUnit) -> Spectrum:
             f"convert_spectrum_y target must be 'A' or 'percent_T', got {target!r}"
         )
     src = spectrum.y_unit
-    if src == "intensity":
+    if src in ("intensity", "dB"):
         raise ValueError(
-            "cannot convert y_unit='intensity' ↔ A/%T without calibration; "
+            f"cannot convert y_unit={src!r} ↔ A/%T without calibration; "
             "load or map data as absorbance or percent transmittance first"
         )
     if src not in ("A", "percent_T"):
