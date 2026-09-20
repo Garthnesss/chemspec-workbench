@@ -87,7 +87,7 @@ Synthetic waterfall files are **not** real compounds.
 
 ```bash
 python -m labrf.ui_app   # http://localhost:8081
-python -m teachspec.demo  # synthetic optical peaks (no camera)
+python -m teachspec.demo  # or: teachspec-demo — synthetic optical peaks (no camera)
 ```
 
 1. Read the dismissible disclaimer card (educational presets ≠ regulatory advice).

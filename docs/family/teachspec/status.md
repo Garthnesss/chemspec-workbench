@@ -10,7 +10,7 @@
 - **Phase 0 software stub** (`teachspec/`):
   - pixel→nm linear + optional quadratic calibration; JSON save/load
   - `OpticalLiveFrame` → `spectrum_core.Spectrum` (calibrated path)
-  - synthetic CFL-like mock frames + CLI demo (`python -m teachspec.demo`)
+  - synthetic CFL-like mock frames + CLI demo (`teachspec-demo` / `python -m teachspec.demo`)
   - pytest (fit correctness, bad inputs, mock→Spectrum roundtrip, cal I/O)
 
 ## In progress
