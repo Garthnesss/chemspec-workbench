@@ -55,7 +55,9 @@
   **normalize** (max or area); invalid window/polyorder/length/mode raise **`ProcessingError`**
   (subclass of `SpectrumError`/`ValueError`) with clear scientific messages; session stores history;
   UI history list + smooth/normalize/baseline + reset to raw
-- **spectrum_core audit** — `docs/AUDIT_spectrum_core.md` (file-by-file notes + larger follow-ups)
+- **spectrum_core audit** — `docs/AUDIT_spectrum_core.md` (file-by-file notes + larger follow-ups);
+  `baseline_correct` / polynomial helpers raise **ProcessingError** (still ValueError subclass)
+- **README screenshot** — `docs/screenshots/chemspec-ethanol-ir.png` (NiceGUI + public ethanol IR; honest caption)
 - **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
 - Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene

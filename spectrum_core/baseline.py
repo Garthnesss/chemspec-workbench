@@ -6,6 +6,7 @@ from typing import Any
 
 import numpy as np
 
+from spectrum_core.errors import ProcessingError
 from spectrum_core.spectrum import Spectrum
 
 # Built-in method (no extra deps)
@@ -77,7 +78,7 @@ def baseline_polynomial(
         Fitted baseline is stored in ``meta['baseline']``.
     """
     if degree < 0:
-        raise ValueError("degree must be >= 0")
+        raise ProcessingError("degree must be >= 0")
 
     x = spectrum.x
     y = spectrum.y
@@ -85,13 +86,13 @@ def baseline_polynomial(
     if mask is not None:
         mask = np.asarray(mask, dtype=bool)
         if mask.shape != y.shape:
-            raise ValueError("mask shape must match y")
+            raise ProcessingError("mask shape must match y")
         use = finite & mask
     else:
         use = finite
 
     if int(np.count_nonzero(use)) <= degree:
-        raise ValueError(
+        raise ProcessingError(
             f"need more than {degree} points to fit degree-{degree} baseline"
         )
 
@@ -116,7 +117,7 @@ def _finite_xy(spectrum: Spectrum) -> tuple[np.ndarray, np.ndarray]:
     x = np.asarray(spectrum.x, dtype=float)
     y = np.asarray(spectrum.y, dtype=float)
     if not (np.isfinite(x).all() and np.isfinite(y).all()):
-        raise ValueError(
+        raise ProcessingError(
             "pybaselines methods require finite x and y (no NaN/Inf); "
             "clean the spectrum or use method='polynomial'"
         )
@@ -143,7 +144,7 @@ def _apply_pybaselines(
             kwargs["half_window"] = half_window
         baseline, params = fitter.mpls(y, **kwargs)
     else:  # pragma: no cover - guarded by caller
-        raise ValueError(f"unknown pybaselines method: {method!r}")
+        raise ProcessingError(f"unknown pybaselines method: {method!r}")
 
     corrected = spectrum.with_y(
         y - baseline,
@@ -202,8 +203,9 @@ def baseline_correct(
     ------
     ImportError
         If a pybaselines method is requested but ``pybaselines`` is not installed.
-    ValueError
-        If ``method`` is unknown or inputs are invalid for the chosen algorithm.
+    ProcessingError
+        If ``method`` is unknown or inputs are invalid for the chosen algorithm
+        (subclass of ``ValueError`` for backward-compatible handlers).
     """
     key = (method or METHOD_POLYNOMIAL).strip().lower()
     if key == METHOD_POLYNOMIAL:
@@ -213,7 +215,7 @@ def baseline_correct(
             spectrum, key, lam=lam, p=p, half_window=half_window
         )
     known = ", ".join(ALL_BASELINE_METHODS)
-    raise ValueError(
+    raise ProcessingError(
         f"unknown baseline method {method!r}; known: {known}. "
         f"Available now: {available_baseline_methods()}"
     )

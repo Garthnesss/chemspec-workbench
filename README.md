@@ -100,7 +100,11 @@ python -m teachspec.demo  # or: teachspec-demo — synthetic optical peaks (no c
 spectrometers. LabRF mock mode is **not** live RF until STATUS says hardware-verified.
 Folder waterfall is stack offsets only (sort by name/mtime) — no true time-axis metadata.
 
-Screenshot placeholder (optional local capture): `docs/screenshots/chemspec-ethanol-ir.png`
+![ChemSpec NiceGUI — public ethanol IR fixture](docs/screenshots/chemspec-ethanol-ir.png)
+
+*ChemSpec UI with the public PNNL/NIST ethanol IR JCAMP loaded (analysis / visualization only — **not** compound identification). Peak table shows geometric FWHM/area; y is intensity as ingested. Optional UV-Vis public fixtures (benzene / acetone / naphthalene) use log₁₀(ε) → intensity, not absorbance.*
+
+Capture locally: `python scripts/capture_chemspec_screenshot.py` (needs `[ui]` + selenium + Chrome).
 
 ## ChemSpec interactive UI (NiceGUI)
 

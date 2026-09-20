@@ -185,15 +185,16 @@ def _print_summary(result: dict) -> None:
     print()
     print(
         f"{'idx':>6}  {'x':>10}  {'y':>12}  {'prominence':>12}  "
-        f"{'FWHM':>12}  {'area':>12}"
+        f"{'FWHM':>12}  {'area':>12}  {'width_def'}"
     )
-    print("-" * 72)
+    print("-" * 88)
     for p in result["peaks"][:15]:
         fwhm_s = f"{p.fwhm:12.4f}" if p.fwhm == p.fwhm else f"{'nan':>12}"
         area_s = f"{p.area:12.4f}" if p.area == p.area else f"{'nan':>12}"
+        wdef = getattr(p, "width_definition", "") or ""
         print(
             f"{p.index:6d}  {p.x:10.1f}  {p.y:12.6g}  {p.prominence:12.6g}  "
-            f"{fwhm_s}  {area_s}"
+            f"{fwhm_s}  {area_s}  {wdef}"
         )
     if result["n_peaks"] > 15:
         print(f"  … {result['n_peaks'] - 15} more")
@@ -207,7 +208,8 @@ def _print_summary(result: dict) -> None:
     print()
     print(
         "Disclaimer: no compound identification. Peak x/y/FWHM/area are "
-        "geometric metrics on the loaded trace only."
+        "geometric metrics on the loaded trace only "
+        "(FWHM is prominence-relative half-max unless width_def says otherwise)."
     )
 
 
