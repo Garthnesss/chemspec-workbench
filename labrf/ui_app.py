@@ -17,7 +17,7 @@ from labrf.events import ThresholdEventLog
 from labrf.fft_spectrum import iq_to_spectrum
 from labrf.iq import DEFAULT_IQ_FIXTURE, ensure_default_fixture, load_iq_fixture
 from labrf.presets import PRESETS_DISCLAIMER, load_presets
-from labrf.stream import MockStreamGenerator, format_labrf_provenance
+from labrf.stream import MockStreamGenerator, format_labrf_provenance, format_stream_status
 from labrf.waterfall import WaterfallBuffer
 from spectrum_core import Peak, Spectrum, find_peaks
 
@@ -98,15 +98,22 @@ def _apply_preset(state: LabRfState, preset_id: str) -> None:
     state.sample_rate = p.sample_rate_hz
     state.source.configure(center_freq=state.center_hz, sample_rate=state.sample_rate)
     _rebuild_stream(state)
-    state.status = f"Preset: {p.name} @ {_format_mhz(p.center_hz)} MHz (educational)"
+    # Retune changes the MHz axis — drop prior rows so heatmap labels stay honest
+    state.waterfall.clear()
+    state.status = (
+        f"Preset: {p.name} @ {_format_mhz(p.center_hz)} MHz "
+        "(educational · waterfall cleared)"
+    )
     state.error = ""
 
 
-def _ingest_spectrum(state: LabRfState, spec: Spectrum) -> None:
+def _ingest_spectrum(state: LabRfState, spec: Spectrum) -> bool:
+    """Ingest one spectrum frame. Returns True if waterfall reset on axis change."""
     state.spectrum = spec
     state.peaks = find_peaks(spec, prominence=state.prominence)
-    state.waterfall.push(spec)
+    axis_reset = state.waterfall.push(spec)
     state.event_log.check(spec, state.peaks)
+    return axis_reset
 
 
 def _capture_mock(state: LabRfState) -> None:
@@ -125,13 +132,17 @@ def _stream_tick(state: LabRfState) -> None:
     """One streaming step — called by NiceGUI timer (no sleep here)."""
     if not state.streaming:
         return
+    # configure is a no-op when tune unchanged (avoids seed thrash every tick)
     state.source.configure(center_freq=state.center_hz, sample_rate=state.sample_rate)
     frame = state.stream.next_frame()
     state.source_kind = frame.source_kind
-    _ingest_spectrum(state, frame.spectrum)
-    state.status = (
-        f"Streaming mock IQ — frame {frame.frame_index} "
-        f"(waterfall={len(state.waterfall)}, events={len(state.event_log)})"
+    axis_reset = _ingest_spectrum(state, frame.spectrum)
+    state.status = format_stream_status(
+        source_kind=frame.source_kind,
+        frame_index=frame.frame_index,
+        waterfall_frames=len(state.waterfall),
+        event_count=len(state.event_log),
+        axis_reset=axis_reset,
     )
     state.error = ""
 
@@ -416,14 +427,25 @@ def build_ui() -> None:
         ui.label("Streaming mock waterfall").classes("text-h6")
         ui.label(
             "Timer pulls successive synthetic IQ frames (noise/tone jitter). "
-            "No dongle required."
+            "Receive-only educational demo — no dongle, no transmit, no demodulation. "
+            "Retuning clears the waterfall so frequency labels stay honest."
         ).classes("text-caption")
         stream_btn_row = ui.row().classes("gap-2 items-center")
 
         def start_stream() -> None:
             sync_tune_from_inputs()
             state.streaming = True
-            state.status = "Streaming started (mock IQ)"
+            kind = state.source_kind
+            if kind == "fixture":
+                state.status = (
+                    "Streaming started — synthetic fixture IQ "
+                    "(receive-only educational demo)"
+                )
+            else:
+                state.status = (
+                    "Streaming started — synthetic mock IQ "
+                    "(receive-only educational demo)"
+                )
             refresh()
 
         def stop_stream() -> None:

@@ -30,22 +30,26 @@ class WaterfallBuffer:
     def clear(self) -> None:
         self._frames.clear()
 
-    def push(self, spectrum: Spectrum) -> None:
-        """Append a spectrum frame (oldest dropped when full)."""
-        if not self._frames:
-            self._frames.append(spectrum)
-            return
-        first = self._frames[0]
-        if spectrum.x_unit != first.x_unit:
-            raise ValueError(
-                f"x_unit mismatch: {spectrum.x_unit!r} vs {first.x_unit!r}"
+    def push(self, spectrum: Spectrum) -> bool:
+        """Append a spectrum frame (oldest dropped when full).
+
+        Returns ``True`` if the buffer was cleared first because the new
+        frame's frequency axis differs (unit, length, or x values). That
+        keeps heatmap x-labels honest after a retune mid-stream.
+        """
+        reset = False
+        if self._frames:
+            first = self._frames[0]
+            axis_ok = (
+                spectrum.x_unit == first.x_unit
+                and len(spectrum.x) == len(first.x)
+                and np.allclose(spectrum.x, first.x, rtol=0.0, atol=1e-9, equal_nan=True)
             )
-        if len(spectrum.x) != len(first.x):
-            raise ValueError(
-                f"x length mismatch: {len(spectrum.x)} vs {len(first.x)}; "
-                "waterfall frames must share FFT size / axis"
-            )
+            if not axis_ok:
+                self._frames.clear()
+                reset = True
         self._frames.append(spectrum)
+        return reset
 
     def extend(self, spectra: Iterable[Spectrum]) -> None:
         for s in spectra:

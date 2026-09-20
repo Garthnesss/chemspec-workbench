@@ -99,14 +99,26 @@ def evaluate_threshold(
 
 @dataclass
 class ThresholdEventLog:
-    """Append-only event log with optional CSV export."""
+    """Append-only event log with optional CSV export.
+
+    ``maxlen`` caps retained events (oldest dropped) so long mock streams
+    cannot grow the log without bound. ``None`` means uncapped.
+    """
 
     threshold_db: float = -20.0
     events: list[ThresholdEvent] = field(default_factory=list)
     use_peaks: bool = True
     use_max_bin: bool = True
+    maxlen: int | None = 500
     # Deduplicate same-kind events within a frame when levels already logged
     # at identical freq — keep simple: append all evaluate results.
+
+    def __post_init__(self) -> None:
+        if self.maxlen is not None and int(self.maxlen) < 1:
+            raise ValueError("maxlen must be >= 1 or None")
+        if self.maxlen is not None:
+            self.maxlen = int(self.maxlen)
+        self._trim()
 
     def set_threshold(self, threshold_db: float) -> None:
         self.threshold_db = float(threshold_db)
@@ -116,6 +128,13 @@ class ThresholdEventLog:
 
     def __len__(self) -> int:
         return len(self.events)
+
+    def _trim(self) -> None:
+        if self.maxlen is None:
+            return
+        overflow = len(self.events) - self.maxlen
+        if overflow > 0:
+            del self.events[:overflow]
 
     def check(
         self,
@@ -134,6 +153,7 @@ class ThresholdEventLog:
             use_max_bin=self.use_max_bin,
         )
         self.events.extend(new)
+        self._trim()
         return new
 
     def rows(self) -> list[dict[str, object]]:

@@ -9,7 +9,11 @@ from labrf.backend import MockIqSource
 from labrf.events import ThresholdEventLog, evaluate_threshold
 from labrf.fft_spectrum import iq_to_spectrum
 from labrf.iq import generate_synthetic_iq
-from labrf.stream import MockStreamGenerator, format_labrf_provenance
+from labrf.stream import (
+    MockStreamGenerator,
+    format_labrf_provenance,
+    format_stream_status,
+)
 from spectrum_core import find_peaks
 from spectrum_core.spectrum import Spectrum
 
@@ -163,3 +167,45 @@ def test_format_labrf_provenance():
     assert "mode=streaming" in line
     assert "threshold=-10.0 dB" in line
     assert "events=2" in line
+
+
+def test_event_log_maxlen_drops_oldest():
+    log = ThresholdEventLog(threshold_db=-200.0, maxlen=5)
+    spec = _tone_spectrum()
+    for _ in range(8):
+        log.check(spec, peaks=None)
+    assert len(log) == 5
+    # Uncapped still allowed
+    log2 = ThresholdEventLog(threshold_db=-200.0, maxlen=None)
+    for _ in range(3):
+        log2.check(spec, peaks=None)
+    assert len(log2) == 3
+
+
+def test_event_log_rejects_bad_maxlen():
+    with pytest.raises(ValueError, match="maxlen"):
+        ThresholdEventLog(maxlen=0)
+
+
+def test_format_stream_status_mock_and_fixture():
+    mock_line = format_stream_status(
+        source_kind="mock",
+        frame_index=3,
+        waterfall_frames=10,
+        event_count=2,
+    )
+    assert "synthetic mock IQ" in mock_line
+    assert "frame 3" in mock_line
+    assert "receive-only demo" in mock_line
+    assert "waterfall reset" not in mock_line
+
+    fix_line = format_stream_status(
+        source_kind="fixture",
+        frame_index=1,
+        waterfall_frames=4,
+        event_count=0,
+        axis_reset=True,
+    )
+    assert "synthetic fixture IQ" in fix_line
+    assert "waterfall reset (retune)" in fix_line
+    assert "receive-only demo" in fix_line

@@ -153,3 +153,32 @@ def format_labrf_provenance(
         parts.append(f"threshold={threshold_db:.1f} dB")
         parts.append(f"events={int(event_count)}")
     return " · ".join(parts)
+
+
+def format_stream_status(
+    *,
+    source_kind: str,
+    frame_index: int,
+    waterfall_frames: int,
+    event_count: int,
+    axis_reset: bool = False,
+) -> str:
+    """Short educational status line for mock / fixture streaming (no TX claims)."""
+    kind = source_kind if source_kind in {"mock", "fixture", "rtlsdr"} else "mock"
+    if kind == "fixture":
+        label = "Streaming synthetic fixture IQ"
+    elif kind == "rtlsdr":
+        label = "Streaming RTL-SDR IQ"
+    else:
+        label = "Streaming synthetic mock IQ"
+    parts = [
+        f"{label} — frame {int(frame_index)}",
+        f"waterfall={int(waterfall_frames)}",
+        f"events={int(event_count)}",
+    ]
+    if axis_reset:
+        parts.append("waterfall reset (retune)")
+    # Keep receive-only honesty visible in the live status strip
+    if kind in {"mock", "fixture"}:
+        parts.append("receive-only demo")
+    return " · ".join(parts)
