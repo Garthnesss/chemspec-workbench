@@ -58,6 +58,8 @@ from chemspec.ui_helpers import (
     sniff_csv_header,
 )
 
+from chemspec.plot3d import build_surface_figure
+
 def _package_version() -> str:
     try:
         from spectrum_core import __version__ as _v
@@ -119,6 +121,7 @@ class WorkbenchState:
         self.waterfall: list[Spectrum] = []
         self.waterfall_folder: str = ""
         self.waterfall_mode: bool = False
+        self.view_3d: bool = False  # optional Plotly surface (series index ≠ time)
         self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic / public fixture to begin."
         self.error: str = ""
         self.diagnostics_text: str = ""
@@ -448,6 +451,10 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
     if state.waterfall_mode and state.waterfall:
         first = state.waterfall[0]
         xlabel, ylabel = axis_label(first.x_unit, first.y_unit)
+        # Optional 3-D surface: series index ≠ time; needs ≥2 traces (docs/viz3d.md)
+        if state.view_3d and len(state.waterfall) >= 2:
+            return build_surface_figure(state.waterfall, xlabel, ylabel)
+        warn_3d = state.view_3d and len(state.waterfall) < 2
         for i, tr in enumerate(state.waterfall):
             color = _PLOTLY_COLORS[i % len(_PLOTLY_COLORS)]
             fig.add_trace(
@@ -459,27 +466,39 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
                     line=dict(width=1.4, color=color),
                 )
             )
+        title = f"ChemSpec — waterfall ({len(state.waterfall)} stacked)"
+        if warn_3d:
+            title += " — 3-D needs ≥2 traces"
         fig.update_layout(
-            title=f"ChemSpec — waterfall ({len(state.waterfall)} stacked)",
+            title=title,
             xaxis_title=xlabel,
             yaxis_title=f"{ylabel} (+ stack offset)",
             template="plotly_white",
             height=500,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
-            margin=dict(l=60, r=20, t=60, b=60),
+            margin=dict(l=60, r=20, t=60, b=80 if warn_3d else 60),
             dragmode="zoom",
         )
         if first.x_unit == "cm-1":
             fig.update_xaxes(autorange="reversed")
+        footer = (
+            "Fixtures are labeled synthetic or public — ChemSpec makes no compound-ID claims. "
+            "Stack offsets are for display only."
+        )
+        if warn_3d:
+            footer = (
+                "3-D surface needs at least two folder traces. "
+                "Series index is folder order — not a time axis. "
+                "ChemSpec makes no compound-ID claims."
+            )
         fig.add_annotation(
-            text="Fixtures are labeled synthetic or public — ChemSpec makes no compound-ID claims. "
-            "Stack offsets are for display only.",
+            text=footer,
             xref="paper",
             yref="paper",
             x=0,
-            y=-0.16,
+            y=-0.18 if warn_3d else -0.16,
             showarrow=False,
-            font=dict(size=11, color="#666"),
+            font=dict(size=11, color="#888" if warn_3d else "#666"),
             xanchor="left",
         )
         return fig
@@ -706,6 +725,24 @@ def create_app() -> WorkbenchState:
             widgets["overlay_path_input"].value = state.overlay_path
         if state.waterfall_folder:
             widgets["folder_input"].value = state.waterfall_folder
+        if "view_3d" in widgets:
+            if bool(widgets["view_3d"].value) != state.view_3d:
+                widgets["view_3d"].value = state.view_3d
+            n_wf = len(state.waterfall) if state.waterfall_mode else 0
+            widgets["view_3d"].set_enabled(n_wf >= 2)
+            if "view_3d_hint" in widgets:
+                if n_wf >= 2:
+                    widgets["view_3d_hint"].set_text(
+                        "Series index = folder order (not time). No compound ID."
+                    )
+                elif state.waterfall_mode:
+                    widgets["view_3d_hint"].set_text(
+                        "3-D surface needs ≥2 folder traces (disabled)."
+                    )
+                else:
+                    widgets["view_3d_hint"].set_text(
+                        "Load a folder waterfall (≥2 traces) to enable 3-D surface."
+                    )
         if "history_list" in widgets:
             lines = state.history.summary_lines()
             widgets["history_list"].set_text(
@@ -1067,6 +1104,26 @@ def create_app() -> WorkbenchState:
         state.error = ""
         refresh_ui()
 
+    def on_view_3d_change() -> None:
+        new_val = bool(widgets["view_3d"].value)
+        if new_val == state.view_3d:
+            return  # ignore refresh_ui value sync
+        state.view_3d = new_val
+        n = len(state.waterfall) if state.waterfall_mode else 0
+        if state.view_3d and n < 2:
+            state.status = (
+                "3-D surface needs ≥2 waterfall traces "
+                "(series index ≠ time; no compound ID)."
+            )
+        elif state.view_3d and n >= 2:
+            state.status = (
+                f"3-D surface on — {n} traces (series index, not time; "
+                "stack offsets stripped). No compound ID."
+            )
+        elif state.waterfall_mode:
+            state.status = f"2-D waterfall ({n} stacked)"
+        refresh_ui()
+
     async def on_upload(e) -> None:  # noqa: ANN001 — NiceGUI UploadEventArguments
         name = e.file.name
         suffix = Path(name).suffix or ".csv"
@@ -1347,7 +1404,8 @@ def create_app() -> WorkbenchState:
             ui.label("4 · Folder waterfall").classes("text-subtitle1")
             ui.label(
                 "Load a folder of CSV/JCAMP into a stacked waterfall "
-                "(uses spectrum_core.stack)."
+                "(uses spectrum_core.stack). Optional 3-D surface: "
+                "series index ≠ time; no compound ID — see docs/viz3d.md."
             ).classes("text-caption text-grey-7")
             widgets["folder_input"] = ui.input(
                 label="Folder path",
@@ -1364,6 +1422,15 @@ def create_app() -> WorkbenchState:
                 ui.button("Clear waterfall", on_click=on_clear_waterfall).props(
                     "flat"
                 )
+            widgets["view_3d"] = ui.checkbox(
+                "3-D surface view (series index ≠ time)",
+                value=state.view_3d,
+                on_change=on_view_3d_change,
+            )
+            widgets["view_3d"].set_enabled(False)
+            widgets["view_3d_hint"] = ui.label(
+                "Load a folder waterfall (≥2 traces) to enable 3-D surface."
+            ).classes("text-caption text-grey-7")
 
         with ui.card().classes("col-12 col-md-7"):
             ui.label(

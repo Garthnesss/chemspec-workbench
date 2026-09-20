@@ -32,6 +32,7 @@
 - [x] Absorbance ↔ %T helper (core + UI display toggle; limits documented)
 - [x] Folder waterfall / stacked view (`ingest_folder` + `stack`)
 - [x] Optional 3-D surface for folder traces (`spectra_to_surface`; series index ≠ time)
+- [x] NiceGUI folder-waterfall **3-D surface** checkbox (`state.view_3d` → `plot3d.build_surface_figure`)
 - [x] Analysis session save/load (`.csw.json` / `spectrum_core.session`)
 - [x] Processing pipeline + history (`spectrum_core.processing`; UI 2a)
 
