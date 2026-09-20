@@ -5,6 +5,8 @@ not a transmitter.
 """
 
 from labrf.events import ThresholdEvent, ThresholdEventLog, evaluate_threshold
+from labrf.export_png import export_spectrum_png, export_waterfall_png
+from labrf.peak_hold import PeakHoldTracker
 from labrf.fft_spectrum import iq_to_spectrum
 from labrf.iq import generate_synthetic_iq, load_iq_fixture
 from labrf.presets import PRESETS_DISCLAIMER, load_presets
@@ -18,6 +20,9 @@ __all__ = [
     "load_iq_fixture",
     "iq_to_spectrum",
     "WaterfallBuffer",
+    "PeakHoldTracker",
+    "export_spectrum_png",
+    "export_waterfall_png",
     "load_presets",
     "PRESETS_DISCLAIMER",
     "ThresholdEvent",

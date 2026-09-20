@@ -16,6 +16,7 @@
 - Presets (editable JSON): FM broadcast, ISM bands, etc. — **educational presets, not regulatory advice**  
 - Optional RTL-SDR adapter behind protocol; clear error if `[labrf]` / `[rtlsdr]` missing  
 - Threshold → log timestamped events (peak / max bin); CSV export — **Done (mock)**
+- Peak-hold / max-hold + PNG export of spectrum/waterfall — **Done (mock / educational)**
 
 ## Non-goals v1
 

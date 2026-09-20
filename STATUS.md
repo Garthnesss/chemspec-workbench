@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Public UV-Vis log₁₀(ε) Y-caption + A↔%T warn; NIST fixtures + JCAMP unit mapping; TeachSpec Phase-0 + Folder-waterfall + CI/LabRF/MVP polish
+**As of:** 2026-09-19 (PT) — LabRF peak-hold/max-hold + PNG export (mock); Public UV-Vis log₁₀(ε) honesty; TeachSpec Phase-0 + CI polish
 
 ## Implemented
 
@@ -92,10 +92,12 @@
   - Compatible with **NiceGUI 3.x** (disclaimer uses dismissible `ui.card`, not removed `ui.banner`); CI/API-drift guards
   - **Streaming mock waterfall** (Start/Stop) with successive synthetic IQ frames
   - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export; maxlen-capped)
+  - **Peak-hold / max-hold** (`PeakHoldTracker`) + spectrum overlay; resets on retune
+  - **PNG export** of spectrum / waterfall (matplotlib Agg; educational honesty footer; UI download)
   - Waterfall auto-reset on retune; mock configure no-op when unchanged; vectorized fixture ring-read
   - Quick preset jump buttons, Load mock fixture, provenance strip, clearer dismissible disclaimer card
 - Optional `[labrf]` / `[rtlsdr]` → pyrtlsdr adapter with clear ImportError if missing
-- pytest: mock FFT, presets, waterfall, **stream generator**, **threshold logic**, RTL missing-extra guard
+- pytest: mock FFT, presets, waterfall, **stream generator**, **threshold logic**, **peak-hold / PNG export**, RTL missing-extra guard
 - Docs: `docs/family/labrf-monitor/status.md`; AGENTS receive-only / no chem-ID / educational-presets rules
 - **Not** Implemented: live hardware-verified RTL captures, demodulation, TX, compliance claims
 
