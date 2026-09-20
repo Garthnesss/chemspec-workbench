@@ -1,4 +1,6 @@
-# Fixtures (synthetic)
+# Fixtures
+
+## Synthetic (teaching / demo)
 
 These files are **synthetic** teaching/demo data. They are **not** measured spectra
 of real compounds and must never be described as such.
@@ -20,7 +22,6 @@ JCAMP files are minimal XYDATA text (no huge binary). Use
 Folder waterfall demos: `spectrum_core.folder_waterfall("fixtures/waterfall", ...)`
 or the UI **Demo waterfall fixture** button.
 
-
 CSV `#` comments may include `x_unit=` / `y_unit=` hints. UI `guess_column_mapping` maps absorbance-named columns (`absorbance`, `A`, `AU`, `Abs`, `OD`) to `y_unit=A`; IR intensity stays intensity.
 
 **Honesty:** ChemSpec Workbench does not claim compound identity from these
@@ -30,3 +31,20 @@ CSV `#` comments may include `x_unit=` / `y_unit=` hints. UI `guess_column_mappi
 
 LabRF IQ fixtures: see `fixtures/labrf/README.md`. Synthetic only — not live captures.
 
+## Public (NIST / PNNL — real IR)
+
+Real measured IR JCAMP-DX files with **clear redistribution rights** live in
+`fixtures/public/`. Prefer spectra labeled **Owner: Public domain** (PNNL under
+IARPA). Coblentz Society spectra are **not** bundled.
+
+| File | Compound (NIST label) | CAS | Owner |
+|------|----------------------|-----|--------|
+| `public/ethanol_ir_pnnl.jdx` | Ethanol | 64-17-5 | Public domain (PNNL / IARPA) |
+| `public/methanol_ir_pnnl.jdx` | Methanol | 67-56-1 | Public domain (PNNL / IARPA) |
+| `public/toluene_ir_pnnl.jdx` | Toluene | 108-88-3 | Public domain (PNNL / IARPA) |
+
+Full URLs, license quotes, NIST disclaimer, and retrieval date:
+**`fixtures/public/SOURCES.md`**.
+
+UI: **Load public: Ethanol IR** / Methanol / Toluene (alongside synthetic buttons).
+ChemSpec still makes **no compound-ID claims** when these are loaded.

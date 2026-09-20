@@ -95,7 +95,7 @@ class WorkbenchState:
         self.waterfall: list[Spectrum] = []
         self.waterfall_folder: str = ""
         self.waterfall_mode: bool = False
-        self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic fixture to begin."
+        self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic / public fixture to begin."
         self.error: str = ""
 
 
@@ -323,7 +323,7 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
         if first.x_unit == "cm-1":
             fig.update_xaxes(autorange="reversed")
         fig.add_annotation(
-            text="Synthetic fixtures are not real compounds — no ID claims. "
+            text="Fixtures are labeled synthetic or public — ChemSpec makes no compound-ID claims. "
             "Stack offsets are for display only.",
             xref="paper",
             yref="paper",
@@ -422,7 +422,7 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
     if work.x_unit == "cm-1":
         fig.update_xaxes(autorange="reversed")
     fig.add_annotation(
-        text="Synthetic fixtures are not real compounds — no ID claims.",
+        text="Fixtures are labeled synthetic or public — ChemSpec makes no compound-ID claims.",
         xref="paper",
         yref="paper",
         x=0,
@@ -461,7 +461,7 @@ def create_app() -> WorkbenchState:
 
     with ui.header().classes("items-center justify-between"):
         ui.label("ChemSpec Workbench").classes("text-h5")
-        ui.label("MVP · spectrum_core · synthetic-safe").classes("text-caption")
+        ui.label("MVP · spectrum_core · synthetic + public fixtures").classes("text-caption")
 
     status_label = ui.label(state.status).classes("text-body2 q-px-md q-pt-sm")
     provenance_label = ui.label("").classes(
@@ -686,7 +686,7 @@ def create_app() -> WorkbenchState:
             ui.label("1 · Load spectrum").classes("text-subtitle1")
             ui.label(
                 "CSV-first; also .jdx/.dx (JCAMP-DX via MIT jcamp). "
-                "Synthetic fixtures are labeled — no compound ID."
+                "Synthetic and public NIST/PNNL fixtures are labeled — no compound ID."
             ).classes("text-caption text-grey-7")
 
             widgets["path_input"] = (
@@ -728,6 +728,26 @@ def create_app() -> WorkbenchState:
                     "Load IR JCAMP",
                     on_click=lambda: on_fixture("ir_jcamp"),
                 ).props("outline color=secondary")
+
+            ui.label("Public IR (NIST / PNNL · Owner: Public domain)").classes(
+                "text-caption text-grey-8 q-mt-sm"
+            )
+            with ui.row().classes("q-gutter-sm"):
+                ui.button(
+                    "Load public: Ethanol IR",
+                    on_click=lambda: on_fixture("public_ethanol_ir"),
+                ).props("unelevated color=primary")
+                ui.button(
+                    "Load public: Methanol IR",
+                    on_click=lambda: on_fixture("public_methanol_ir"),
+                ).props("unelevated color=primary")
+                ui.button(
+                    "Load public: Toluene IR",
+                    on_click=lambda: on_fixture("public_toluene_ir"),
+                ).props("unelevated color=primary")
+            ui.label(
+                "Attribution: see fixtures/public/SOURCES.md — no compound-ID claims."
+            ).classes("text-caption text-grey-7")
 
             ui.separator()
             ui.label("Column mapping (CSV only)").classes("text-subtitle2")

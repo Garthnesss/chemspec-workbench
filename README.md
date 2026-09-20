@@ -10,7 +10,7 @@ from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness 
 
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
-Synthetic fixtures are labeled as synthetic.
+Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR fixtures (Owner: Public domain) live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims.
 
 ## Install
 
@@ -86,7 +86,7 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks, baseline, overlay/stack, folder waterfall |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
-| `fixtures/` | Synthetic UV-Vis/IR + `waterfall/` + `labrf/mock_iq.npz` |
+| `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
 | `tests/` | pytest (ChemSpec + LabRF mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 

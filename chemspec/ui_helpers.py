@@ -10,6 +10,7 @@ from spectrum_core.spectrum import XUnit, YUnit
 
 _ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = _ROOT / "fixtures"
+PUBLIC_FIXTURES_DIR = FIXTURES_DIR / "public"
 WATERFALL_FIXTURE_DIR = FIXTURES_DIR / "waterfall"
 
 FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
@@ -45,6 +46,30 @@ FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
         "path": FIXTURES_DIR / "ir_synthetic.dx",
         "format": "jcamp",
         "prominence": 0.15,
+        "baseline_degree": 1,
+    },
+    "public_ethanol_ir": {
+        "label": "Public: Ethanol IR (PNNL / NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "ethanol_ir_pnnl.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
+        "baseline_degree": 1,
+    },
+    "public_methanol_ir": {
+        "label": "Public: Methanol IR (PNNL / NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "methanol_ir_pnnl.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
+        "baseline_degree": 1,
+    },
+    "public_toluene_ir": {
+        "label": "Public: Toluene IR (PNNL / NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "toluene_ir_pnnl.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
         "baseline_degree": 1,
     },
 }
