@@ -34,3 +34,7 @@ Thumbs.db
 # Local secrets / scratch
 *.local
 scratch/
+
+# Tutorial scratch outputs
+ethanol_ir_walkthrough_out/
+examples/ethanol_ir_walkthrough_out/
