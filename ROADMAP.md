@@ -7,8 +7,8 @@
 | 2 | MVP UI | Done | Open/plot/peaks/baseline/overlay (NiceGUI) |
 | 3 | Waterfall + polish | Done | Folder stacks, peak CSV export, A↔%T |
 | 3b | Advanced baselines | Done | Optional pybaselines AsLS/MPLS + UI picker |
-| 3c | Absorbance + provenance | **Done (this branch)** | UV-Vis y_unit=A mapping; NiceGUI provenance strip |
-| 4 | Family handoff | Partial | LabRF mock demo polish in-repo; TeachSpec Phase-0 software stub Implemented; FID still design |
+| 3c | Absorbance + provenance | Done | UV-Vis y_unit=A mapping; NiceGUI provenance strip |
+| 4 | Family handoff | Partial | Public NIST UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio Done; LabRF mock polish; TeachSpec Phase-0 software stub; FID still design |
 
 ## Phase 1 checklist
 
@@ -41,3 +41,11 @@
 - [x] UI method dropdown (polynomial + asls + mpls when installed)
 - [x] Tests: polynomial always; pybaselines in `[dev]` for CI
 
+## Phase 4 checklist
+
+- [x] Public NIST UV-Vis fixtures (benzene / acetone / naphthalene) + SOURCES honesty (log₁₀(ε) ≠ absorbance)
+- [x] UV-Vis tutorial trio (walkthrough notebook + `.py` twins; pytest smoke, no nbconvert CI)
+- [x] LabRF mock demo polish in-repo (stream / threshold / peak-hold / PNG)
+- [x] TeachSpec Phase-0 software stub (cal + mock frames; no camera/CCD)
+- [ ] FID-NMR playground beyond design docs
+- [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures

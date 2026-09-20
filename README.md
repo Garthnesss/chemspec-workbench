@@ -75,7 +75,8 @@ python -m chemspec.ui_app   # http://localhost:8080
 ```
 
 1. Click **Load public: Ethanol IR** (PNNL/NIST JCAMP in `fixtures/public/`)
-   or **Load public: Benzene UV-Vis** (NIST WebBook; y is log ε → intensity, not A).
+   or **Load public: Benzene / Acetone / Naphthalene UV-Vis** (NIST WebBook;
+   y is log₁₀(ε) → intensity, **not** absorbance — A↔%T stays blocked with an explicit warn).
 2. Optional: turn on baseline, tweak prominence, note FWHM/area in the peak table.
 3. Optional: **Export peaks CSV / plot PNG** or save a `.csw.json` analysis session.
 4. **Folder waterfall:** click **Demo waterfall fixture** (or Load folder → `fixtures/waterfall/`)
