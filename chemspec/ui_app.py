@@ -628,6 +628,7 @@ def _peak_rows(state: WorkbenchState) -> list[dict[str, Any]]:
             "left_x": _round_or_none(p.left_boundary_x, 4),
             "right_x": _round_or_none(p.right_boundary_x, 4),
             "width_def": p.width_definition,
+            "baseline_ref": (p.baseline_reference_note or "")[:80],
         }
         for p in state.peaks
     ]
@@ -1516,11 +1517,22 @@ def create_app() -> WorkbenchState:
                         "field": "width_def",
                         "sortable": True,
                     },
+                    {
+                        "name": "baseline_ref",
+                        "label": "baseline ref",
+                        "field": "baseline_ref",
+                        "sortable": True,
+                    },
                 ],
                 rows=_peak_rows(state),
                 row_key="index",
                 pagination=10,
             ).classes("w-full")
+            ui.label(
+                "Peak contract: FWHM/area are prominence-relative. "
+                "Full baseline_reference_note (and all contract fields) also "
+                "ship in Export peaks CSV / session JSON."
+            ).classes("text-caption text-grey-7")
 
     # Friendly first paint: UV-Vis synthetic fixture
     _load_fixture(state, "uvvis")

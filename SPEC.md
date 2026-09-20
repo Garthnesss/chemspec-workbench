@@ -53,9 +53,9 @@ Versioned JSON (`format_version: 2`; v1 migrates on load) for reproducible analy
 | `peaks` | List of `{index,x,y,prominence,fwhm,area,width_definition,half_max_level,left_boundary_x,right_boundary_x,area_definition,baseline_reference_note}` (non-finite → JSON `null`) |
 | `notes` | Optional free-text string |
 | `provenance` | Snapshot (`source`, units, baseline, peak_count, `summary` line) |
-| `raw_data_hash` | SHA-256 of canonical x‖y encoding (computational identity) |
+| `raw_data_hash` | SHA-256 of canonical **arrays-only** x‖y encoding (units **not** included; see `analysis_fingerprint`) |
 | `source_path_hash` | Optional SHA-256 of UTF-8 `source_path` |
-| `analysis_fingerprint` | SHA-256 over identity fields (raw hash, units, processing, history name/params, peaks). **Excludes** history timestamps / notes wall-clock |
+| `analysis_fingerprint` | SHA-256 over identity fields (raw hash, **x_unit/y_unit**, processing, history name/params, peaks). **Excludes** history timestamps / notes wall-clock. Prefer this over `raw_data_hash` alone when units matter. |
 
 Prefer embedded arrays so reload works if the original path moves; `source_path` is retained for provenance. `spectrum` is the **raw** copy; replay `history` for the working spectrum. **Not** compound ID.
 

@@ -7,11 +7,14 @@ optional notes, and a provenance snapshot. ``spectrum`` is the raw copy;
 replay ``history`` for the working spectrum.
 
 **Computational identity (format_version ≥ 2).** Sessions carry
-``raw_data_hash`` (SHA-256 of a canonical x‖y encoding), optional
-``source_path_hash``, and ``analysis_fingerprint`` (SHA-256 over identity
-fields). Pipeline step *timestamps* remain in ``history`` for provenance but
-**do not** enter ``analysis_fingerprint`` — re-running the same ops later
-yields the same fingerprint.
+``raw_data_hash`` (SHA-256 of a canonical **arrays-only** x‖y encoding —
+**units are not** in this hash), optional ``source_path_hash``, and
+``analysis_fingerprint`` (SHA-256 over identity fields including ``x_unit`` /
+``y_unit``, normalized processing, history name/params, and peaks). Pipeline
+step *timestamps* remain in ``history`` for provenance but **do not** enter
+``analysis_fingerprint`` — re-running the same ops later yields the same
+fingerprint. Callers comparing ``raw_data_hash`` alone must not assume unit
+agreement; use ``analysis_fingerprint`` (or compare units explicitly).
 
 v1 files load via ``migrate_session_dict`` → current version.
 
@@ -166,9 +169,11 @@ def compute_analysis_fingerprint(
 ) -> str:
     """SHA-256 over computational identity fields (timestamps excluded).
 
-    Identity includes: ``raw_data_hash``, units, normalized processing,
-    history name/params (not timestamps), peak metric dicts, and optional
-    ``source_path_hash``. Wall-clock times in ``history`` must not change this.
+    Identity includes: ``raw_data_hash``, **``x_unit`` / ``y_unit``** (units are
+    intentionally *not* part of ``raw_data_hash``, which is arrays-only),
+    normalized processing, history name/params (not timestamps), peak metric
+    dicts, and optional ``source_path_hash``. Wall-clock times in ``history``
+    must not change this.
     """
     proc = normalize_processing(processing)
     peak_dicts = [peak_to_dict(p) for p in (peaks or [])]
