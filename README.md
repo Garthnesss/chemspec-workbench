@@ -1,24 +1,24 @@
-# ChemSpec Workbench (+ LabRF Monitor / TeachSpec stub)
+# ChemSpec Workbench
 
-Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks
-(center, height, prominence, **FWHM**, **area**), correct a simple baseline,
+**Primary product: ChemSpec** — software-only workbench for **UV-Vis / IR** spectra:
+open CSV/JCAMP, plot, find peaks (center, height, prominence, **FWHM**, **area** with an
+explicit prominence-relative measurement contract), correct a simple baseline,
 overlay/stack traces, export peaks, A↔%T display, folder waterfall,
-**processing pipeline** (baseline / smooth / normalize + step history), and
-**analysis session** save/load (`.csw.json`). Built on a
-reusable `spectrum_core` package (Spectrum Family).
+**processing pipeline** (baseline / smooth / normalize / despike + step history), and
+**analysis session** save/load (`.csw.json` with `raw_data_hash` / `analysis_fingerprint`).
+Built on a reusable `spectrum_core` package (Spectrum Family).
 
-Sibling app **LabRF Monitor** (`labrf/`): receive-only RF power spectrum + waterfall
-from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness —
-**not** chemical ID, **not** regulatory advice, **no transmit**.
+### Experimental siblings (not the primary product)
 
-Sibling **TeachSpec** (`teachspec/`): Phase-0 educational optical stub (mock frames +
-pixel→nm calibration → `Spectrum`; no camera / no sensor lock yet). Not compound ID;
-not hardware-verified.
+| App | Label | What it is today |
+|-----|-------|------------------|
+| **LabRF Monitor** (`labrf/`) | **Experimental** | Receive-only RF power spectrum + waterfall from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness — **not** chemical ID, **not** regulatory advice, **no transmit**. |
+| **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **No** camera / **no** sensor lock / **not** hardware-verified. |
 
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
 TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength.
-Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public domain) and NIST UV-Vis (log ε; INEP CP RAS / NIST OSRD) fixtures live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims. UV-Vis y is **not** absorbance.
+Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public domain) and NIST UV-Vis (log ε; INEP CP RAS / NIST OSRD) fixtures live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims. Public UV-Vis y is log₁₀(ε) → **intensity**, **not** absorbance.
 
 ## Install / Developer setup
 

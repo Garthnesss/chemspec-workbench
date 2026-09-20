@@ -1,4 +1,4 @@
-**As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity: peak contract merged (#35); session identity hashes (`raw_data_hash` / `analysis_fingerprint`, format_version 2 + v1 migrate)
+**As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity largely shipped: peak contract (#35), session identity (#36), op preconditions + README Experimental framing + spectrum_core audit
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
 
@@ -47,7 +47,10 @@
   `ProcessingStep` / `ProcessingHistory` (name, params, timestamp, software_note; append-only);
   `apply_step(spectrum, history, step) → (new_spectrum, history)`; `PipelineState` keeps raw vs working;
   ops: **baseline** (reuse `baseline_correct`), **smooth** (Savitzky–Golay), **despike** (median/z-score style),
-  **normalize** (max or area); session stores history; UI history list + smooth/normalize/baseline + reset to raw
+  **normalize** (max or area); invalid window/polyorder/length/mode raise **`ProcessingError`**
+  (subclass of `SpectrumError`/`ValueError`) with clear scientific messages; session stores history;
+  UI history list + smooth/normalize/baseline + reset to raw
+- **spectrum_core audit** — `docs/AUDIT_spectrum_core.md` (file-by-file notes + larger follow-ups)
 - **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
 - Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
@@ -95,7 +98,7 @@
   plot log₁₀(ε) as intensity (**not** absorbance; do not A↔%T without ε conversion),
   baseline+smooth, peaks with FWHM/area, optional CSV/session; no-compound-ID disclaimer;
   pytest smoke on the script (no nbconvert in CI yet); prominence default 0.1 (vibronic structure, benzene twin)
-- Docs: README (**Quick demo** lists Ethanol IR + Benzene/Acetone/Naphthalene UV-Vis load buttons + log₁₀(ε) honesty; **Folder waterfall**), PROJECT_TRUTH, SPEC, ROADMAP (Phase-4 checklist for UV-Vis fixtures + tutorial trio), STATUS, AGENTS, `examples/README.md`, `fixtures/waterfall/README.md`
+- Docs: README (**ChemSpec primary**; LabRF/TeachSpec labeled **Experimental**; **Quick demo** lists Ethanol IR + Benzene/Acetone/Naphthalene UV-Vis load buttons + log₁₀(ε) honesty; **Folder waterfall**), PROJECT_TRUTH, SPEC, ROADMAP (Phase-4 checklist for UV-Vis fixtures + tutorial trio), STATUS, AGENTS, `examples/README.md`, `fixtures/waterfall/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
   Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, upgrade **`setuptools>=83`** then **`pip-audit`**
   (avoids GHA 3.11 image setuptools 79 advisory), LabRF `build_ui` smoke, `pytest -q`;

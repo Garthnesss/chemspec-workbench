@@ -26,6 +26,7 @@ import numpy as np
 from scipy.signal import savgol_filter
 
 from spectrum_core.baseline import baseline_correct
+from spectrum_core.errors import ProcessingError
 from spectrum_core.spectrum import Spectrum
 
 STEP_BASELINE = "baseline"
@@ -232,14 +233,47 @@ def op_baseline(
     half_window: int | None = None,
 ) -> Spectrum:
     """Baseline-correct via ``baseline_correct`` (new spectrum; raw untouched)."""
-    return baseline_correct(
-        spectrum,
-        method=method,
-        degree=degree,
-        lam=lam,
-        p=p,
-        half_window=half_window,
-    )
+    try:
+        deg = int(degree)
+    except (TypeError, ValueError) as exc:
+        raise ProcessingError(
+            "baseline: degree must be an integer >= 0"
+        ) from exc
+    if deg < 0:
+        raise ProcessingError(f"baseline: degree must be >= 0 (got {deg})")
+    n = len(spectrum)
+    if method == "polynomial" and n <= deg:
+        raise ProcessingError(
+            f"baseline (polynomial): need more than {deg} finite points "
+            f"to fit degree-{deg}; spectrum length is {n}"
+        )
+    if half_window is not None:
+        try:
+            hw = int(half_window)
+        except (TypeError, ValueError) as exc:
+            raise ProcessingError(
+                "baseline: half_window must be an integer or None"
+            ) from exc
+        if hw < 1:
+            raise ProcessingError(
+                f"baseline: half_window must be >= 1 when set (got {hw})"
+            )
+    try:
+        return baseline_correct(
+            spectrum,
+            method=method,
+            degree=deg,
+            lam=lam,
+            p=p,
+            half_window=half_window,
+        )
+    except (ValueError, ImportError) as exc:
+        # Re-wrap plain ValueError from baseline helpers as ProcessingError
+        if isinstance(exc, ProcessingError):
+            raise
+        if isinstance(exc, ImportError):
+            raise
+        raise ProcessingError(f"baseline: {exc}") from exc
 
 
 def op_smooth(
@@ -253,20 +287,41 @@ def op_smooth(
     ``window_length`` must be odd and >= ``polyorder + 1``. Points near the
     edges use SciPy's default mode (``interp``).
     """
-    wl = int(window_length)
-    po = int(polyorder)
+    try:
+        wl = int(window_length)
+        po = int(polyorder)
+    except (TypeError, ValueError) as exc:
+        raise ProcessingError(
+            "smooth (Savitzky–Golay): window_length and polyorder must be integers"
+        ) from exc
     n = len(spectrum)
+    if n < 3:
+        raise ProcessingError(
+            f"smooth (Savitzky–Golay): spectrum length ({n}) must be >= 3"
+        )
     if wl < 3:
-        raise ValueError("window_length must be >= 3")
+        raise ProcessingError(
+            "smooth (Savitzky–Golay): window_length must be >= 3 "
+            f"(got {wl})"
+        )
     if wl % 2 == 0:
-        raise ValueError("window_length must be odd")
+        raise ProcessingError(
+            "smooth (Savitzky–Golay): window_length must be odd "
+            f"(got {wl}); SciPy savgol_filter requires an odd window"
+        )
     if po < 0:
-        raise ValueError("polyorder must be >= 0")
+        raise ProcessingError(
+            f"smooth (Savitzky–Golay): polyorder must be >= 0 (got {po})"
+        )
     if po >= wl:
-        raise ValueError("polyorder must be < window_length")
+        raise ProcessingError(
+            "smooth (Savitzky–Golay): polyorder must be < window_length "
+            f"(got polyorder={po}, window_length={wl})"
+        )
     if wl > n:
-        raise ValueError(
-            f"window_length ({wl}) cannot exceed spectrum length ({n})"
+        raise ProcessingError(
+            "smooth (Savitzky–Golay): window_length "
+            f"({wl}) cannot exceed spectrum length ({n})"
         )
     y = np.asarray(spectrum.y, dtype=float)
     smoothed = savgol_filter(y, window_length=wl, polyorder=po)
@@ -299,12 +354,27 @@ def op_despike(
 
     This is a simple teaching / cleanup aid — not a research-grade despiker.
     """
-    w = int(window)
-    z = float(z_thresh)
+    try:
+        w = int(window)
+        z = float(z_thresh)
+    except (TypeError, ValueError) as exc:
+        raise ProcessingError(
+            "despike: window must be an integer and z_thresh a finite number"
+        ) from exc
+    n = len(spectrum)
     if w < 3 or w % 2 == 0:
-        raise ValueError("despike window must be odd and >= 3")
-    if z <= 0:
-        raise ValueError("z_thresh must be > 0")
+        raise ProcessingError(
+            "despike: window must be odd and >= 3 "
+            f"(got {w}); need a symmetric neighborhood for the local median"
+        )
+    if not np.isfinite(z) or z <= 0:
+        raise ProcessingError(
+            f"despike: z_thresh must be a finite value > 0 (got {z_thresh!r})"
+        )
+    if w > n:
+        raise ProcessingError(
+            f"despike: window ({w}) cannot exceed spectrum length ({n})"
+        )
     y = np.asarray(spectrum.y, dtype=float).copy()
     n = len(y)
     half = w // 2
@@ -363,13 +433,22 @@ def op_normalize(
     ``meta['normalize_mode']``. Does not change ``y_unit`` (still intensity /
     A / %T numerically scaled — document in UI that this is relative).
     """
+    if not isinstance(mode, str) and mode is not None:
+        raise ProcessingError(
+            f"normalize: mode must be a string ({', '.join(NORMALIZE_MODES)}); "
+            f"got {type(mode).__name__}"
+        )
     key = (mode or NORMALIZE_MAX).strip().lower()
     if key not in NORMALIZE_MODES:
-        raise ValueError(
-            f"unknown normalize mode {mode!r}; known: {', '.join(NORMALIZE_MODES)}"
+        raise ProcessingError(
+            f"normalize: unknown mode {mode!r}; "
+            f"known scientific modes: {', '.join(NORMALIZE_MODES)} "
+            f"(max = scale by peak |y|; area = scale by ∫|y| dx)"
         )
     y = np.asarray(spectrum.y, dtype=float)
     x = np.asarray(spectrum.x, dtype=float)
+    if len(spectrum) < 1:
+        raise ProcessingError("normalize: spectrum must have at least one point")
     if key == NORMALIZE_MAX:
         peak = float(np.nanmax(np.abs(y))) if y.size else 0.0
         scale = peak if np.isfinite(peak) and peak > 0 else 1.0
@@ -475,7 +554,9 @@ def apply_step(
     name = record.name
     if name not in _OP_DISPATCH:
         known = ", ".join(PIPELINE_STEPS)
-        raise ValueError(f"unknown pipeline step {name!r}; known: {known}")
+        raise ProcessingError(
+            f"unknown pipeline step {name!r}; known: {known}"
+        )
     new_spec = _OP_DISPATCH[name](spectrum, record.params)
     # Ensure we never alias the input arrays
     if new_spec is spectrum:
@@ -501,6 +582,7 @@ def replay_history(
 
 
 __all__ = [
+    "ProcessingError",
     "STEP_BASELINE",
     "STEP_SMOOTH",
     "STEP_DESPIKE",
