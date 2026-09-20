@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Acetone UV-Vis walkthrough twin; ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene walkthrough (#26–#28)
+**As of:** 2026-09-19 (PT) — Acetone UV-Vis walkthrough twin (#31); ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene walkthrough (#26–#28)
 
 ## Implemented
 
