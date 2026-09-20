@@ -125,3 +125,93 @@ def test_csv_still_works_alongside_jcamp(uvvis_csv: Path) -> None:
         y_unit="A",
     )
     assert len(spec) > 100
+
+
+def test_ingest_jcamp_wavelength_nm_parenthetical(tmp_path: Path) -> None:
+    """NIST UV/Vis style: XUNITS='Wavelength (nm)' must map to nm."""
+    text = """##TITLE=wavelength paren
+##JCAMP-DX=4.24
+##DATA TYPE=UV/VIS SPECTRUM
+##XUNITS=Wavelength (nm)
+##YUNITS=ABSORBANCE
+##XFACTOR=1.0
+##YFACTOR=1.0
+##FIRSTX=250.0
+##LASTX=255.0
+##NPOINTS=6
+##FIRSTY=0.1
+##XYDATA=(X++(Y..Y))
+250.0 0.10 0.15 0.40 0.35 0.20 0.12
+##END=
+"""
+    path = tmp_path / "wl_paren.jdx"
+    path.write_text(text, encoding="utf-8")
+    spec = ingest_jcamp(path)
+    assert spec.x_unit == "nm"
+    assert spec.y_unit == "A"
+    assert spec.x[0] == pytest.approx(250.0)
+
+
+@pytest.mark.parametrize(
+    "yunits",
+    [
+        "Logarithm epsilon",
+        "logarithm epsilon",
+        "LOG10(EPSILON)",
+        "log10(epsilon)",
+    ],
+)
+def test_ingest_jcamp_log_epsilon_is_intensity_not_a(
+    tmp_path: Path, yunits: str
+) -> None:
+    """Log ε YUNITS → intensity with note; never invent absorbance."""
+    text = f"""##TITLE=log eps
+##JCAMP-DX=4.24
+##DATA TYPE=UV/VIS SPECTRUM
+##XUNITS=Wavelength (nm)
+##YUNITS={yunits}
+##XFACTOR=1.0
+##YFACTOR=1.0
+##FIRSTX=250.0
+##LASTX=255.0
+##NPOINTS=6
+##FIRSTY=3.0
+##XYDATA=(X++(Y..Y))
+250.0 3.00 3.10 3.50 3.40 3.20 3.05
+##END=
+"""
+    path = tmp_path / "log_eps.jdx"
+    path.write_text(text, encoding="utf-8")
+    spec = ingest_jcamp(path)
+    assert spec.x_unit == "nm"
+    assert spec.y_unit == "intensity"
+    notes = " ".join(spec.meta.get("unit_notes", [])).lower()
+    assert "log" in notes
+    assert "not absorbance" in notes
+
+
+def test_map_jcamp_x_unit_wavelength_nm_forms() -> None:
+    """Isolated XUNITS normalize: Wavelength (nm) / NANOMETERS / NM → nm."""
+    from spectrum_core.ingest import _map_jcamp_x_unit
+
+    for raw in ("Wavelength (nm)", "wavelength (nm)", "NANOMETERS", "NM", "nm"):
+        unit, scale, note = _map_jcamp_x_unit(raw, "UV/VIS SPECTRUM")
+        assert unit == "nm", raw
+        assert scale == 1.0
+        assert note is None
+
+
+def test_map_jcamp_y_unit_log_epsilon_forms() -> None:
+    """Isolated YUNITS: log ε forms → intensity + note (never A)."""
+    from spectrum_core.ingest import _map_jcamp_y_unit
+
+    for raw in (
+        "Logarithm epsilon",
+        "logarithm epsilon",
+        "LOG10(EPSILON)",
+        "log10(epsilon)",
+    ):
+        unit, note = _map_jcamp_y_unit(raw)
+        assert unit == "intensity", raw
+        assert note is not None
+        assert "not absorbance" in note.lower()

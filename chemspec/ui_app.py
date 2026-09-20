@@ -1036,6 +1036,22 @@ def create_app() -> WorkbenchState:
                     on_click=lambda: on_fixture("public_toluene_ir"),
                 ).props("unelevated color=primary")
             ui.label(
+                "Public UV-Vis (NIST WebBook · YUNITS=Logarithm epsilon → intensity)"
+            ).classes("text-caption text-grey-8 q-mt-sm")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button(
+                    "Load public: Benzene UV-Vis",
+                    on_click=lambda: on_fixture("public_benzene_uvvis"),
+                ).props("unelevated color=primary")
+                ui.button(
+                    "Load public: Acetone UV-Vis",
+                    on_click=lambda: on_fixture("public_acetone_uvvis"),
+                ).props("unelevated color=primary")
+                ui.button(
+                    "Load public: Naphthalene UV-Vis",
+                    on_click=lambda: on_fixture("public_naphthalene_uvvis"),
+                ).props("unelevated color=primary")
+            ui.label(
                 "Attribution: see fixtures/public/SOURCES.md — no compound-ID claims."
             ).classes("text-caption text-grey-7")
 
