@@ -114,3 +114,30 @@ def test_optical_live_frame_bad_shape():
 def test_wavelength_calibration_coeff_validation():
     with pytest.raises(ValueError, match="exactly 2"):
         WavelengthCalibration(coefficients=[1.0, 2.0, 3.0], fit_kind="linear")
+
+
+def test_frame_to_spectrum_embeds_calibration_meta():
+    frame, truth = generate_mock_frame(n_pixels=128, seed=1)
+    a, b = truth["linear_coefficients"]
+    lines = truth["lines_nm"]
+    pixels = [(wl - b) / a for wl in lines]
+    cal = fit_wavelength_calibration(pixels, lines, fit_kind="linear")
+    spec = frame_to_spectrum(frame, cal, title="meta-check")
+    assert spec.title == "meta-check"
+    cal_meta = spec.meta["teachspec_calibration"]
+    assert cal_meta["fit_kind"] == "linear"
+    assert len(cal_meta["coefficients"]) == 2
+    assert cal_meta["rmse_nm"] is not None
+    assert spec.meta.get("synthetic") is True
+
+
+def test_demo_main_smoke(capsys):
+    """CLI entry (teachspec-demo / python -m teachspec.demo) prints peaks, exit 0."""
+    from teachspec.demo import main
+
+    assert main(["--n-pixels", "256", "--prominence", "0.2"]) == 0
+    out = capsys.readouterr().out
+    assert "TeachSpec demo" in out
+    assert "synthetic" in out.lower()
+    assert "not compound ID" in out.lower() or "not compound" in out.lower()
+    assert "x_nm" in out
