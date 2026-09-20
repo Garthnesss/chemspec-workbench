@@ -13,7 +13,7 @@ Built on a reusable `spectrum_core` package (Spectrum Family).
 | App | Label | What it is today |
 |-----|-------|------------------|
 | **LabRF Monitor** (`labrf/`) | **Experimental** | Receive-only RF power spectrum + waterfall from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness — **not** chemical ID, **not** regulatory advice, **no transmit**. |
-| **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **v1 sensor locked:** USB camera (UVC) primary; optional live OpenCV UVC (`[teachspec]` extra); **not** hardware-verified wavelength by camera alone. |
+| **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **v1 sensor locked:** USB camera (UVC) primary; optional live OpenCV UVC (`[teachspec]` extra); NiceGUI preview `teachspec-ui` (Mock default); **not** hardware-verified wavelength by camera alone. |
 | **FID/NMR Playground** (`fidnmr/`) | **Experimental** | Phase-0 educational FID→FFT→phase stub (synthetic complex FID → `Spectrum` in Hz/ppm). **No** magnet / **no** compound ID / **not** structure elucidation. |
 
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
@@ -53,6 +53,8 @@ pip install -e ".[baselines]"          # pybaselines (BSD-3); also in [dev]
 pip install -e ".[ui]"                 # NiceGUI + Plotly
 pip install -e ".[ui,baselines]"
 pip install -e ".[labrf]"              # optional pyrtlsdr (hardware not required for CI)
+pip install -e ".[teachspec]"          # optional OpenCV for live UVC
+pip install -e ".[ui,teachspec]"       # TeachSpec NiceGUI preview + live optional
 ```
 
 `jcamp` is a **required** dependency (not optional) so JCAMP ingest and public IR/UV-Vis fixture tests work after a clean install.
@@ -91,6 +93,7 @@ Synthetic waterfall files are **not** real compounds.
 ```bash
 python -m labrf.ui_app   # http://localhost:8081
 python -m teachspec.demo  # or: teachspec-demo — synthetic optical peaks (no camera)
+python -m teachspec.ui_app  # or: teachspec-ui — NiceGUI intensity preview :8082 (Mock default)
 python -m fidnmr.demo     # or: fidnmr-demo — synthetic FID→FFT peaks (no magnet)
 python examples/fidnmr_walkthrough.py --save-dir /tmp/fidnmr_demo  # thin plot+CSV twin
 ```
@@ -148,6 +151,20 @@ Then open **http://localhost:8081**.
 - Educational presets with disclaimer banner (not regulatory advice)
 - Live RTL-SDR only if `pip install -e ".[labrf]"` **and** a dongle is present
   (not required for tests or the mock UI)
+
+## TeachSpec live preview (NiceGUI — Mock default)
+
+```bash
+pip install -e ".[ui,teachspec]"
+python -m teachspec.ui_app
+# or: teachspec-ui
+```
+
+Then open **http://localhost:8082**.
+
+- **Mock** is the default (CI / no camera). Toggle **Live** + device index for UVC via OpenCV.
+- Plot is **intensity vs pixel** until you apply `teachspec.calibration` (no cal UI in this minimal preview).
+- Educational only — see `docs/family/teachspec/SAFETY.md`. **No** compound ID.
 
 ## Test
 
@@ -293,7 +310,7 @@ Sessions are analysis snapshots — **not** compound identification.
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall, **session save/load** |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
-| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames; optional live UVC OpenCV (`UvcOpenCvSource`, `[teachspec]` extra); `UvcIngestStub` remains explicit no-camera |
+| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames; optional live UVC OpenCV (`UvcOpenCvSource`, `[teachspec]` extra); NiceGUI `teachspec-ui` (Mock default); `UvcIngestStub` remains explicit no-camera |
 | `fidnmr/` | FID/NMR Phase-0 stub: mock FID, FFT/phase, Hz/ppm → Spectrum (no magnet) |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR + NIST UV-Vis) + `waterfall/` + `labrf/mock_iq.npz` |
 | `examples/` | Tutorials (ethanol IR + benzene/acetone/naphthalene UV-Vis walkthrough notebook + script twins) |

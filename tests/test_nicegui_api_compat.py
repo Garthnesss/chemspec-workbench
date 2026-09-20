@@ -1,4 +1,4 @@
-"""Guard ChemSpec / LabRF NiceGUI UIs against missing ``ui.*`` attrs (API drift)."""
+"""Guard ChemSpec / LabRF / TeachSpec NiceGUI UIs against missing ``ui.*`` attrs (API drift)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 _UI_MODULES = (
     _ROOT / "labrf" / "ui_app.py",
     _ROOT / "chemspec" / "ui_app.py",
+    _ROOT / "teachspec" / "ui_app.py",
 )
 
 
@@ -43,7 +44,7 @@ def test_ui_module_attrs_exist_on_nicegui(ui_path: Path) -> None:
 
 
 def test_labrf_and_chemspec_avoid_removed_banner() -> None:
-    """``ui.banner`` is absent on NiceGUI 3.17+; neither UI may call it."""
+    """``ui.banner`` is absent on NiceGUI 3.17+; TeachSpec/LabRF/ChemSpec must not call it."""
     for path in _UI_MODULES:
         src = path.read_text(encoding="utf-8")
         assert "ui.banner" not in src, path
