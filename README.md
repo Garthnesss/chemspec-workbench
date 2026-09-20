@@ -121,7 +121,12 @@ Folder waterfall is stack offsets only (sort by name/mtime) — no true time-axi
 
 *ChemSpec UI with the public PNNL/NIST ethanol IR JCAMP loaded (analysis / visualization only — **not** compound identification). Peak table shows geometric FWHM/area; y is intensity as ingested. Optional UV-Vis public fixtures (benzene / acetone / naphthalene) use log₁₀(ε) → intensity, not absorbance.*
 
-Capture locally: `python scripts/capture_chemspec_screenshot.py` (needs `[ui]` + selenium + Chrome).
+![ChemSpec — ethanol IR + peaks (matplotlib export)](docs/screenshots/chemspec-ethanol-ir-peaks.png)
+
+*Headless `export_spectrum_png` of the same public ethanol IR with prominence-picked peaks (FWHM/area contract). Still **not** compound ID. Short loop: [`docs/screenshots/chemspec-ethanol-ir-peaks.gif`](docs/screenshots/chemspec-ethanol-ir-peaks.gif) (raw → peaks).*
+
+Capture UI locally: `python scripts/capture_chemspec_screenshot.py` (needs `[ui]` + selenium + Chrome).  
+~30 s recording checklist: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
 
 ## ChemSpec interactive UI (NiceGUI)
 

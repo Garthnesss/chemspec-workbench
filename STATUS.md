@@ -1,3 +1,4 @@
+**As of:** 2026-09-20 (PT) — TeachSpec BOM_v0 purchasable-class draft + ethanol IR peaks demo asset (PNG/GIF) + DEMO_SCRIPT; estimates only / no fake SKUs
 **As of:** 2026-09-20 (PT) — ChemSpec **0.2.0 release-prep Done** (Measurement Integrity + TeachSpec UVC story); PyPI/TestPyPI publish = **waiting on maintainer credentials** (see `docs/RELEASE_0.2.md`); classroom pilot one-pager added
 **As of:** 2026-09-20 (PT) — TeachSpec NiceGUI live preview (`teachspec-ui`; Mock default; intensity vs pixel)
 **As of:** 2026-09-19 (PT) — TeachSpec UVC ingest interface stub (`UvcIngestStub` → NotImplementedError; no OpenCV dep)
@@ -162,6 +163,7 @@
 - **Sensor lock (docs):** USB camera (UVC) = v1 primary; linear CCD/CMOS = Phase 2+ alternate
 - Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md + status/roadmap; software stub *Implemented*
 - Classroom pilot ask: `docs/classroom_pilot_one_pager.md` (software-only vs USB kit tracks)
+- Demo assets: `docs/screenshots/chemspec-ethanol-ir-peaks.png` (+ `.gif`); `docs/DEMO_SCRIPT.md`
 - **Not** Implemented: vendor-locked dated-quote BOM, hardware-verified calibration, compound ID, CFL auto-cal UI, nm-axis in live preview
 
 ## FID / NMR Playground (sibling — Phase 0 software stub)
