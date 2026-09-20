@@ -11,10 +11,11 @@ Educational optical teaching spectrometer **software** path for the Spectrum Fam
 - Save / load calibration JSON
 - `OpticalLiveFrame` (1-D intensity + meta) → `spectrum_core.Spectrum` after calibration
 - Synthetic CFL-like mock frames for demos and pytest (**no camera libraries**)
+- UVC ingest **interface stub**: `OpticalFrameSource` protocol + `UvcIngestStub` (raises `NotImplementedError`) + pure-NumPy `extract_row` — see `teachspec/uvc_ingest.py`
 
 ## What this package does **not** do yet
 
-- Live UVC ingest (future target: UVC frame → 1-D row → `OpticalLiveFrame` — see comment in `optical.py`; **not Implemented**)
+- Live UVC ingest / OpenCV capture (interface stub only — `UvcIngestStub.read_frame` raises; **not Implemented**)
 - Priced / vendor-locked BOM (skeleton in `docs/family/teachspec/BOM_v0.md`)
 - Compound identification
 - Hardware-verified wavelength claims (teaching-calibrated only)
@@ -48,3 +49,4 @@ explicit disclaimer that this is not a hardware capture and not compound ID.
 | `docs/family/teachspec/SAFETY.md` | Classroom safety one-pager |
 | `docs/family/teachspec/BOM_v0.md` | USB-cam path BOM skeleton (TBD prices) |
 | `docs/family/teachspec/roadmap.md` / `status.md` | Phase checklist / claim hygiene |
+| `teachspec/uvc_ingest.py` | UVC protocol + NotImplemented stub (no OpenCV dep) |

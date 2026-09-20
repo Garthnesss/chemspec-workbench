@@ -16,7 +16,8 @@
 ## Software
 
 - Ingest adapter: `OpticalLiveFrame` → `Spectrum` (intensity vs pixel → vs nm after calibration)
-- **Future ingest target (not Implemented):** UVC frame → extract 1-D row → `OpticalLiveFrame` (Phase-0 path remains mock-only)
+- **UVC ingest interface (stub):** `teachspec.uvc_ingest` — `OpticalFrameSource` + `UvcIngestStub` (raises `NotImplementedError`); `extract_row` NumPy helper
+- **Live UVC driver (not Implemented):** OpenCV/OS capture → 1-D row → `OpticalLiveFrame` (Phase-0 path remains mock-only; no camera dependency required)
 - Calibration: user clicks ≥2 known lines → linear (then quadratic) fit; store calibration file
 - Reuse ChemSpec: plot, peak pick, baseline, export CSV
 - Claim class: *hardware-verified* only after named BOM + calibration log
