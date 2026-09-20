@@ -62,10 +62,18 @@ def run(fixture: str = "uvvis", *, apply_baseline: bool = True) -> int:
     print(f"  x_unit : {spec.x_unit}   y_unit: {spec.y_unit}")
     print(f"  baseline: {'poly degree=1' if apply_baseline else 'none'}")
     print()
-    print(f"{'idx':>6}  {'x':>12}  {'y':>12}  {'prominence':>12}")
-    print("-" * 50)
+    print(
+        f"{'idx':>6}  {'x':>12}  {'y':>12}  {'prominence':>12}  "
+        f"{'FWHM':>12}  {'area':>12}"
+    )
+    print("-" * 76)
     for p in peaks[:20]:
-        print(f"{p.index:6d}  {p.x:12.3f}  {p.y:12.4f}  {p.prominence:12.4f}")
+        fwhm_s = f"{p.fwhm:12.4f}" if p.fwhm == p.fwhm else f"{'nan':>12}"
+        area_s = f"{p.area:12.4f}" if p.area == p.area else f"{'nan':>12}"
+        print(
+            f"{p.index:6d}  {p.x:12.3f}  {p.y:12.4f}  {p.prominence:12.4f}  "
+            f"{fwhm_s}  {area_s}"
+        )
     print()
     print("Note: synthetic fixture — no compound identification.")
     return 0

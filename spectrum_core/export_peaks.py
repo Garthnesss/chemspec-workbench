@@ -8,7 +8,7 @@ from pathlib import Path
 
 from spectrum_core.peaks import Peak
 
-PEAK_CSV_FIELDS = ("index", "x", "y", "prominence")
+PEAK_CSV_FIELDS = ("index", "x", "y", "prominence", "fwhm", "area")
 
 
 def peaks_to_csv(
@@ -19,9 +19,10 @@ def peaks_to_csv(
 ) -> str:
     """Serialize ``peaks`` to CSV text.
 
-    Columns: ``index``, ``x``, ``y``, ``prominence`` (same order as
-    ``PEAK_CSV_FIELDS``). If ``path`` is given, also write the text to that
-    file (UTF-8, newline ``\\n``).
+    Columns: ``index``, ``x``, ``y``, ``prominence``, ``fwhm``, ``area``
+    (same order as ``PEAK_CSV_FIELDS``). ``fwhm`` / ``area`` follow the
+    half-max definitions in ``spectrum_core.peaks``. If ``path`` is given,
+    also write the text to that file (UTF-8, newline ``\\n``).
 
     Returns the CSV string (always).
     """
@@ -36,6 +37,8 @@ def peaks_to_csv(
                 "x": p.x,
                 "y": p.y,
                 "prominence": p.prominence,
+                "fwhm": p.fwhm,
+                "area": p.area,
             }
         )
     text = buf.getvalue()

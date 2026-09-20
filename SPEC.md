@@ -8,12 +8,12 @@
 | `ingest_csv` | CSV primary; column index or header name |
 | `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers |
 | `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
-| `find_peaks` | `scipy.signal.find_peaks`, configurable prominence |
+| `find_peaks` | `scipy.signal.find_peaks`, configurable prominence; returns `Peak` with **FWHM** + **area** (half-max bounds; see `spectrum_core.peaks` docstring) |
 | `baseline_polynomial` | poly fit / subtract (always available) |
 | `baseline_correct` | dispatch: polynomial default; optional pybaselines `asls` / `mpls` (`[baselines]`, BSD-3) |
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
-| `export_peaks` | `peaks_to_csv` peak table serialization |
+| `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area`) |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
 | JCAMP advanced | Planned (multi-block / certification) |
 
@@ -22,7 +22,7 @@
 - CLI demo: peak table for synthetic fixtures (`python -m chemspec.demo`)
 - Matplotlib plot demo: `chemspec/plot_demo.py`
 - NiceGUI + Plotly MVP: optional `[ui]` extra (`python -m chemspec.ui_app`); core demos run without it
-  - Peak CSV download, A↔%T display toggle, folder waterfall
+  - Peak table + CSV download (incl. FWHM/area), A↔%T display toggle, folder waterfall
   - Baseline method picker (polynomial + optional AsLS/MPLS)
 
 ## Primary format

@@ -28,6 +28,7 @@
 ## Phase 3 checklist
 
 - [x] Peak table export from UI (+ `peaks_to_csv` helper)
+- [x] Peak FWHM + half-max area on `Peak` / CSV / UI table
 - [x] Absorbance ↔ %T helper (core + UI display toggle; limits documented)
 - [x] Folder waterfall / stacked view (`ingest_folder` + `stack`)
 
