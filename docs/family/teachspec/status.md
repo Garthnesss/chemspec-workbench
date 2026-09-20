@@ -1,31 +1,33 @@
 # Status — TeachSpec
 
 **As of:** 2026-09-19 (PT)  
-**Phase:** 0 — software stub Implemented; hardware design still open  
-**Blocked on:** sensor choice (USB-cam vs linear CCD), Chemistry safety review, BOM
+**Phase:** 0 — software stub Implemented; **USB camera (UVC) locked as v1 primary sensor**  
+**Blocked on:** classroom safety review (SAFETY.md drafting), BOM v0 pricing pass, live UVC ingest
 
 ## Done
 
 - Project Truth / SPEC / roadmap drafted (family docs)
+- **Sensor lock:** USB camera (UVC) = v1 primary; linear CCD/CMOS = Planned alternate / Phase 2+
 - **Phase 0 software stub** (`teachspec/`):
   - pixel→nm linear + optional quadratic calibration; JSON save/load
   - `OpticalLiveFrame` → `spectrum_core.Spectrum` (calibrated path)
   - synthetic CFL-like mock frames + CLI demo (`teachspec-demo` / `python -m teachspec.demo`)
   - pytest (fit correctness, bad inputs, mock→Spectrum roundtrip, cal I/O)
 
-## In progress
+## In progress / drafting
 
-- Nothing hardware yet
+- `SAFETY.md` classroom one-pager (visible light default; no UV-C kits; eye / electrical / supervision)
+- `BOM_v0.md` skeleton for USB-cam path (placeholder line items; TBD price ranges)
 
 ## Next (human / Planned)
 
-1. Chemistry: classroom constraints + safety notes  
-2. Pick USB-cam vs linear sensor (no lock in software yet)  
-3. BOM v0 + first optical bench spike after sensor choice  
-4. Live camera / CCD ingest (not Started)
+1. Safety review of SAFETY.md (teacher-facing sign-off)
+2. BOM v0 price pass + first optical bench spike
+3. Live UVC ingest: camera frame → 1-D row → `OpticalLiveFrame` (**not Started**; stub remains mock-only)
+4. Linear CCD/CMOS alternate deferred to Phase 2+
 
 ## Claim hygiene
 
 - Software stub is *Implemented* (synthetic / unit-tested only).
-- Sensor choice, BOM, live camera, and hardware-verified calibration remain *Planned*.
-- Never claim compound ID or lab-grade accuracy from this stub.
+- Sensor **choice** is locked in docs; live UVC driver, priced BOM, and hardware-verified calibration remain *Planned* / drafting.
+- Never claim compound ID, clinical use, or lab-grade / metrology wavelength accuracy from this stub.

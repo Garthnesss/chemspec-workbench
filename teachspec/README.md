@@ -2,6 +2,9 @@
 
 Educational optical teaching spectrometer **software** path for the Spectrum Family.
 
+**v1 sensor lock (docs):** USB camera (UVC) is the **primary** sensor. Linear CCD/CMOS is a Planned alternate / Phase 2+.  
+**Honesty:** Phase-0 code is still **mock-only** — no live UVC/camera driver is Implemented.
+
 ## What this package does (now)
 
 - Pixel → nm **linear** (and optional **quadratic**) calibration from ≥2 known lines
@@ -11,10 +14,10 @@ Educational optical teaching spectrometer **software** path for the Spectrum Fam
 
 ## What this package does **not** do yet
 
-- Choose USB-cam vs linear CCD (human gate — not locked in code)
-- BOM / enclosure / live camera drivers
+- Live UVC ingest (future target: UVC frame → 1-D row → `OpticalLiveFrame` — see comment in `optical.py`; **not Implemented**)
+- Priced / vendor-locked BOM (skeleton in `docs/family/teachspec/BOM_v0.md`)
 - Compound identification
-- Hardware-verified wavelength claims
+- Hardware-verified wavelength claims (teaching-calibrated only)
 
 ## Quick try
 
@@ -37,4 +40,11 @@ pytest -q tests/test_teachspec.py
 Expected output: a short peak table from a **synthetic** CFL-like mock frame, plus an
 explicit disclaimer that this is not a hardware capture and not compound ID.
 
-See `docs/family/teachspec/` for Project Truth, SPEC, roadmap, and status.
+## Docs
+
+| Doc | Role |
+|-----|------|
+| `docs/family/teachspec/SPEC.md` | Locked hardware/software target (USB-cam primary) |
+| `docs/family/teachspec/SAFETY.md` | Classroom safety one-pager |
+| `docs/family/teachspec/BOM_v0.md` | USB-cam path BOM skeleton (TBD prices) |
+| `docs/family/teachspec/roadmap.md` / `status.md` | Phase checklist / claim hygiene |

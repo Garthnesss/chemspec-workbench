@@ -21,8 +21,9 @@ These rules bind humans and coding agents. Prefer under-claiming.
 9. **Educational presets are not regulatory advice.** Never claim FCC/Ofcom compliance,
    “legal to monitor,” or certified EMI testing from LabRF presets or UI copy.
 10. **No demodulation / decryption claims** in LabRF Phase 1 (power spectrum + waterfall only).
-11. **TeachSpec is educational / mock-first.** Do not lock USB-cam vs linear CCD in code;
-    do not invent BOM prices; never claim hardware-verified wavelength or compound ID.
+11. **TeachSpec is educational / mock-first.** v1 primary sensor is **USB camera (UVC)**
+    (docs-locked); linear CCD/CMOS is Phase 2+. Do not claim live UVC drivers Implemented;
+    do not invent firm vendor BOM prices; never claim hardware-verified wavelength or compound ID.
 
 ## Always
 

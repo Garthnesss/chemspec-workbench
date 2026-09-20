@@ -11,6 +11,7 @@
 **As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity largely shipped: peak contract (#35), session identity (#36), op preconditions + README Experimental framing + spectrum_core audit
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
+**As of:** 2026-09-19 (PT) — TeachSpec: USB-cam (UVC) primary locked; SAFETY.md + BOM_v0 skeleton
 
 ## Implemented
 
@@ -148,15 +149,16 @@
   - `OpticalLiveFrame` → `spectrum_core.Spectrum` after calibration
   - Synthetic CFL-like mock frames (`mock_source`); CLI `python -m teachspec.demo` / `teachspec-demo`
   - pytest: fit correctness, bad inputs (1 point / duplicates), mock→Spectrum peaks, cal I/O
-- Docs: `docs/family/teachspec/` status/roadmap updated — software stub *Implemented*
-- **Not** Implemented: USB-cam vs linear CCD choice, BOM, live camera/CCD drivers, hardware-verified calibration, compound ID
+- **Sensor lock (docs):** USB camera (UVC) = v1 primary; linear CCD/CMOS = Phase 2+ alternate
+- Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md skeleton + status/roadmap; software stub *Implemented*
+- **Not** Implemented: live UVC/camera drivers, priced/vendor-locked BOM, hardware-verified calibration, compound ID
 
 ## Planned (not Implemented)
 
 - Multi-user / cloud-persisted sessions (local `.csw.json` save/load is Implemented)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
-- TeachSpec live camera / CCD drivers + sensor lock + BOM (Phase-0 software stub Implemented)
+- TeachSpec live UVC ingest + priced BOM + hardware-verified path (sensor choice locked in docs; Phase-0 software stub Implemented)
 - Hardware drivers beyond mock paths
 - NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
@@ -167,4 +169,4 @@
 
 - Chemistry: confirm priority lab formats + additional public real examples beyond current NIST UV-Vis set
 - Product: release claims / tags — JARTH
-- TeachSpec: USB-cam vs linear CCD sensor choice; Chemistry classroom safety review; BOM pricing
+- TeachSpec: classroom SAFETY.md review (drafting); BOM v0 price pass; live UVC ingest (not Started)

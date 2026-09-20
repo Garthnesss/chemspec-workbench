@@ -8,7 +8,7 @@ Build a **low-cost optical teaching spectrometer** whose live spectrum UI speaks
 
 ## Why this exists
 
-ChemSpec Workbench teaches spectrum *literacy* from files. TeachSpec teaches spectrum *acquisition*: light → grating → sensor → peaks. Same `spectrum-core` plot/peak/baseline; different ingest (camera or linear sensor).
+ChemSpec Workbench teaches spectrum *literacy* from files. TeachSpec teaches spectrum *acquisition*: light → grating → sensor → peaks. Same `spectrum-core` plot/peak/baseline; different ingest (**v1 primary: USB camera / UVC**; linear CCD/CMOS Planned alternate).
 
 ## Feelings we protect
 
@@ -16,7 +16,7 @@ ChemSpec Workbench teaches spectrum *literacy* from files. TeachSpec teaches spe
 2. **Honest** — Wavelength axis is calibrated and labeled with uncertainty; no fake “lab grade.”
 3. **Same UI language** — Peaks, baseline, waterfall feel like ChemSpec.
 4. **Buildable** — BOM under a clear budget; reproducible enclosure + calibration lamp path.
-5. **Classroom-safe** — No clinical claims; UV lamp safety documented if used.
+5. **Classroom-safe** — No clinical claims; visible-light default; see SAFETY.md (no UV-C in v1 kits).
 
 ## What “done” means (finished product)
 
