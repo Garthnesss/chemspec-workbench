@@ -92,6 +92,7 @@ Synthetic waterfall files are **not** real compounds.
 python -m labrf.ui_app   # http://localhost:8081
 python -m teachspec.demo  # or: teachspec-demo — synthetic optical peaks (no camera)
 python -m fidnmr.demo     # or: fidnmr-demo — synthetic FID→FFT peaks (no magnet)
+python examples/fidnmr_walkthrough.py --save-dir /tmp/fidnmr_demo  # thin plot+CSV twin
 ```
 
 1. Read the dismissible disclaimer card (educational presets ≠ regulatory advice).

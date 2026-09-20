@@ -13,6 +13,7 @@
   - Hz or ppm axis → `spectrum_core.Spectrum` (`ppm` added to core XUnit)
   - Synthetic 1H-like mock FIDs + CLI `fidnmr-demo` / `python -m fidnmr.demo`
   - pytest (axis math, peak recovery, phase decorrelation, validation)
+  - Thin examples twin: `examples/fidnmr_walkthrough.py` + pytest smoke (no notebook yet)
 
 ## Next
 

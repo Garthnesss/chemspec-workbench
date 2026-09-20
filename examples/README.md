@@ -12,6 +12,7 @@ Short, runnable walkthroughs for ChemSpec / `spectrum_core`.
 | [`acetone_uvvis_walkthrough.py`](acetone_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
 | [`naphthalene_uvvis_walkthrough.ipynb`](naphthalene_uvvis_walkthrough.ipynb) | ~5–10 min | Public NIST naphthalene UV-Vis JCAMP → plot (log₁₀(ε) intensity, **not** A) → baseline/smooth → peaks → optional CSV/session |
 | [`naphthalene_uvvis_walkthrough.py`](naphthalene_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
+| [`fidnmr_walkthrough.py`](fidnmr_walkthrough.py) | ~2–5 min | Synthetic mock FID→FFT/phase→peaks (Phase-0; **no** magnet / **no** compound ID); thin twin of `fidnmr-demo` |
 
 ## Setup
 
@@ -41,6 +42,9 @@ python examples/acetone_uvvis_walkthrough.py --save-dir /tmp/acetone_uvvis_demo
 
 python examples/naphthalene_uvvis_walkthrough.py
 python examples/naphthalene_uvvis_walkthrough.py --save-dir /tmp/naphthalene_uvvis_demo
+
+python examples/fidnmr_walkthrough.py
+python examples/fidnmr_walkthrough.py --save-dir /tmp/fidnmr_demo
 ```
 
 ## Honesty
@@ -48,5 +52,6 @@ python examples/naphthalene_uvvis_walkthrough.py --save-dir /tmp/naphthalene_uvv
 These examples demonstrate an **analysis path** (ingest, process, peak metrics, export).
 ChemSpec does **not** identify compounds. Public fixtures are labeled for provenance;
 see [`fixtures/public/SOURCES.md`](../fixtures/public/SOURCES.md).
+The FID/NMR walkthrough uses a **synthetic** mock FID only — not a real acquisition.
 
 Notebook execute in CI is **not** required yet; pytest smokes the `.py` twin instead.
