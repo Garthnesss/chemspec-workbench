@@ -54,6 +54,8 @@ _XUNIT_ALIASES: dict[str, XUnit] = {
     "nm": "nm",
     "wavelength": "nm",
     "wavelength in nanometers": "nm",
+    # NIST UV/Vis WebBook often uses the parenthetical form:
+    "wavelength (nm)": "nm",
     "1/cm": "cm-1",
     "1/cm.": "cm-1",
     "cm-1": "cm-1",
@@ -95,6 +97,23 @@ _YUNIT_ALIASES: dict[str, YUnit] = {
     "signal": "intensity",
     "relative intensity": "intensity",
 }
+
+# NIST UV/Vis often reports log₁₀(ε). Never invent absorbance (A) for these.
+_YUNIT_LOG_EPSILON_KEYS: frozenset[str] = frozenset(
+    {
+        "logarithm epsilon",
+        "log epsilon",
+        "log10(epsilon)",
+        "log10 epsilon",
+        "log(epsilon)",
+        "log epsilon",
+        "lgepsilon",
+        "lg epsilon",
+        "log10(ε)",
+        "log ε",
+        "log(ε)",
+    }
+)
 
 _JCAMP_SUFFIXES = {".jdx", ".dx", ".jcm"}
 
@@ -464,15 +483,39 @@ def _map_jcamp_x_unit(
         f"unsupported JCAMP XUNITS={xunits_raw!r} "
         f"(mapped Spectrum.x_unit must be 'nm' or 'cm-1'; "
         f"DATA TYPE={data_type!r}). "
-        "Known: NANOMETERS/NM, 1/CM/CM-1, MICROMETERS (converted to nm)."
+        "Known: NANOMETERS/NM/Wavelength (nm), 1/CM/CM-1, MICROMETERS (converted to nm)."
     )
 
 
+def _is_log_epsilon_yunits(key: str) -> bool:
+    """True when YUNITS denotes log₁₀(ε) / logarithm epsilon (not absorbance)."""
+    if key in _YUNIT_LOG_EPSILON_KEYS:
+        return True
+    # Loose match: any "log"+"epsilon" / "log"+"ε" form (e.g. LOG10(EPSILON)).
+    compact = key.replace(" ", "").replace("_", "")
+    if "epsilon" in compact or "ε" in compact:
+        if compact.startswith("log") or "log10" in compact or "lgepsilon" in compact:
+            return True
+    return False
+
+
 def _map_jcamp_y_unit(yunits_raw: Any) -> tuple[YUnit, str | None]:
-    """Return (y_unit, note). Unknown → intensity with a documentation note."""
+    """Return (y_unit, note). Unknown → intensity with a documentation note.
+
+    ``Logarithm epsilon`` / ``LOG10(EPSILON)`` map to ``intensity`` with an
+    explicit note — never invent ``A`` (absorbance) for log ε data.
+    """
     key = _normalize_unit_key(yunits_raw)
     if key in _YUNIT_ALIASES:
         return _YUNIT_ALIASES[key], None
+    if _is_log_epsilon_yunits(key):
+        return (
+            "intensity",
+            (
+                f"JCAMP YUNITS={yunits_raw!r} is log₁₀(ε) (molar absorptivity); "
+                "stored as intensity — not absorbance (A)"
+            ),
+        )
     if not key:
         return "intensity", "y_unit defaulted to intensity (YUNITS missing)"
     return (
@@ -517,7 +560,7 @@ def ingest_jcamp(
     Unit mapping (basic)
     --------------------
     XUNITS
-        ``NANOMETERS`` / ``NM`` → ``nm``;
+        ``NANOMETERS`` / ``NM`` / ``Wavelength (nm)`` → ``nm``;
         ``1/CM`` / ``CM-1`` → ``cm-1``;
         ``MICROMETERS`` / ``UM`` → convert ×1000 → ``nm``;
         missing XUNITS may be inferred from ``DATA TYPE`` (UV/VIS→nm, IR→cm-1);
@@ -526,6 +569,8 @@ def ingest_jcamp(
         ``ABSORBANCE`` → ``A``;
         ``TRANSMITTANCE`` / ``%T`` / percent labels → ``percent_T``
         (fraction transmittance with max ≤ 1.5 is scaled ×100);
+        ``Logarithm epsilon`` / ``LOG10(EPSILON)`` → ``intensity`` with a
+        note that the quantity is log₁₀(ε), **not** absorbance;
         unknown / missing → ``intensity`` with a note in ``meta["unit_notes"]``.
 
     X-direction is preserved (often descending for IR). Use

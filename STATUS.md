@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — TeachSpec Phase-0 software stub + Folder-waterfall tests + README Quick demo; CI setuptools/pip-audit + NiceGUI API drift + LabRF NiceGUI 3.x + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
+**As of:** 2026-09-19 (PT) — Public UV-Vis NIST fixtures (benzene/acetone/naphthalene) + JCAMP `Wavelength (nm)` / log-ε unit mapping; TeachSpec Phase-0 + Folder-waterfall + CI/LabRF/MVP polish
 
 ## Implemented
 
@@ -41,12 +41,19 @@
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
   labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
   NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
-- pytest: CSV + JCAMP ingest (**edge hardening**); **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
+- **Public UV-Vis fixtures** (`fixtures/public/`): NIST Chemistry WebBook SRD 69 JCAMP
+  benzene / acetone / naphthalene (`*_uvvis_nist.jdx`); ``##XUNITS=Wavelength (nm)`` → ``nm``;
+  ``##YUNITS=Logarithm epsilon`` → ``intensity`` with explicit note (**not** absorbance);
+  OWNER=INEP CP RAS, NIST OSRD + U.S. Secretary of Commerce 2007 copyright quoted in `SOURCES.md`;
+  UI **Load public: Benzene/Acetone/Naphthalene UV-Vis**; no compound-ID claims
+- JCAMP unit aliases: ``Wavelength (nm)`` / ``NANOMETERS`` / ``NM`` → ``nm``;
+  log₁₀(ε) YUNITS forms → intensity (documented)
+- pytest: CSV + JCAMP ingest (**edge hardening**); **public IR + UV-Vis fixture load**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
   - CSV / JCAMP (`.jdx`/`.dx`) path + file picker; one-click UV-Vis / IR / JCAMP synthetic
-    fixtures + **Load public: Ethanol/Methanol/Toluene IR**
+    fixtures + **Load public: Ethanol/Methanol/Toluene IR** + **Benzene/Acetone/Naphthalene UV-Vis**
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
   - Prominence control + peak table (x/y/prominence/**FWHM**/**area**) + **Export peaks CSV**
@@ -104,11 +111,11 @@
 - Hardware drivers beyond mock paths
 - NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
-- Broader chemistry sign-off / more public real examples (UV-Vis)
+- Broader chemistry sign-off / more public real examples (additional UV-Vis beyond the three NIST fixtures)
 - Time-axis metadata from filenames beyond sort-by-name / mtime (waterfall is stack offsets only)
 
 ## Blocked / human gates
 
-- Chemistry: confirm priority lab formats + additional public real examples (UV-Vis if openly available)
+- Chemistry: confirm priority lab formats + additional public real examples beyond current NIST UV-Vis set
 - Product: release claims / tags — JARTH
 - TeachSpec: USB-cam vs linear CCD sensor choice; Chemistry classroom safety review; BOM pricing

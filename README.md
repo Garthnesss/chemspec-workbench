@@ -18,7 +18,7 @@ not hardware-verified.
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
 TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength.
-Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR fixtures (Owner: Public domain) live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims.
+Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public domain) and NIST UV-Vis (log ε; INEP CP RAS / NIST OSRD) fixtures live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims. UV-Vis y is **not** absorbance.
 
 ## Install / Developer setup
 
@@ -54,7 +54,7 @@ pip install -e ".[ui,baselines]"
 pip install -e ".[labrf]"              # optional pyrtlsdr (hardware not required for CI)
 ```
 
-`jcamp` is a **required** dependency (not optional) so JCAMP ingest and public IR fixture tests work after a clean install.
+`jcamp` is a **required** dependency (not optional) so JCAMP ingest and public IR/UV-Vis fixture tests work after a clean install.
 
 ## Quick demo (showable in ~5 minutes)
 
@@ -74,7 +74,8 @@ pytest -q   # expect green before demos
 python -m chemspec.ui_app   # http://localhost:8080
 ```
 
-1. Click **Load public: Ethanol IR** (PNNL/NIST JCAMP in `fixtures/public/`).
+1. Click **Load public: Ethanol IR** (PNNL/NIST JCAMP in `fixtures/public/`)
+   or **Load public: Benzene UV-Vis** (NIST WebBook; y is log ε → intensity, not A).
 2. Optional: turn on baseline, tweak prominence, note FWHM/area in the peak table.
 3. Optional: **Export peaks CSV** or save a `.csw.json` analysis session.
 4. **Folder waterfall:** click **Demo waterfall fixture** (or Load folder → `fixtures/waterfall/`)
@@ -268,7 +269,7 @@ Sessions are analysis snapshots — **not** compound identification.
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames (no camera) |
-| `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
+| `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR + NIST UV-Vis) + `waterfall/` + `labrf/mock_iq.npz` |
 | `examples/` | Tutorials (ethanol IR walkthrough notebook + script) |
 | `tests/` | pytest (ChemSpec + LabRF + TeachSpec mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
@@ -281,7 +282,7 @@ Sessions are analysis snapshots — **not** compound identification.
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
 - `examples/README.md` — tutorial index (ethanol IR walkthrough)
 - `fixtures/waterfall/README.md` — synthetic multi-file waterfall demo folder
-- `fixtures/public/SOURCES.md` — NIST/PNNL public IR attribution
+- `fixtures/public/SOURCES.md` — NIST/PNNL public IR + NIST UV-Vis attribution
 
 ## Non-goals
 

@@ -72,6 +72,30 @@ FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
         "prominence": 0.05,
         "baseline_degree": 1,
     },
+    "public_benzene_uvvis": {
+        "label": "Public: Benzene UV-Vis (NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "benzene_uvvis_nist.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
+        "baseline_degree": 1,
+    },
+    "public_acetone_uvvis": {
+        "label": "Public: Acetone UV-Vis (NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "acetone_uvvis_nist.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
+        "baseline_degree": 1,
+    },
+    "public_naphthalene_uvvis": {
+        "label": "Public: Naphthalene UV-Vis (NIST)",
+        "path": PUBLIC_FIXTURES_DIR / "naphthalene_uvvis_nist.jdx",
+        "format": "jcamp",
+        "kind": "public",
+        "prominence": 0.05,
+        "baseline_degree": 1,
+    },
 }
 
 _TOKEN_RE = re.compile(r"[a-z0-9%]+", re.IGNORECASE)
