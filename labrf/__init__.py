@@ -13,7 +13,7 @@ from labrf.presets import PRESETS_DISCLAIMER, load_presets
 from labrf.stream import MockStreamGenerator, format_labrf_provenance
 from labrf.waterfall import WaterfallBuffer
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "generate_synthetic_iq",

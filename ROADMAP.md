@@ -55,10 +55,14 @@
 - [x] FID-NMR thin examples walkthrough + pytest smoke (`examples/fidnmr_walkthrough.py`; no notebook yet)
 - [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures
 
-## ChemSpec 0.2 — Measurement Integrity (in progress)
+## ChemSpec 0.2 — Measurement Integrity + TeachSpec UVC (release-prep Done)
 
 - [x] Peak measurement contract (prominence-relative FWHM/area + explicit Peak fields / CSV / UI)
 - [x] Session hashes + computational identity (`raw_data_hash`, fingerprint, format_version 2 + v1 migrate)
 - [x] Operation preconditions (smooth/baseline/normalize/despike → ProcessingError)
 - [x] Schema migration fixtures (`tests/fixtures/sessions/session_v1.json` + current)
 - [x] README Experimental framing for LabRF/TeachSpec + STATUS/ROADMAP + AUDIT doc
+- [x] TeachSpec UVC ingest stub → optional OpenCV live → NiceGUI `teachspec-ui` (Mock default)
+- [x] Version bump to **0.2.0** + Keep-a-Changelog `CHANGELOG.md` + `docs/RELEASE_0.2.md` checklist
+- [x] Classroom pilot one-pager (`docs/classroom_pilot_one_pager.md`)
+- [ ] **PyPI / TestPyPI publish** — waiting on maintainer credentials (user runs `twine`; see `docs/RELEASE_0.2.md`)

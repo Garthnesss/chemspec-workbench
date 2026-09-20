@@ -4,18 +4,48 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chemspec-workbench"
-version = "0.1.0"
+version = "0.2.0"
 description = "Software-only UV-Vis / IR spectrum workbench + LabRF + TeachSpec + FID/NMR stubs (Spectrum Family)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "JARTH / Spectrum Family" }]
+keywords = [
+    "spectroscopy",
+    "UV-Vis",
+    "IR",
+    "JCAMP",
+    "education",
+    "chemistry",
+    "NiceGUI",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Education",
+]
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
     "matplotlib>=3.7",
     "jcamp>=1.2",
 ]
+
+
+[project.urls]
+Homepage = "https://github.com/Garthnesss/chemspec-workbench"
+Repository = "https://github.com/Garthnesss/chemspec-workbench"
+Issues = "https://github.com/Garthnesss/chemspec-workbench/issues"
+Changelog = "https://github.com/Garthnesss/chemspec-workbench/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

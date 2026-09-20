@@ -8,6 +8,8 @@ overlay/stack traces, export peaks, A↔%T display, folder waterfall,
 **analysis session** save/load (`.csw.json` with `raw_data_hash` / `analysis_fingerprint`).
 Built on a reusable `spectrum_core` package (Spectrum Family).
 
+**Version:** `0.2.0` (Measurement Integrity + TeachSpec UVC). PyPI publish is prepared but **not** uploaded yet — see [`docs/RELEASE_0.2.md`](docs/RELEASE_0.2.md) and [`CHANGELOG.md`](CHANGELOG.md). Classroom pilot ask: [`docs/classroom_pilot_one_pager.md`](docs/classroom_pilot_one_pager.md).
+
 ### Experimental siblings (not the primary product)
 
 | App | Label | What it is today |
@@ -23,7 +25,16 @@ Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public 
 
 ## Install / Developer setup
 
-Fresh checkout (matches CI — includes `jcamp` from main deps plus pytest / UI / baselines):
+**When 0.2.0 is on PyPI** (maintainer publishes with credentials — not done yet):
+
+```bash
+pip install "chemspec-workbench[ui,baselines]"
+# optional TeachSpec live UVC:
+# pip install "chemspec-workbench[ui,baselines,teachspec]"
+chemspec-ui
+```
+
+Until then, use an editable checkout (matches CI — includes `jcamp` from main deps plus pytest / UI / baselines):
 
 ```bash
 cd chemspec-workbench

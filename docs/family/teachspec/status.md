@@ -2,7 +2,7 @@
 
 **As of:** 2026-09-20 (PT)  
 **Phase:** 0 — software stub Implemented; **USB camera (UVC) locked as v1 primary sensor**; optional live OpenCV UVC + NiceGUI preview Implemented  
-**Blocked on:** classroom safety review (SAFETY.md drafted), BOM v0 pricing pass, bench optical path
+**Blocked on:** classroom safety review (SAFETY.md drafted), BOM purchasable-class / dated quotes, bench optical path; ChemSpec 0.2.0 PyPI publish waits on credentials
 
 ## Done
 
@@ -20,9 +20,11 @@
 ## In progress / drafting
 
 - `SAFETY.md` classroom one-pager drafted (human teacher-facing sign-off still open)
-- `BOM_v0.md` skeleton for USB-cam path (placeholder line items; TBD price ranges)
+- `BOM_v0.md` USB-cam path line items (purchasable classes + approx USD ranges — estimates change; no fake affiliate SKUs)
 
 ## Next (human / Planned)
+
+- Classroom pilot outreach using `docs/classroom_pilot_one_pager.md`
 
 1. Safety review of SAFETY.md (teacher-facing sign-off)
 2. BOM v0 price pass + first optical bench spike
