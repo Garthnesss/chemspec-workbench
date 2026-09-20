@@ -216,3 +216,23 @@ def test_migrate_idempotent_on_current() -> None:
 def test_format_version_min_documented() -> None:
     assert SESSION_FORMAT_VERSION_MIN == 1
     assert SESSION_FORMAT_VERSION >= 2
+
+def test_raw_data_hash_ignores_units_fingerprint_includes_them():
+    """Arrays-only raw hash; unit change must alter analysis_fingerprint only."""
+    from spectrum_core.session import (
+        compute_analysis_fingerprint,
+        compute_raw_data_hash,
+    )
+    from spectrum_core.spectrum import Spectrum
+
+    a = Spectrum(x=[1.0, 2.0, 3.0], y=[0.1, 0.2, 0.3], x_unit="nm", y_unit="A")
+    b = Spectrum(x=[1.0, 2.0, 3.0], y=[0.1, 0.2, 0.3], x_unit="cm-1", y_unit="intensity")
+    assert compute_raw_data_hash(a) == compute_raw_data_hash(b)
+    fa = compute_analysis_fingerprint(
+        raw_data_hash=compute_raw_data_hash(a), x_unit=a.x_unit, y_unit=a.y_unit
+    )
+    fb = compute_analysis_fingerprint(
+        raw_data_hash=compute_raw_data_hash(b), x_unit=b.x_unit, y_unit=b.y_unit
+    )
+    assert fa != fb
+

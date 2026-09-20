@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — Audit polish: peak table baseline_ref + session fingerprint units docs
+
 **As of:** 2026-09-19 (PT) — Diagnostics SNR strip labeled heuristic (MAD-Δy can read very high on dense/smooth IR / PNNL)
 
 **As of:** 2026-09-19 (PT) — Session load UX: auto-replay pipeline history onto working (status + 2b caption; raw preserved)
