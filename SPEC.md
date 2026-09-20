@@ -14,7 +14,8 @@
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
 | `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area`) |
-| `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`): embedded x/y + units/title, original path, processing, peaks (FWHM/area), notes, provenance snapshot |
+| `processing` | Append-only pipeline: `ProcessingHistory` / `apply_step`; ops baseline, smooth (Savitzky–Golay), despike, normalize (max\|area); raw vs working via `PipelineState` |
+| `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`): embedded x/y + units/title, original path, processing, optional pipeline history, peaks (FWHM/area), notes, provenance snapshot |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
 | JCAMP advanced | Planned (multi-block / certification) |
 
@@ -26,6 +27,7 @@
   - Peak table + CSV download (incl. FWHM/area), A↔%T display toggle, folder waterfall
   - Baseline method picker (polynomial + optional AsLS/MPLS)
   - Analysis session save/load (download / path / upload; reproducible snapshot, not compound ID)
+  - Processing pipeline UI: history list, smooth + normalize + baseline steps, reset to raw
 
 ## Primary format
 
@@ -43,11 +45,12 @@ Versioned JSON (`format_version: 1`) for reproducible analysis sessions:
 | `software_version` | `spectrum_core` / package version string |
 | `spectrum` | Embedded `x` / `y` arrays + `x_unit` / `y_unit` / `title` / `source_path` / JSON-safe `meta` |
 | `processing` | `baseline_on`, `baseline_method`, `baseline_degree`, `flip_y_unit` (A↔%T display), `prominence`, `use_auto_prominence` |
+| `history` | Optional append-only list of `{name,params,timestamp,software_note}` pipeline steps (replay onto raw → working) |
 | `peaks` | List of `{index,x,y,prominence,fwhm,area}` (non-finite → JSON `null`) |
 | `notes` | Optional free-text string |
 | `provenance` | Snapshot (`source`, units, baseline, peak_count, `summary` line) |
 
-Prefer embedded arrays so reload works if the original path moves; `source_path` is retained for provenance. **Not** compound ID.
+Prefer embedded arrays so reload works if the original path moves; `source_path` is retained for provenance. `spectrum` is the **raw** copy; replay `history` for the working spectrum. **Not** compound ID.
 
 ## Non-goals
 

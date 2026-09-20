@@ -32,6 +32,7 @@
 - [x] Absorbance ↔ %T helper (core + UI display toggle; limits documented)
 - [x] Folder waterfall / stacked view (`ingest_folder` + `stack`)
 - [x] Analysis session save/load (`.csw.json` / `spectrum_core.session`)
+- [x] Processing pipeline + history (`spectrum_core.processing`; UI 2a)
 
 ## Phase 3b checklist
 

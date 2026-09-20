@@ -2,7 +2,8 @@
 
 Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks
 (center, height, prominence, **FWHM**, **area**), correct a simple baseline,
-overlay/stack traces, export peaks, A↔%T display, folder waterfall, and
+overlay/stack traces, export peaks, A↔%T display, folder waterfall,
+**processing pipeline** (baseline / smooth / normalize + step history), and
 **analysis session** save/load (`.csw.json`). Built on a
 reusable `spectrum_core` package (Spectrum Family).
 
@@ -103,6 +104,30 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 ```
 
 
+## Processing pipeline
+
+`spectrum_core.processing` keeps a **raw** spectrum separate from a **working** copy
+and an append-only **history** of steps (`name`, `params`, `timestamp`, `software_note`):
+
+| Op | Notes |
+|----|--------|
+| `baseline` | Reuses `baseline_correct` (polynomial / optional asls/mpls) |
+| `smooth` | Savitzky–Golay (`scipy.signal.savgol_filter`) |
+| `despike` | Optional local median / z-score style spike replace (teaching aid) |
+| `normalize` | Optional `max` (÷ peak \|y\|) or `area` (÷ ∫\|y\| dx) |
+
+```python
+from spectrum_core import ingest, apply_step, replay_history, save_session
+
+raw = ingest("sample.csv")
+working, history = apply_step(raw, None, "smooth", {"window_length": 11, "polyorder": 3})
+working, history = apply_step(working, history, "normalize", {"mode": "max"})
+save_session("analysis.csw.json", raw, history=history)  # stores raw + history
+loaded = ...  # load_session → replay_history(loaded.spectrum, loaded.history)
+```
+
+NiceGUI (**2a · Processing pipeline**): history list, Apply baseline / smooth / normalize, Reset to raw.
+
 ## Analysis sessions
 
 Save a reproducible analysis snapshot from the NiceGUI UI (**2b · Analysis session**)
@@ -125,7 +150,7 @@ session = load_session("analysis.csw.json")  # embedded x/y — path may have mo
 ```
 
 File extensions: `.csw.json` or `.chemspec.json`. Schema is documented in `SPEC.md`
-(`format_version`, embedded spectrum, processing, peaks, notes, provenance).
+(`format_version`, embedded raw spectrum, processing, pipeline history, peaks, notes, provenance).
 Sessions are analysis snapshots — **not** compound identification.
 
 ## Layout

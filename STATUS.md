@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Session save/load + Peak FWHM/area + CI clean-install + public IR fixtures + LabRF polish + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — Processing pipeline + history + Session save/load + Peak FWHM/area + CI + public IR fixtures + LabRF polish + ChemSpec MVP
 
 ## Implemented
 
@@ -27,14 +27,19 @@
 - **Analysis session save/load** — `spectrum_core.session` (`save_session` / `load_session`)
   versioned JSON (`.csw.json` / `.chemspec.json`, `format_version: 1`): embedded x/y + units/title,
   original `source_path`, processing (baseline method/params, A↔%T display, prominence),
-  peaks (incl. FWHM/area), optional notes, provenance snapshot; schema validation + round-trip tests;
-  NiceGUI download / path write / path load / upload — **not** compound ID
+  optional append-only pipeline `history`, peaks (incl. FWHM/area), optional notes, provenance snapshot;
+  schema validation + round-trip tests; NiceGUI download / path write / path load / upload — **not** compound ID
+- **Processing pipeline + history** — `spectrum_core.processing`:
+  `ProcessingStep` / `ProcessingHistory` (name, params, timestamp, software_note; append-only);
+  `apply_step(spectrum, history, step) → (new_spectrum, history)`; `PipelineState` keeps raw vs working;
+  ops: **baseline** (reuse `baseline_correct`), **smooth** (Savitzky–Golay), **despike** (median/z-score style),
+  **normalize** (max or area); session stores history; UI history list + smooth/normalize/baseline + reset to raw
 - **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
 - Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
   labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
   NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
-- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance; **session save/load round-trip + schema**
+- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
@@ -47,7 +52,8 @@
   - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)
   - **Folder waterfall** (path or demo `fixtures/waterfall/`)
-  - **Session save/load** (download `.csw.json`, write/load path, upload; notes field)
+  - **Session save/load** (download `.csw.json`, write/load path, upload; notes field; stores pipeline history)
+  - **Processing pipeline** (history list; Apply baseline / smooth / normalize; Reset to raw)
 - Optional extras: `pip install -e ".[ui]"` (`nicegui`, `plotly`); `pip install -e ".[baselines]"` (`pybaselines`, BSD-3); recommended UI try: `pip install -e ".[ui,baselines]"`
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:

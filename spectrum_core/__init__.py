@@ -32,6 +32,19 @@ from spectrum_core.session import (
     session_from_dict,
     session_to_dict,
 )
+from spectrum_core.processing import (
+    PIPELINE_STEPS,
+    ProcessingHistory,
+    ProcessingStep,
+    PipelineState,
+    apply_step,
+    make_step,
+    op_baseline,
+    op_despike,
+    op_normalize,
+    op_smooth,
+    replay_history,
+)
 
 __all__ = [
     "Spectrum",
@@ -70,6 +83,17 @@ __all__ = [
     "load_session",
     "session_to_dict",
     "session_from_dict",
+    "ProcessingStep",
+    "ProcessingHistory",
+    "PipelineState",
+    "PIPELINE_STEPS",
+    "apply_step",
+    "make_step",
+    "replay_history",
+    "op_baseline",
+    "op_smooth",
+    "op_despike",
+    "op_normalize",
 ]
 
 __version__ = "0.1.0"

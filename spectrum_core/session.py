@@ -2,7 +2,9 @@
 
 Session files (``.csw.json`` / ``.chemspec.json``) embed the spectrum arrays so
 reload works if the original path moves. They also store processing params,
-peaks (incl. FWHM/area), optional notes, and a provenance snapshot.
+optional append-only pipeline ``history`` steps, peaks (incl. FWHM/area),
+optional notes, and a provenance snapshot. ``spectrum`` is the raw copy;
+replay ``history`` for the working spectrum.
 
 This is a reproducible *analysis* snapshot — not compound identification.
 """
@@ -18,6 +20,7 @@ from typing import Any
 import numpy as np
 
 from spectrum_core.peaks import Peak
+from spectrum_core.processing import ProcessingHistory
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 
 SESSION_FORMAT_VERSION = 1
@@ -52,6 +55,7 @@ class SessionData:
     source_path: str = ""
     format_version: int = SESSION_FORMAT_VERSION
     software_version: str = ""
+    history: ProcessingHistory = field(default_factory=ProcessingHistory)
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
 
@@ -295,8 +299,13 @@ def session_to_dict(
     source_path: str | None = None,
     provenance: dict[str, Any] | None = None,
     software_version: str | None = None,
+    history: ProcessingHistory | list[Any] | None = None,
 ) -> dict[str, Any]:
-    """Build a format_version=1 session payload (no I/O)."""
+    """Build a format_version=1 session payload (no I/O).
+
+    ``spectrum`` should be the *raw* (unprocessed) spectrum. Pipeline steps are
+    stored in ``history`` so callers can replay onto a working copy.
+    """
     peaks = peaks or []
     proc = normalize_processing(processing)
     src = source_path if source_path is not None else str(
@@ -310,6 +319,12 @@ def session_to_dict(
         peak_count=len(peaks),
         package_version=ver,
     )
+    if isinstance(history, ProcessingHistory):
+        hist_list = history.to_list()
+    elif history is None:
+        hist_list = []
+    else:
+        hist_list = ProcessingHistory.from_list(list(history)).to_list()
     return {
         "format_version": SESSION_FORMAT_VERSION,
         "software_version": ver or "",
@@ -318,6 +333,7 @@ def session_to_dict(
         "peaks": [peak_to_dict(p) for p in peaks],
         "notes": notes if notes is not None else "",
         "provenance": prov,
+        "history": hist_list,
     }
 
 
@@ -355,6 +371,13 @@ def validate_session_dict(data: Any) -> dict[str, Any]:
     if "provenance" in data and data["provenance"] is not None:
         if not isinstance(data["provenance"], dict):
             raise SessionError("provenance must be an object")
+    if "history" in data and data["history"] is not None:
+        if not isinstance(data["history"], list):
+            raise SessionError("history must be an array")
+        try:
+            ProcessingHistory.from_list(data["history"])
+        except (TypeError, ValueError) as exc:
+            raise SessionError(f"invalid history: {exc}") from exc
     return data
 
 
@@ -375,6 +398,10 @@ def session_from_dict(data: dict[str, Any]) -> SessionData:
     spec_block = data.get("spectrum") or {}
     if isinstance(spec_block, dict):
         source_path = str(spec_block.get("source_path") or "")
+    try:
+        history = ProcessingHistory.from_list(data.get("history"))
+    except (TypeError, ValueError) as exc:
+        raise SessionError(f"invalid history: {exc}") from exc
     return SessionData(
         spectrum=spectrum,
         processing=processing,
@@ -384,6 +411,7 @@ def session_from_dict(data: dict[str, Any]) -> SessionData:
         source_path=source_path,
         format_version=int(data["format_version"]),
         software_version=str(data.get("software_version") or ""),
+        history=history,
         raw=dict(data),
     )
 
@@ -398,6 +426,7 @@ def save_session(
     source_path: str | None = None,
     provenance: dict[str, Any] | None = None,
     software_version: str | None = None,
+    history: ProcessingHistory | list[Any] | None = None,
 ) -> dict[str, Any]:
     """Write a ``.csw.json`` / ``.chemspec.json`` session file; return the payload."""
     path = Path(path)
@@ -409,6 +438,7 @@ def save_session(
         source_path=source_path,
         provenance=provenance,
         software_version=software_version,
+        history=history,
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -461,6 +491,7 @@ __all__ = [
     "spectrum_to_session_dict",
     "spectrum_from_session_dict",
     "session_download_filename",
+    "ProcessingHistory",
     "XUnit",
     "YUnit",
 ]

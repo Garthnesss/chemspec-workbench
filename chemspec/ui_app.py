@@ -16,8 +16,10 @@ from typing import Any
 
 from spectrum_core import (
     Peak,
+    ProcessingHistory,
     SessionError,
     Spectrum,
+    apply_step,
     available_baseline_methods,
     baseline_correct,
     can_convert_y,
@@ -32,6 +34,7 @@ from spectrum_core import (
     load_session,
     overlay,
     peaks_to_csv,
+    replay_history,
     save_session,
     session_to_dict,
 )
@@ -97,6 +100,12 @@ class WorkbenchState:
         self.baseline_method: str = "polynomial"
         self.baseline_degree: int = 1
         self.flip_y_unit: bool = False  # A ↔ %T display conversion when allowed
+        # Processing pipeline: primary = raw; working = processed copy; history append-only
+        self.working: Spectrum | None = None
+        self.history: ProcessingHistory = ProcessingHistory()
+        self.smooth_window: int = 11
+        self.smooth_polyorder: int = 3
+        self.normalize_mode: str = "max"
         self.peaks: list[Peak] = []
         self.notes: str = ""
         self.waterfall: list[Spectrum] = []
@@ -115,16 +124,41 @@ def _apply_y_flip(state: WorkbenchState, spec: Spectrum) -> Spectrum:
     return convert_spectrum_y(spec, target)
 
 
+def _reset_pipeline(state: WorkbenchState) -> None:
+    """Set working = copy of raw primary; clear history."""
+    if state.primary is None:
+        state.working = None
+        state.history = ProcessingHistory()
+        return
+    state.working = state.primary.copy()
+    state.history = ProcessingHistory()
+
+
 def _working_spectrum(state: WorkbenchState, spec: Spectrum | None) -> Spectrum | None:
+    """Return display/analysis spectrum without mutating raw ``primary``.
+
+    For the primary trace, prefer ``state.working`` (pipeline result). When
+    history is empty, the legacy baseline toggle still applies on the fly.
+    Overlay uses the live baseline toggle only (no shared history).
+    """
     if spec is None:
         return None
-    work = spec
-    if state.baseline_on:
-        work = baseline_correct(
-            work,
-            method=state.baseline_method,
-            degree=state.baseline_degree,
-        )
+    if spec is state.primary:
+        work = state.working if state.working is not None else spec
+        if len(state.history) == 0 and state.baseline_on:
+            work = baseline_correct(
+                state.primary,
+                method=state.baseline_method,
+                degree=state.baseline_degree,
+            )
+    else:
+        work = spec
+        if state.baseline_on:
+            work = baseline_correct(
+                work,
+                method=state.baseline_method,
+                degree=state.baseline_degree,
+            )
     return _apply_y_flip(state, work)
 
 
@@ -186,6 +220,17 @@ def _load_session_path(state: WorkbenchState, path: Path | str) -> None:
     state.prominence = float(proc.get("prominence", 0.15))
     state.use_auto_prominence = bool(proc.get("use_auto_prominence", False))
     state.notes = data.notes or ""
+    # Replay pipeline history onto working; raw primary stays as embedded spectrum
+    try:
+        if len(data.history) > 0:
+            state.working, state.history = replay_history(data.spectrum, data.history)
+            # History owns baseline; avoid double-applying live toggle
+            state.baseline_on = False
+        else:
+            _reset_pipeline(state)
+    except Exception as exc:  # noqa: BLE001
+        state.error = f"Session history replay failed: {exc}"
+        _reset_pipeline(state)
     # Prefer stored peaks (reproducible snapshot); fall back to recompute
     if data.peaks:
         state.peaks = list(data.peaks)
@@ -194,7 +239,7 @@ def _load_session_path(state: WorkbenchState, path: Path | str) -> None:
     n_pts = len(data.spectrum)
     state.status = (
         f"Session loaded: {path.name} — {n_pts} pts, "
-        f"peaks={len(state.peaks)}, baseline="
+        f"peaks={len(state.peaks)}, history={len(state.history)}, baseline="
         f"{'on/' + state.baseline_method if state.baseline_on else 'off'}"
     )
 
@@ -350,6 +395,7 @@ def _load_waterfall_folder(state: WorkbenchState, folder: Path | str) -> None:
     state.x_unit = raw[0].x_unit
     state.y_unit = raw[0].y_unit
     state.flip_y_unit = False
+    _reset_pipeline(state)
     _recompute_peaks(state)
     state.status = (
         f"Waterfall: {len(stacked)} spectra from {folder.name} "
@@ -590,6 +636,15 @@ def create_app() -> WorkbenchState:
             widgets["overlay_path_input"].value = state.overlay_path
         if state.waterfall_folder:
             widgets["folder_input"].value = state.waterfall_folder
+        if "history_list" in widgets:
+            lines = state.history.summary_lines()
+            widgets["history_list"].set_text(
+                "\n".join(lines) if lines else "(no pipeline steps — raw)"
+            )
+        if "smooth_window" in widgets:
+            widgets["smooth_window"].value = state.smooth_window
+            widgets["smooth_polyorder"].value = state.smooth_polyorder
+            widgets["normalize_mode"].value = state.normalize_mode
 
     def on_load_path() -> None:
         state.x_col = _parse_col(str(widgets["x_col_input"].value or "0"))
@@ -730,6 +785,7 @@ def create_app() -> WorkbenchState:
                 peaks=state.peaks,
                 notes=state.notes,
                 source_path=state.primary_path or None,
+                history=state.history,
             )
         except Exception as exc:  # noqa: BLE001
             state.error = f"Session save failed: {exc}"
@@ -794,6 +850,7 @@ def create_app() -> WorkbenchState:
                 peaks=state.peaks,
                 notes=state.notes,
                 source_path=state.primary_path or None,
+                history=state.history,
             )
         except Exception as exc:  # noqa: BLE001
             state.error = f"Session save failed: {exc}"
@@ -803,7 +860,76 @@ def create_app() -> WorkbenchState:
         state.error = ""
         refresh_ui()
 
+    def _sync_pipeline_widgets() -> None:
+        state.baseline_method = str(widgets["baseline_method"].value or "polynomial")
+        state.baseline_degree = int(widgets["degree_input"].value or 1)
+        state.smooth_window = int(widgets["smooth_window"].value or 11)
+        state.smooth_polyorder = int(widgets["smooth_polyorder"].value or 3)
+        state.normalize_mode = str(widgets["normalize_mode"].value or "max")
+
+    def _apply_pipeline_step(name: str, params: dict) -> None:
+        if state.primary is None:
+            state.error = "Load a spectrum before applying pipeline steps."
+            refresh_ui()
+            return
+        if state.working is None:
+            _reset_pipeline(state)
+        try:
+            state.working, state.history = apply_step(
+                state.working, state.history, name, params
+            )
+            # Pipeline owns transforms; clear live baseline toggle to avoid double apply
+            state.baseline_on = False
+            widgets["baseline_toggle"].value = False
+            _recompute_peaks(state)
+            state.error = ""
+            state.status = (
+                f"Applied {name} — history={len(state.history)}, "
+                f"peaks={len(state.peaks)}"
+            )
+        except Exception as exc:  # noqa: BLE001
+            state.error = f"Pipeline {name} failed: {exc}"
+        refresh_ui()
+
+    def on_apply_baseline_step() -> None:
+        _sync_pipeline_widgets()
+        _apply_pipeline_step(
+            "baseline",
+            {
+                "method": state.baseline_method,
+                "degree": state.baseline_degree,
+            },
+        )
+
+    def on_apply_smooth_step() -> None:
+        _sync_pipeline_widgets()
+        _apply_pipeline_step(
+            "smooth",
+            {
+                "window_length": state.smooth_window,
+                "polyorder": state.smooth_polyorder,
+            },
+        )
+
+    def on_apply_normalize_step() -> None:
+        _sync_pipeline_widgets()
+        _apply_pipeline_step("normalize", {"mode": state.normalize_mode})
+
+    def on_reset_to_raw() -> None:
+        if state.primary is None:
+            state.error = "Nothing to reset — load a spectrum first."
+            refresh_ui()
+            return
+        _reset_pipeline(state)
+        state.baseline_on = False
+        widgets["baseline_toggle"].value = False
+        _recompute_peaks(state)
+        state.error = ""
+        state.status = f"Reset to raw — {state.primary.title} ({len(state.primary)} pts)"
+        refresh_ui()
+
     def on_load_folder() -> None:
+
         state.x_col = _parse_col(str(widgets["x_col_input"].value or "0"))
         state.y_col = _parse_col(str(widgets["y_col_input"].value or "1"))
         state.x_unit = str(widgets["x_unit_select"].value)
@@ -969,6 +1095,54 @@ def create_app() -> WorkbenchState:
                 "Polynomial is the default/fallback. asls / mpls use optional "
                 "pybaselines (BSD-3) — correction only; no compound ID."
             ).classes("text-caption text-grey-7")
+
+            ui.separator()
+            ui.label("2a · Processing pipeline").classes("text-subtitle1")
+            ui.label(
+                "Append-only steps on a working copy; raw spectrum is never mutated. "
+                "Ops: baseline · smooth (Savitzky–Golay) · normalize (max|area). "
+                "Optional despike is available in spectrum_core. Not compound ID."
+            ).classes("text-caption text-grey-7")
+            with ui.row().classes("w-full q-gutter-sm"):
+                widgets["smooth_window"] = ui.number(
+                    label="Smooth window (odd)",
+                    value=11,
+                    min=3,
+                    max=101,
+                    step=2,
+                    format="%.0f",
+                ).classes("col")
+                widgets["smooth_polyorder"] = ui.number(
+                    label="Smooth polyorder",
+                    value=3,
+                    min=0,
+                    max=5,
+                    step=1,
+                    format="%.0f",
+                ).classes("col")
+            widgets["normalize_mode"] = ui.select(
+                ["max", "area"],
+                label="Normalize mode",
+                value="max",
+            ).classes("w-full")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button(
+                    "Apply baseline", on_click=on_apply_baseline_step
+                ).props("outline color=primary")
+                ui.button(
+                    "Apply smooth", on_click=on_apply_smooth_step
+                ).props("outline color=primary")
+                ui.button(
+                    "Apply normalize", on_click=on_apply_normalize_step
+                ).props("outline color=primary")
+                ui.button("Reset to raw", on_click=on_reset_to_raw).props(
+                    "flat color=negative"
+                )
+            ui.label("History").classes("text-caption")
+            widgets["history_list"] = ui.label("(no pipeline steps — raw)").classes(
+                "text-caption font-mono text-grey-8"
+            ).style("white-space: pre-wrap")
+
             widgets["flip_y"] = ui.checkbox(
                 "A ↔ %T display (when y is A or percent_T)",
                 value=False,
@@ -986,7 +1160,7 @@ def create_app() -> WorkbenchState:
             ui.label("2b · Analysis session").classes("text-subtitle1")
             ui.label(
                 "Save / load a versioned .csw.json (or .chemspec.json) with "
-                "embedded spectrum, processing, peaks, notes, and provenance. "
+                "embedded raw spectrum, processing, pipeline history, peaks, notes, and provenance. "
                 "Reproducible analysis snapshot — not compound ID."
             ).classes("text-caption text-grey-7")
             widgets["notes_input"] = ui.textarea(
