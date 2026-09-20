@@ -104,6 +104,24 @@ python -m chemspec.demo
 python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 ```
 
+## Examples / Tutorials
+
+Short walkthroughs (matplotlib; NiceGUI not required):
+
+| Path | Notes |
+|------|--------|
+| [`examples/ethanol_ir_walkthrough.ipynb`](examples/ethanol_ir_walkthrough.ipynb) | ~5–10 min public ethanol IR JCAMP → baseline/smooth → peaks (FWHM/area) → optional CSV/session |
+| [`examples/ethanol_ir_walkthrough.py`](examples/ethanol_ir_walkthrough.py) | Headless twin of the notebook |
+
+```bash
+pip install -e ".[dev,ui,baselines]"
+python examples/ethanol_ir_walkthrough.py
+# or open examples/ethanol_ir_walkthrough.ipynb
+```
+
+See [`examples/README.md`](examples/README.md). Analysis path only — **no compound identification**.
+Attribution for the public fixture: [`fixtures/public/SOURCES.md`](fixtures/public/SOURCES.md).
+
 
 ## Processing pipeline
 
@@ -162,6 +180,7 @@ Sessions are analysis snapshots — **not** compound identification.
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
+| `examples/` | Tutorials (ethanol IR walkthrough notebook + script) |
 | `tests/` | pytest (ChemSpec + LabRF mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 
@@ -170,6 +189,7 @@ Sessions are analysis snapshots — **not** compound identification.
 - `PROJECT_TRUTH.md` / `SPEC.md` / `ROADMAP.md` / `STATUS.md` — ChemSpec
 - `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
+- `examples/README.md` — tutorial index (ethanol IR walkthrough)
 
 ## Non-goals
 

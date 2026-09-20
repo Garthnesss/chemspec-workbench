@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — LICENSE (MIT) + Dependabot + pip-audit CI + Processing pipeline + Session + Peak FWHM/area + public IR fixtures + LabRF + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — Ethanol IR tutorial + LICENSE (MIT) + Dependabot + pip-audit CI + Processing pipeline + Session + Peak FWHM/area + public IR fixtures + LabRF + ChemSpec MVP
 
 ## Implemented
 
@@ -55,7 +55,11 @@
   - **Session save/load** (download `.csw.json`, write/load path, upload; notes field; stores pipeline history)
   - **Processing pipeline** (history list; Apply baseline / smooth / normalize; Reset to raw)
 - Optional extras: `pip install -e ".[ui]"` (`nicegui`, `plotly`); `pip install -e ".[baselines]"` (`pybaselines`, BSD-3); recommended UI try: `pip install -e ".[ui,baselines]"`
-- Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
+- **Ethanol IR tutorial** — `examples/ethanol_ir_walkthrough.ipynb` (+ `.py` twin):
+  load public `ethanol_ir_pnnl.jdx`, cite `SOURCES.md`, plot (matplotlib), pipeline
+  baseline+smooth, peaks with FWHM/area, optional peaks CSV / `.csw.json` session;
+  clear no-compound-ID disclaimer; pytest smoke on the script (no nbconvert in CI yet)
+- Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
   Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, **`pip-audit`** (fails on known vulns), `pytest -q`;
   `jcamp` in main deps; `make test` / `scripts/ci-test.sh` mirror CI locally
