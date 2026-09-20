@@ -31,6 +31,7 @@
 - [x] Peak FWHM + half-max area on `Peak` / CSV / UI table
 - [x] Absorbance ↔ %T helper (core + UI display toggle; limits documented)
 - [x] Folder waterfall / stacked view (`ingest_folder` + `stack`)
+- [x] Optional 3-D surface for folder traces (`spectra_to_surface`; series index ≠ time)
 - [x] Analysis session save/load (`.csw.json` / `spectrum_core.session`)
 - [x] Processing pipeline + history (`spectrum_core.processing`; UI 2a)
 
@@ -57,4 +58,3 @@
 - [x] Operation preconditions (smooth/baseline/normalize/despike → ProcessingError)
 - [x] Schema migration fixtures (`tests/fixtures/sessions/session_v1.json` + current)
 - [x] README Experimental framing for LabRF/TeachSpec + STATUS/ROADMAP + AUDIT doc
-
