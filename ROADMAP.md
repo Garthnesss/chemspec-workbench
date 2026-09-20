@@ -48,7 +48,8 @@
 - [x] Public NIST UV-Vis fixtures (benzene / acetone / naphthalene) + SOURCES honesty (log₁₀(ε) ≠ absorbance)
 - [x] UV-Vis tutorial trio (walkthrough notebook + `.py` twins; pytest smoke, no nbconvert CI)
 - [x] LabRF mock demo polish in-repo (stream / threshold / peak-hold / PNG)
-- [x] TeachSpec Phase-0 software stub (cal + mock frames; no camera/CCD)
+- [x] TeachSpec Phase-0 software stub (cal + mock frames; no live camera)
+- [x] TeachSpec v1 sensor lock: USB camera (UVC) primary; SAFETY.md + BOM_v0 skeleton (docs)
 - [ ] FID-NMR playground beyond design docs
 - [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures
 

@@ -1,6 +1,10 @@
 """Optical live-frame adapter: 1-D intensity → spectrum_core.Spectrum.
 
 Synthetic / calibrated path only in Phase 0 — no camera libraries.
+
+Future ingest target (not Implemented): UVC webcam frame → extract a 1-D
+row (or column) of pixels → OpticalLiveFrame. Live OpenCV/UVC drivers are
+out of scope until a dedicated ingest spike; do not claim camera capture here.
 """
 
 from __future__ import annotations
