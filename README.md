@@ -164,12 +164,15 @@ Short walkthroughs (matplotlib; NiceGUI not required):
 | [`examples/ethanol_ir_walkthrough.py`](examples/ethanol_ir_walkthrough.py) | Headless twin of the notebook |
 | [`examples/benzene_uvvis_walkthrough.ipynb`](examples/benzene_uvvis_walkthrough.ipynb) | ~5–10 min public NIST benzene UV-Vis JCAMP → log₁₀(ε) intensity plot (**not** A) → baseline/smooth → peaks → optional CSV/session |
 | [`examples/benzene_uvvis_walkthrough.py`](examples/benzene_uvvis_walkthrough.py) | Headless twin of the notebook |
+| [`examples/acetone_uvvis_walkthrough.ipynb`](examples/acetone_uvvis_walkthrough.ipynb) | ~5–10 min public NIST acetone UV-Vis JCAMP → log₁₀(ε) intensity plot (**not** A) → baseline/smooth → peaks → optional CSV/session |
+| [`examples/acetone_uvvis_walkthrough.py`](examples/acetone_uvvis_walkthrough.py) | Headless twin of the notebook |
 
 ```bash
 pip install -e ".[dev,ui,baselines]"
 python examples/ethanol_ir_walkthrough.py
 python examples/benzene_uvvis_walkthrough.py
-# or open examples/ethanol_ir_walkthrough.ipynb / benzene_uvvis_walkthrough.ipynb
+python examples/acetone_uvvis_walkthrough.py
+# or open examples/ethanol_ir_walkthrough.ipynb / benzene_uvvis_walkthrough.ipynb / acetone_uvvis_walkthrough.ipynb
 ```
 
 See [`examples/README.md`](examples/README.md). Analysis path only — **no compound identification**.
@@ -273,7 +276,7 @@ Sessions are analysis snapshots — **not** compound identification.
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames (no camera) |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR + NIST UV-Vis) + `waterfall/` + `labrf/mock_iq.npz` |
-| `examples/` | Tutorials (ethanol IR + benzene UV-Vis walkthrough notebook + script twins) |
+| `examples/` | Tutorials (ethanol IR + benzene/acetone UV-Vis walkthrough notebook + script twins) |
 | `tests/` | pytest (ChemSpec + LabRF + TeachSpec mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 
@@ -283,7 +286,7 @@ Sessions are analysis snapshots — **not** compound identification.
 - `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
 - `docs/family/teachspec/` — TeachSpec Truth / SPEC / roadmap / status (Phase-0 software stub)
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
-- `examples/README.md` — tutorial index (ethanol IR + benzene UV-Vis walkthroughs)
+- `examples/README.md` — tutorial index (ethanol IR + benzene/acetone UV-Vis walkthroughs)
 - `fixtures/waterfall/README.md` — synthetic multi-file waterfall demo folder
 - `fixtures/public/SOURCES.md` — NIST/PNNL public IR + NIST UV-Vis attribution
 
