@@ -14,8 +14,10 @@ import numpy as np
 
 from labrf.backend import MockIqSource
 from labrf.events import ThresholdEventLog
+from labrf.export_png import export_spectrum_png, export_waterfall_png
 from labrf.fft_spectrum import iq_to_spectrum
 from labrf.iq import DEFAULT_IQ_FIXTURE, ensure_default_fixture, load_iq_fixture
+from labrf.peak_hold import PeakHoldTracker
 from labrf.presets import PRESETS_DISCLAIMER, load_presets
 from labrf.stream import MockStreamGenerator, format_labrf_provenance, format_stream_status
 from labrf.waterfall import WaterfallBuffer
@@ -57,6 +59,7 @@ class LabRfState:
         self.spectrum: Spectrum | None = None
         self.peaks: list[Peak] = []
         self.waterfall = WaterfallBuffer(maxlen=_WATERFALL_DEPTH)
+        self.peak_hold = PeakHoldTracker(enabled=False)
         self.prominence: float | None = None  # auto
         self.source_kind = "mock"
         self.streaming = False
@@ -100,6 +103,7 @@ def _apply_preset(state: LabRfState, preset_id: str) -> None:
     _rebuild_stream(state)
     # Retune changes the MHz axis — drop prior rows so heatmap labels stay honest
     state.waterfall.clear()
+    state.peak_hold.clear()
     state.status = (
         f"Preset: {p.name} @ {_format_mhz(p.center_hz)} MHz "
         "(educational · waterfall cleared)"
@@ -112,6 +116,9 @@ def _ingest_spectrum(state: LabRfState, spec: Spectrum) -> bool:
     state.spectrum = spec
     state.peaks = find_peaks(spec, prominence=state.prominence)
     axis_reset = state.waterfall.push(spec)
+    if axis_reset:
+        state.peak_hold.clear()
+    state.peak_hold.update(spec)
     state.event_log.check(spec, state.peaks)
     return axis_reset
 
@@ -172,6 +179,7 @@ def _load_fixture(state: LabRfState) -> None:
         meta={**meta, "source": "fixture"},
     )
     state.waterfall.clear()
+    state.peak_hold.clear()
     _ingest_spectrum(state, spec)
     state.status = f"Loaded fixture {DEFAULT_IQ_FIXTURE.name} (synthetic)"
     state.error = ""
@@ -192,6 +200,17 @@ def _spectrum_figure(state: LabRfState) -> go.Figure:
     fig.add_trace(
         go.Scatter(x=s.x, y=s.y, mode="lines", name="Power", line=dict(width=1.5))
     )
+    held = state.peak_hold.held
+    if state.peak_hold.enabled and held is not None:
+        fig.add_trace(
+            go.Scatter(
+                x=held.x,
+                y=held.y,
+                mode="lines",
+                name="Peak-hold / max-hold",
+                line=dict(width=1.2, dash="dash", color="#d62728"),
+            )
+        )
     thr = state.event_log.threshold_db
     fig.add_hline(
         y=thr,
@@ -471,6 +490,76 @@ def build_ui() -> None:
 
         ui.timer(_STREAM_INTERVAL_S, on_timer)
 
+    # --- Peak-hold + PNG export ---
+    with ui.card().classes("w-full"):
+        ui.label("Peak-hold / max-hold + PNG export").classes("text-h6")
+        ui.label(
+            "Peak-hold keeps the per-bin maximum across mock frames (educational). "
+            "PNG export uses matplotlib (no dongle). Not hardware-verified."
+        ).classes("text-caption")
+        hold_switch = ui.switch(
+            "Enable peak-hold / max-hold",
+            value=state.peak_hold.enabled,
+        )
+
+        def on_hold_toggle() -> None:
+            state.peak_hold.enabled = bool(hold_switch.value)
+            if state.peak_hold.enabled and state.spectrum is not None:
+                state.peak_hold.update(state.spectrum)
+            state.status = (
+                "Peak-hold enabled"
+                if state.peak_hold.enabled
+                else "Peak-hold disabled"
+            )
+            refresh()
+
+        hold_switch.on_value_change(lambda _e: on_hold_toggle())
+
+        with ui.row().classes("gap-2 flex-wrap"):
+            ui.button(
+                "Reset peak-hold",
+                on_click=lambda: (
+                    state.peak_hold.clear(),
+                    setattr(state, "status", "Peak-hold cleared"),
+                    refresh(),
+                ),
+            ).props("outline")
+
+            def export_spec_png() -> None:
+                if state.spectrum is None:
+                    state.error = "No spectrum to export"
+                    refresh()
+                    return
+                import io
+
+                buf = io.BytesIO()
+                export_spectrum_png(
+                    state.spectrum,
+                    buf,
+                    peak_hold=state.peak_hold.held if state.peak_hold.enabled else None,
+                    peaks=state.peaks,
+                    threshold_db=state.event_log.threshold_db,
+                )
+                ui.download(buf.getvalue(), "labrf_spectrum.png")
+                state.status = "Exported spectrum PNG (educational / mock)"
+                refresh()
+
+            def export_wf_png() -> None:
+                if len(state.waterfall) == 0:
+                    state.error = "Waterfall empty — capture or stream first"
+                    refresh()
+                    return
+                import io
+
+                buf = io.BytesIO()
+                export_waterfall_png(state.waterfall, buf)
+                ui.download(buf.getvalue(), "labrf_waterfall.png")
+                state.status = "Exported waterfall PNG (educational / mock)"
+                refresh()
+
+            ui.button("Export spectrum PNG", on_click=export_spec_png).props("outline")
+            ui.button("Export waterfall PNG", on_click=export_wf_png).props("outline")
+
     # --- Threshold card ---
     with ui.card().classes("w-full"):
         ui.label("Threshold event log").classes("text-h6")
@@ -523,6 +612,8 @@ def build_ui() -> None:
             "- Presets are **educational**, not regulatory advice.\n"
             "- Streaming uses **synthetic mock IQ** by default "
             "(fixture / RTL optional).\n"
+            "- Peak-hold / PNG export are **mock-path educational** helpers "
+            "(not hardware-verified).\n"
             "- Live RTL-SDR needs `pip install -e \".[labrf]\"` + hardware "
             "(not required for this mock UI)."
         )

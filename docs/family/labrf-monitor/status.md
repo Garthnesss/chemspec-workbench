@@ -1,7 +1,7 @@
 # Status — LabRF Monitor
 
 **As of:** 2026-09-19 (PT)  
-**Phase:** 1 — mock RF path (demo-polish: streaming + threshold log)  
+**Phase:** 1 — mock RF path (demo-polish: streaming + threshold + peak-hold/PNG)  
 **Blocked on:** named dongle + antenna + capture log for hardware-verified live RTL
 
 ## Implemented (Phase 1)
@@ -25,12 +25,13 @@
   - Fixture IQ ring-read is vectorized (stream-friendly)
   - Status copy distinguishes mock vs fixture and keeps **receive-only demo** visible
 - pytest: mock FFT→spectrum, presets, waterfall, stream frames, threshold logic, no-hardware RTL guard
+- **Peak-hold / max-hold** — `PeakHoldTracker` (per-bin max across mock frames; resets on retune/axis change); NiceGUI toggle + overlay
+- **PNG export** — `export_spectrum_png` / `export_waterfall_png` (matplotlib Agg; honesty footer; UI download buttons); works without dongle / without claiming hardware-verified
 
 ## Next
 
 1. Hardware-verified live RTL-SDR checklist (named Blog V3/V4 + antenna + capture log)
-2. Export PNG of spectrum / waterfall
-3. Peak-hold / max-hold
+2. Session polish / compare before-after relocating gear (optional)
 
 ## Claims
 
