@@ -13,6 +13,7 @@
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
 **As of:** 2026-09-19 (PT) — TeachSpec: USB-cam (UVC) primary locked; SAFETY.md + BOM_v0 skeleton
 **As of:** 2026-09-19 (PT) — FID/NMR Phase-0 software stub (mock FID→FFT/phase→Spectrum)
+**As of:** 2026-09-19 (PT) — Family README + TeachSpec init honesty aligned with USB lock / FID stub
 
 ## Implemented
 

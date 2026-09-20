@@ -5,8 +5,8 @@ Shared north star: **SDR-style spectrum literacy tools for science** — one `sp
 | Project | Folder | Role | Phase |
 |---------|--------|------|-------|
 | ChemSpec Workbench | `chemspec/` + root docs | Software UV-Vis/IR first | MVP + polish |
-| TeachSpec | `teachspec/` | Optical teaching spectrometer (software stub) | 0 stub |
-| FID/NMR Playground | `fid-nmr-playground/` | Open FID → spectrum | 0 design |
+| TeachSpec | `teachspec/` | Optical teaching spectrometer (USB-cam v1 lock; mock stub) | 0 stub |
+| FID/NMR Playground | `fid-nmr-playground/` + `fidnmr/` | Open FID → spectrum (mock stub) | 0 stub |
 | LabRF Monitor | `labrf-monitor/` + `labrf/` | RTL-SDR lab EMI (mock-first) | 1 scaffold |
 | EnvKit | `envkit/` | Environmental kit | 0 parked |
 

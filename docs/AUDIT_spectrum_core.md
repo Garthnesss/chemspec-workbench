@@ -25,3 +25,7 @@ small fixes landed in the same PRs when safe.
 2. ~~Peak table UI shows contract columns but not the full baseline_reference_note~~ — NiceGUI table now includes truncated ``baseline_ref`` + caption; full note remains in CSV/session.
 3. ~~baseline_correct bare ValueError~~ — Fixed: raises ProcessingError; ImportError for missing pybaselines unchanged.
 4. ~~Units live in analysis_fingerprint, not raw_data_hash~~ — Documented in ``session.py`` module + ``compute_analysis_fingerprint`` docstrings (arrays-only hash by design).
+
+## Later notes
+
+- `ppm` added to ``XUnit`` for FID/NMR Phase-0 stub (PR #46); export_png label included.
