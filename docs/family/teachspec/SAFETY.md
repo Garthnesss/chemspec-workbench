@@ -49,4 +49,4 @@
 
 - Hardware target + sensor lock: `SPEC.md`
 - Rough parts list: `BOM_v0.md`
-- Software honesty (mock-only Phase 0): `../../../../teachspec/README.md` and family `status.md`
+- Software honesty (mock default; optional live UVC OpenCV): `../../../../teachspec/README.md` and family `status.md`. Live camera demos remain under this SAFETY sheet — intensity vs pixel until calibrated; not hardware-verified wavelength by camera alone.

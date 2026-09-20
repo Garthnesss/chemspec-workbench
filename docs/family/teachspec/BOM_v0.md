@@ -36,4 +36,4 @@
 1. Teacher safety review of SAFETY.md  
 2. Pick grating variant (1000 ln/mm vs DVD) and freeze one kit SKU  
 3. Replace TBD ranges with dated example SKUs / quotes  
-4. Live UVC ingest spike (software) — separate from this BOM doc
+4. Live UVC OpenCV ingest (software) — optional `[teachspec]` extra Implemented in-repo; hardware bench spike still separate from this BOM doc

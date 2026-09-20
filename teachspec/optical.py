@@ -1,13 +1,9 @@
 """Optical live-frame adapter: 1-D intensity → spectrum_core.Spectrum.
 
-Synthetic / calibrated path only in Phase 0 — no camera libraries.
-
-Future ingest target (not Implemented): UVC webcam frame → extract a 1-D
-row (or column) of pixels → OpticalLiveFrame. See ``teachspec.uvc_ingest``
-(``OpticalFrameSource`` protocol + ``UvcIngestStub`` raising
-``NotImplementedError``; ``extract_row`` is a pure-NumPy helper). Live
-OpenCV/UVC drivers are out of scope until a dedicated ingest spike — no
-camera dependency required now; do not claim camera capture here.
+Mock and calibrated paths work without camera libraries. Live UVC frames
+(optional ``[teachspec]`` OpenCV extra) also land here as ``OpticalLiveFrame``
+via ``teachspec.uvc_ingest.UvcOpenCvSource``. Wavelength axes still require
+``teachspec.calibration`` — the camera alone is not nm-calibrated.
 """
 
 from __future__ import annotations
