@@ -20,7 +20,7 @@
 ## In progress / drafting
 
 - `SAFETY.md` classroom one-pager drafted (human teacher-facing sign-off still open)
-- `BOM_v0.md` USB-cam path line items (purchasable classes + approx USD ranges — estimates change; no fake affiliate SKUs)
+- `BOM_v0.md` USB-cam path **purchasable classes** + approx USD ranges + search keywords (Amazon/Adafruit/Thorlabs-class; estimates change; no fake affiliate SKUs; DIY target <$75 excl. laptop)
 
 ## Next (human / Planned)
 
