@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — README Quick demo + folder-waterfall docs; CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
+**As of:** 2026-09-19 (PT) — Folder-waterfall test gaps + README Quick demo; CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
 
 ## Implemented
 
@@ -41,7 +41,7 @@
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
   labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
   NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
-- pytest: CSV + JCAMP ingest (**edge hardening**); **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
+- pytest: CSV + JCAMP ingest (**edge hardening**); **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
