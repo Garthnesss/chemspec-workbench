@@ -323,6 +323,15 @@ def peak_export_filename(title: str | None = None) -> str:
     return f"{safe}_peaks.csv"
 
 
+def png_export_filename(title: str | None = None) -> str:
+    """Safe download basename for a spectrum plot PNG."""
+    stem = (title or "").strip()
+    if not stem:
+        return "chemspec_spectrum.png"
+    safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in stem)
+    return f"{safe}_spectrum.png"
+
+
 def format_provenance(
     *,
     source: str | Path | None,

@@ -30,6 +30,11 @@ from spectrum_core.units import (
     percent_t_to_absorbance,
 )
 from spectrum_core.export_peaks import PEAK_CSV_FIELDS, peaks_to_csv
+from spectrum_core.export_png import (
+    DEFAULT_HONESTY_NOTE,
+    export_spectrum_png,
+    export_waterfall_png,
+)
 from spectrum_core.folder import folder_waterfall, ingest_folder, list_spectrum_files
 from spectrum_core.session import (
     SESSION_FORMAT_VERSION,
@@ -84,6 +89,9 @@ __all__ = [
     "can_convert_y",
     "peaks_to_csv",
     "PEAK_CSV_FIELDS",
+    "DEFAULT_HONESTY_NOTE",
+    "export_spectrum_png",
+    "export_waterfall_png",
     "list_spectrum_files",
     "ingest_folder",
     "folder_waterfall",

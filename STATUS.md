@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — LabRF peak-hold/max-hold + PNG export (mock); Public UV-Vis log₁₀(ε) honesty; TeachSpec Phase-0 + CI polish
+**As of:** 2026-09-19 (PT) — ChemSpec plot PNG export (honesty footer); LabRF peak-hold/PNG (#29); public UV-Vis + benzene walkthrough (#26–#28)
 
 ## Implemented
 
@@ -19,6 +19,7 @@
 - `available_baseline_methods()` / `has_pybaselines()` helpers
 - `overlay` / `stack` helpers for lists of spectra
 - **`peaks_to_csv`** — pure peak-table CSV helper (+ UI download)
+- **Plot PNG export** — `spectrum_core.export_spectrum_png` / `export_waterfall_png` (matplotlib Agg; optional peaks/overlay/raw; IR `cm-1` reverse; log₁₀(ε) y-caption; honesty footer parity with LabRF; NiceGUI **Export plot PNG** / **Download plot PNG**)
 - **A ↔ %T** — `absorbance_to_percent_t` / `percent_t_to_absorbance` / `convert_spectrum_y`
   (intensity blocked; non-finite A and `%T ≤ 0` → NaN; `%T > 100` allowed with note)
 - **Public UV-Vis y-caption honesty (NiceGUI)** — when JCAMP `unit_notes` say log₁₀(ε),
@@ -51,7 +52,7 @@
   UI **Load public: Benzene/Acetone/Naphthalene UV-Vis**; no compound-ID claims
 - JCAMP unit aliases: ``Wavelength (nm)`` / ``NANOMETERS`` / ``NM`` → ``nm``;
   log₁₀(ε) YUNITS forms → intensity (documented)
-- pytest: CSV + JCAMP ingest (**edge hardening**); **public IR + UV-Vis fixture load**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
+- pytest: CSV + JCAMP ingest (**edge hardening**); **public IR + UV-Vis fixture load**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); **PNG export** (magic + log-ε caption); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
@@ -59,7 +60,7 @@
     fixtures + **Load public: Ethanol/Methanol/Toluene IR** + **Benzene/Acetone/Naphthalene UV-Vis**
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
-  - Prominence control + peak table (x/y/prominence/**FWHM**/**area**) + **Export peaks CSV**
+  - Prominence control + peak table (x/y/prominence/**FWHM**/**area**) + **Export peaks CSV** + **Export plot PNG**
   - Baseline on/off + **method dropdown** (polynomial / asls / mpls) via `baseline_correct`
   - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)
