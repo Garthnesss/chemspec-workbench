@@ -1,0 +1,77 @@
+{
+  "format_version": 2,
+  "software_version": "0.1.0",
+  "spectrum": {
+    "x": [
+      400.0,
+      450.0,
+      500.0,
+      550.0,
+      600.0
+    ],
+    "y": [
+      0.1,
+      0.5,
+      1.0,
+      0.4,
+      0.1
+    ],
+    "x_unit": "nm",
+    "y_unit": "A",
+    "title": "session_v2 fixture",
+    "source_path": "/fixtures/sessions/demo_v2.csv",
+    "meta": {
+      "label": "current-fixture"
+    }
+  },
+  "processing": {
+    "baseline_on": false,
+    "baseline_method": "polynomial",
+    "baseline_degree": 1,
+    "flip_y_unit": false,
+    "prominence": 0.15,
+    "use_auto_prominence": false
+  },
+  "peaks": [
+    {
+      "index": 2,
+      "x": 500.0,
+      "y": 1.0,
+      "prominence": 0.9,
+      "fwhm": 80.0,
+      "area": 40.0,
+      "width_definition": "prominence_relative_half_height",
+      "half_max_level": 0.55,
+      "left_boundary_x": 460.0,
+      "right_boundary_x": 540.0,
+      "area_definition": "trapz_between_half_max_bounds",
+      "baseline_reference_note": ""
+    }
+  ],
+  "notes": "v2 current fixture with identity hashes",
+  "provenance": {
+    "source": "/fixtures/sessions/demo_v2.csv",
+    "source_name": "demo_v2.csv",
+    "x_unit": "nm",
+    "y_unit": "A",
+    "baseline": "none",
+    "peak_count": 1,
+    "package_version": "0.1.0",
+    "title": "session_v2 fixture",
+    "summary": "source=demo_v2.csv \u00b7 x=nm \u00b7 y=A \u00b7 baseline=none \u00b7 peaks=1 \u00b7 v=0.1.0"
+  },
+  "history": [
+    {
+      "name": "smooth",
+      "params": {
+        "window_length": 5,
+        "polyorder": 2
+      },
+      "timestamp": "2026-01-01T00:00:00Z",
+      "software_note": "fixture"
+    }
+  ],
+  "raw_data_hash": "c9cddcc9cf3e38de4799555732d090ec82260c26125aec434a2874ed90b9fe23",
+  "source_path_hash": "8b8459a2a4b606aeb2d7cf3cf0a1150849641aa892acc08c164fb43614a9fa16",
+  "analysis_fingerprint": "b5a4acf07cce526df47dac102586e6f53add782da5d475f371ad4c9fb20d6a62"
+}

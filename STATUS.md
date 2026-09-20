@@ -1,4 +1,4 @@
-**As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity started: peak measurement contract (prominence-relative FWHM/area + explicit Peak fields); PR cooking
+**As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity: peak contract merged (#35); session identity hashes (`raw_data_hash` / `analysis_fingerprint`, format_version 2 + v1 migrate)
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
 
@@ -37,10 +37,12 @@
 - **Provenance strip (NiceGUI)** — `format_provenance` / `provenance_from_state` helper + UI line
   (source name, x/y units, active baseline or none, peak count, package version)
 - **Analysis session save/load** — `spectrum_core.session` (`save_session` / `load_session`)
-  versioned JSON (`.csw.json` / `.chemspec.json`, `format_version: 1`): embedded x/y + units/title,
+  versioned JSON (`.csw.json` / `.chemspec.json`, `format_version: 2`; v1 migrates on load): embedded x/y + units/title,
   original `source_path`, processing (baseline method/params, A↔%T display, prominence),
-  optional append-only pipeline `history`, peaks (incl. FWHM/area), optional notes, provenance snapshot;
-  schema validation + round-trip tests; NiceGUI download / path write / path load / upload — **not** compound ID
+  optional append-only pipeline `history`, peaks (incl. FWHM/area + contract), optional notes, provenance snapshot;
+  **identity**: `raw_data_hash` (SHA-256 canonical x‖y), optional `source_path_hash`, `analysis_fingerprint`
+  (timestamps / notes do **not** affect fingerprint); fixtures in `tests/fixtures/sessions/`;
+  schema validation + round-trip + migration tests; NiceGUI download / path write / path load / upload — **not** compound ID
 - **Processing pipeline + history** — `spectrum_core.processing`:
   `ProcessingStep` / `ProcessingHistory` (name, params, timestamp, software_note; append-only);
   `apply_step(spectrum, history, step) → (new_spectrum, history)`; `PipelineState` keeps raw vs working;

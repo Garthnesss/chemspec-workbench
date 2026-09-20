@@ -6,11 +6,21 @@ optional append-only pipeline ``history`` steps, peaks (incl. FWHM/area),
 optional notes, and a provenance snapshot. ``spectrum`` is the raw copy;
 replay ``history`` for the working spectrum.
 
+**Computational identity (format_version ≥ 2).** Sessions carry
+``raw_data_hash`` (SHA-256 of a canonical x‖y encoding), optional
+``source_path_hash``, and ``analysis_fingerprint`` (SHA-256 over identity
+fields). Pipeline step *timestamps* remain in ``history`` for provenance but
+**do not** enter ``analysis_fingerprint`` — re-running the same ops later
+yields the same fingerprint.
+
+v1 files load via ``migrate_session_dict`` → current version.
+
 This is a reproducible *analysis* snapshot — not compound identification.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from dataclasses import dataclass, field
@@ -27,7 +37,8 @@ from spectrum_core.peaks import (
 from spectrum_core.processing import ProcessingHistory
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 
-SESSION_FORMAT_VERSION = 1
+SESSION_FORMAT_VERSION = 2
+SESSION_FORMAT_VERSION_MIN = 1
 SESSION_EXTENSIONS = (".csw.json", ".chemspec.json")
 
 _X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz"})
@@ -60,6 +71,9 @@ class SessionData:
     format_version: int = SESSION_FORMAT_VERSION
     software_version: str = ""
     history: ProcessingHistory = field(default_factory=ProcessingHistory)
+    raw_data_hash: str = ""
+    source_path_hash: str = ""
+    analysis_fingerprint: str = ""
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
 
@@ -70,6 +84,105 @@ def _package_version() -> str:
         return str(_v)
     except Exception:  # noqa: BLE001
         return ""
+
+
+def _canonical_float_token(v: Any) -> str:
+    """Stable textual token for one array sample (null for non-finite)."""
+    if v is None:
+        return "null"
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return "null"
+    if not math.isfinite(f):
+        return "null"
+    # Use shortest round-trip repr that JSON would accept (no NaN literals).
+    return format(f, ".17g")
+
+
+def canonical_xy_encoding(x: Any, y: Any) -> str:
+    """Canonical ``x||y`` encoding used for ``raw_data_hash``.
+
+    Format: ``n=<N>\nx=<tok>,...\ny=<tok>,...`` with tokens from
+    :func:`_canonical_float_token`. Stable across platforms; independent of
+    session timestamps / notes / provenance.
+    """
+    xa = list(np.asarray(x, dtype=float).reshape(-1))
+    ya = list(np.asarray(y, dtype=float).reshape(-1))
+    if len(xa) != len(ya):
+        raise SessionError(
+            f"canonical_xy_encoding length mismatch: {len(xa)} vs {len(ya)}"
+        )
+    x_part = ",".join(_canonical_float_token(v) for v in xa)
+    y_part = ",".join(_canonical_float_token(v) for v in ya)
+    return f"n={len(xa)}\nx={x_part}\ny={y_part}"
+
+
+def compute_raw_data_hash(spectrum: Spectrum) -> str:
+    """SHA-256 hex digest of the canonical raw x‖y encoding."""
+    payload = canonical_xy_encoding(spectrum.x, spectrum.y)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def compute_source_path_hash(source_path: str | None) -> str:
+    """Optional SHA-256 of the UTF-8 source path string (empty → "")."""
+    src = (source_path or "").strip()
+    if not src:
+        return ""
+    return hashlib.sha256(src.encode("utf-8")).hexdigest()
+
+
+def _history_identity_steps(
+    history: ProcessingHistory | list[Any] | None,
+) -> list[dict[str, Any]]:
+    """History records for fingerprinting — name + params only (no timestamps)."""
+    if isinstance(history, ProcessingHistory):
+        steps = history.to_list()
+    elif history is None:
+        steps = []
+    else:
+        steps = ProcessingHistory.from_list(list(history)).to_list()
+    out: list[dict[str, Any]] = []
+    for step in steps:
+        out.append(
+            {
+                "name": step.get("name", ""),
+                "params": step.get("params") or {},
+                # deliberately omit timestamp + software_note from identity
+            }
+        )
+    return out
+
+
+def compute_analysis_fingerprint(
+    *,
+    raw_data_hash: str,
+    x_unit: str,
+    y_unit: str,
+    processing: dict[str, Any] | None = None,
+    history: ProcessingHistory | list[Any] | None = None,
+    peaks: list[Peak] | None = None,
+    source_path_hash: str = "",
+) -> str:
+    """SHA-256 over computational identity fields (timestamps excluded).
+
+    Identity includes: ``raw_data_hash``, units, normalized processing,
+    history name/params (not timestamps), peak metric dicts, and optional
+    ``source_path_hash``. Wall-clock times in ``history`` must not change this.
+    """
+    proc = normalize_processing(processing)
+    peak_dicts = [peak_to_dict(p) for p in (peaks or [])]
+    identity = {
+        "raw_data_hash": raw_data_hash,
+        "source_path_hash": source_path_hash or "",
+        "x_unit": x_unit,
+        "y_unit": y_unit,
+        "processing": proc,
+        "history_steps": _history_identity_steps(history),
+        "peaks": peak_dicts,
+    }
+    blob = json.dumps(identity, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def _json_float(v: float) -> float | None:
@@ -322,11 +435,18 @@ def session_to_dict(
     provenance: dict[str, Any] | None = None,
     software_version: str | None = None,
     history: ProcessingHistory | list[Any] | None = None,
+    raw_data_hash: str | None = None,
+    source_path_hash: str | None = None,
+    analysis_fingerprint: str | None = None,
 ) -> dict[str, Any]:
-    """Build a format_version=1 session payload (no I/O).
+    """Build a current-version session payload (no I/O).
 
     ``spectrum`` should be the *raw* (unprocessed) spectrum. Pipeline steps are
     stored in ``history`` so callers can replay onto a working copy.
+
+    Computational identity fields (``raw_data_hash``, optional
+    ``source_path_hash``, ``analysis_fingerprint``) are computed unless
+    explicitly supplied. History timestamps do not affect the fingerprint.
     """
     peaks = peaks or []
     proc = normalize_processing(processing)
@@ -347,6 +467,25 @@ def session_to_dict(
         hist_list = []
     else:
         hist_list = ProcessingHistory.from_list(list(history)).to_list()
+    rdh = raw_data_hash if raw_data_hash is not None else compute_raw_data_hash(spectrum)
+    sph = (
+        source_path_hash
+        if source_path_hash is not None
+        else compute_source_path_hash(src)
+    )
+    fp = (
+        analysis_fingerprint
+        if analysis_fingerprint is not None
+        else compute_analysis_fingerprint(
+            raw_data_hash=rdh,
+            x_unit=spectrum.x_unit,
+            y_unit=spectrum.y_unit,
+            processing=proc,
+            history=hist_list,
+            peaks=peaks,
+            source_path_hash=sph,
+        )
+    )
     return {
         "format_version": SESSION_FORMAT_VERSION,
         "software_version": ver or "",
@@ -356,11 +495,18 @@ def session_to_dict(
         "notes": notes if notes is not None else "",
         "provenance": prov,
         "history": hist_list,
+        "raw_data_hash": rdh,
+        "source_path_hash": sph,
+        "analysis_fingerprint": fp,
     }
 
 
-def validate_session_dict(data: Any) -> dict[str, Any]:
-    """Schema-check a session payload; return the dict or raise SessionError."""
+def migrate_session_dict(data: dict[str, Any]) -> dict[str, Any]:
+    """Upgrade an older session payload to ``SESSION_FORMAT_VERSION``.
+
+    v1 → v2: add ``raw_data_hash``, ``source_path_hash``, ``analysis_fingerprint``.
+    Idempotent for already-current payloads.
+    """
     if not isinstance(data, dict):
         raise SessionError("session root must be a JSON object")
     if "format_version" not in data:
@@ -369,11 +515,66 @@ def validate_session_dict(data: Any) -> dict[str, Any]:
         ver = int(data["format_version"])
     except (TypeError, ValueError) as exc:
         raise SessionError(f"invalid format_version: {data['format_version']!r}") from exc
-    if ver != SESSION_FORMAT_VERSION:
+    if ver < SESSION_FORMAT_VERSION_MIN or ver > SESSION_FORMAT_VERSION:
         raise SessionError(
             f"unsupported format_version {ver} (this build supports "
-            f"{SESSION_FORMAT_VERSION})"
+            f"{SESSION_FORMAT_VERSION_MIN}..{SESSION_FORMAT_VERSION})"
         )
+    out = dict(data)
+    if ver == SESSION_FORMAT_VERSION and out.get("raw_data_hash"):
+        return out
+
+    # Ensure spectrum parses so we can hash it
+    if "spectrum" not in out:
+        raise SessionError("missing spectrum")
+    spectrum = spectrum_from_session_dict(out["spectrum"])
+    src = ""
+    spec_block = out.get("spectrum") or {}
+    if isinstance(spec_block, dict):
+        src = str(spec_block.get("source_path") or "")
+    proc = normalize_processing(out.get("processing"))
+    peaks_raw = out.get("peaks") or []
+    if not isinstance(peaks_raw, list):
+        raise SessionError("peaks must be an array")
+    peaks = [peak_from_dict(p) for p in peaks_raw]
+    hist = out.get("history") or []
+
+    rdh = out.get("raw_data_hash") or compute_raw_data_hash(spectrum)
+    sph = out.get("source_path_hash")
+    if sph is None or sph == "":
+        sph = compute_source_path_hash(src)
+    fp = out.get("analysis_fingerprint") or compute_analysis_fingerprint(
+        raw_data_hash=rdh,
+        x_unit=spectrum.x_unit,
+        y_unit=spectrum.y_unit,
+        processing=proc,
+        history=hist,
+        peaks=peaks,
+        source_path_hash=sph,
+    )
+    out["raw_data_hash"] = rdh
+    out["source_path_hash"] = sph
+    out["analysis_fingerprint"] = fp
+    out["format_version"] = SESSION_FORMAT_VERSION
+    return out
+
+
+def validate_session_dict(data: Any) -> dict[str, Any]:
+    """Schema-check a session payload; migrate older versions; return dict."""
+    if not isinstance(data, dict):
+        raise SessionError("session root must be a JSON object")
+    if "format_version" not in data:
+        raise SessionError("missing format_version")
+    try:
+        ver = int(data["format_version"])
+    except (TypeError, ValueError) as exc:
+        raise SessionError(f"invalid format_version: {data['format_version']!r}") from exc
+    if ver < SESSION_FORMAT_VERSION_MIN or ver > SESSION_FORMAT_VERSION:
+        raise SessionError(
+            f"unsupported format_version {ver} (this build supports "
+            f"{SESSION_FORMAT_VERSION_MIN}..{SESSION_FORMAT_VERSION})"
+        )
+    data = migrate_session_dict(data)
     if "spectrum" not in data:
         raise SessionError("missing spectrum")
     # Eager structural checks (spectrum arrays + units)
@@ -400,12 +601,20 @@ def validate_session_dict(data: Any) -> dict[str, Any]:
             ProcessingHistory.from_list(data["history"])
         except (TypeError, ValueError) as exc:
             raise SessionError(f"invalid history: {exc}") from exc
+    for key in ("raw_data_hash", "analysis_fingerprint"):
+        val = data.get(key)
+        if val is not None and not isinstance(val, str):
+            raise SessionError(f"{key} must be a string")
+    if data.get("source_path_hash") is not None and not isinstance(
+        data["source_path_hash"], str
+    ):
+        raise SessionError("source_path_hash must be a string")
     return data
 
 
 def session_from_dict(data: dict[str, Any]) -> SessionData:
     """Parse + validate a session dict into SessionData."""
-    validate_session_dict(data)
+    data = validate_session_dict(data)
     spectrum = spectrum_from_session_dict(data["spectrum"])
     processing = normalize_processing(data.get("processing"))
     peaks_raw = data.get("peaks") or []
@@ -434,6 +643,9 @@ def session_from_dict(data: dict[str, Any]) -> SessionData:
         format_version=int(data["format_version"]),
         software_version=str(data.get("software_version") or ""),
         history=history,
+        raw_data_hash=str(data.get("raw_data_hash") or ""),
+        source_path_hash=str(data.get("source_path_hash") or ""),
+        analysis_fingerprint=str(data.get("analysis_fingerprint") or ""),
         raw=dict(data),
     )
 
@@ -497,6 +709,7 @@ def session_download_filename(title: str | None = None) -> str:
 # Re-export unit aliases for type checkers / callers
 __all__ = [
     "SESSION_FORMAT_VERSION",
+    "SESSION_FORMAT_VERSION_MIN",
     "SESSION_EXTENSIONS",
     "DEFAULT_PROCESSING",
     "SessionError",
@@ -506,6 +719,7 @@ __all__ = [
     "session_to_dict",
     "session_from_dict",
     "validate_session_dict",
+    "migrate_session_dict",
     "build_provenance",
     "peak_to_dict",
     "peak_from_dict",
@@ -513,6 +727,10 @@ __all__ = [
     "spectrum_to_session_dict",
     "spectrum_from_session_dict",
     "session_download_filename",
+    "canonical_xy_encoding",
+    "compute_raw_data_hash",
+    "compute_source_path_hash",
+    "compute_analysis_fingerprint",
     "ProcessingHistory",
     "XUnit",
     "YUnit",
