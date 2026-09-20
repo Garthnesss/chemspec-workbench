@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -48,6 +49,58 @@ FIXTURE_PRESETS: dict[str, dict[str, Any]] = {
     },
 }
 
+_TOKEN_RE = re.compile(r"[a-z0-9%]+", re.IGNORECASE)
+
+
+def _tokens(name: str) -> set[str]:
+    """Alphanumeric tokens from a header (lowercased)."""
+    return {m.group(0).lower() for m in _TOKEN_RE.finditer(name)}
+
+
+def _is_absorbance_header(name: str) -> bool:
+    """True when a column name clearly means absorbance (A), not intensity.
+
+    Uses substring matches for long forms and *exact tokens* for short
+    aliases (``A``, ``Abs``, ``AU``, ``OD``) so ``absolute_intensity`` is
+    not mis-tagged as absorbance.
+    """
+    low = name.lower()
+    if "absorbance" in low or "optical density" in low or "optical_density" in low:
+        return True
+    return bool(_tokens(name) & {"a", "abs", "au", "od"})
+
+
+def _is_transmittance_header(name: str) -> bool:
+    low = name.lower()
+    if "transmittance" in low or "transmission" in low:
+        return True
+    return bool(_tokens(name) & {"percent_t", "pct_t", "%t", "t%"})
+
+
+def _is_intensity_header(name: str) -> bool:
+    low = name.lower()
+    if "intensity" in low or "counts" in low or "signal" in low:
+        return True
+    # Exact token "y" only — avoid matching inside unrelated words.
+    return "y" in _tokens(name) and not _is_absorbance_header(name)
+
+
+def _is_wavenumber_header(name: str) -> bool:
+    low = name.lower()
+    if "wavenumber" in low or "wave_number" in low:
+        return True
+    toks = _tokens(name)
+    return bool(toks & {"cm-1", "cm1"}) or "cm^-1" in low or "cm⁻¹" in name
+
+
+def _is_wavelength_header(name: str) -> bool:
+    low = name.lower()
+    if "wavelength" in low or "lambda" in low:
+        return True
+    toks = _tokens(name)
+    # bare "nm" token; avoid treating every header with "nm" substring oddly
+    return "nm" in toks
+
 
 def sniff_csv_header(path: Path | str) -> list[str]:
     """Return header column names, or empty list if the first data line is numeric."""
@@ -80,6 +133,10 @@ def guess_column_mapping(headers: list[str]) -> dict[str, Any]:
     """Heuristic x/y column + unit guess from header names.
 
     Falls back to indices 0/1 when headers are empty or unmatched.
+
+    Absorbance columns (``absorbance``, ``Abs``, ``A``, ``AU``, ``OD``, …)
+    map to ``y_unit='A'`` so A↔%T works. IR-style ``intensity`` stays
+    ``intensity`` unless the header is clearly %T/A.
     """
     result: dict[str, Any] = {
         "x_col": 0 if not headers else headers[0],
@@ -90,40 +147,47 @@ def guess_column_mapping(headers: list[str]) -> dict[str, Any]:
     if not headers:
         return result
 
-    lower = [h.lower() for h in headers]
-
-    def _find(*needles: str) -> str | None:
-        for i, name in enumerate(lower):
-            if any(n in name for n in needles):
-                return headers[i]
+    def _find(pred) -> str | None:  # noqa: ANN001
+        for h in headers:
+            if pred(h):
+                return h
         return None
 
     x = (
-        _find("wavelength", "lambda", "nm")
-        or _find("wavenumber", "wave_number", "cm-1", "cm^-1", "cm⁻¹")
-        or _find("x")
+        _find(_is_wavelength_header)
+        or _find(_is_wavenumber_header)
+        or _find(lambda h: "x" in _tokens(h))
     )
     y = (
-        _find("absorbance", "abs", "od")
-        or _find("transmittance", "percent_t", "%t", "pct_t")
-        or _find("intensity", "signal", "counts", "y")
+        _find(_is_absorbance_header)
+        or _find(_is_transmittance_header)
+        or _find(_is_intensity_header)
     )
     if x is not None:
         result["x_col"] = x
-        xl = x.lower()
-        if any(k in xl for k in ("wavenumber", "cm-1", "cm^-1", "cm⁻¹")):
+        if _is_wavenumber_header(x):
             result["x_unit"] = "cm-1"
         else:
             result["x_unit"] = "nm"
     if y is not None:
         result["y_col"] = y
-        yl = y.lower()
-        if any(k in yl for k in ("absorbance", "abs", "od")):
+        if _is_absorbance_header(y):
             result["y_unit"] = "A"
-        elif any(k in yl for k in ("transmittance", "%t", "percent_t", "pct_t")):
+        elif _is_transmittance_header(y):
             result["y_unit"] = "percent_T"
         else:
             result["y_unit"] = "intensity"
+    elif len(headers) >= 2:
+        # Second column present but unmatched — still prefer absorbance token
+        # check on the default y column so "A" / "AU" headers are not left as
+        # intensity (which blocks A↔%T in the UI).
+        y_default = headers[1]
+        if _is_absorbance_header(y_default):
+            result["y_col"] = y_default
+            result["y_unit"] = "A"
+        elif _is_transmittance_header(y_default):
+            result["y_col"] = y_default
+            result["y_unit"] = "percent_T"
     return result
 
 
@@ -144,3 +208,78 @@ def peak_export_filename(title: str | None = None) -> str:
         return "peaks.csv"
     safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in stem)
     return f"{safe}_peaks.csv"
+
+
+def format_provenance(
+    *,
+    source: str | Path | None,
+    x_unit: str | None,
+    y_unit: str | None,
+    baseline_method: str | None,
+    peak_count: int,
+    package_version: str | None = None,
+    title: str | None = None,
+) -> str:
+    """Build a one-line provenance strip for the NiceGUI status area.
+
+    Parameters
+    ----------
+    source :
+        File path or name (basename shown when a path is given).
+    x_unit, y_unit :
+        Axis unit tags (e.g. ``nm`` / ``A``).
+    baseline_method :
+        Active baseline method name, or ``None`` / empty when off.
+    peak_count :
+        Number of peaks currently shown.
+    package_version :
+        Optional ``chemspec-workbench`` / ``spectrum_core`` version string.
+    title :
+        Optional spectrum title (shown when no source path).
+    """
+    if source:
+        src_path = Path(str(source))
+        src_bit = src_path.name or str(source)
+    elif title:
+        src_bit = title
+    else:
+        src_bit = "(no source)"
+
+    xu = x_unit or "?"
+    yu = y_unit or "?"
+    bl = baseline_method.strip() if baseline_method else ""
+    bl_bit = bl if bl else "none"
+    parts = [
+        f"source={src_bit}",
+        f"x={xu}",
+        f"y={yu}",
+        f"baseline={bl_bit}",
+        f"peaks={int(peak_count)}",
+    ]
+    if package_version:
+        parts.append(f"v={package_version}")
+    return " · ".join(parts)
+
+
+def provenance_from_state(
+    *,
+    primary_path: str | None,
+    spectrum_title: str | None,
+    x_unit: str | None,
+    y_unit: str | None,
+    baseline_on: bool,
+    baseline_method: str | None,
+    peak_count: int,
+    package_version: str | None = None,
+) -> str:
+    """Convenience wrapper: map UI state fields → ``format_provenance``."""
+    active_bl = baseline_method if baseline_on else None
+    return format_provenance(
+        source=primary_path,
+        title=spectrum_title,
+        x_unit=x_unit,
+        y_unit=y_unit,
+        baseline_method=active_bl,
+        peak_count=peak_count,
+        package_version=package_version,
+    )

@@ -1,5 +1,6 @@
 # Synthetic UV-Vis absorbance spectrum (not a real compound)
 # Peaks near 280 nm and 350 nm
+# x_unit=nm  y_unit=A  (column 'absorbance' → Spectrum.y_unit 'A' for A↔%T)
 wavelength_nm,absorbance
 200.0000,0.051524
 200.5000,0.044850

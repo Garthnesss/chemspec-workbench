@@ -1,5 +1,6 @@
 # Synthetic IR intensity spectrum (not a real compound)
 # Peaks near 1700 cm-1 and 2900 cm-1 (plus weaker ~1450)
+# x_unit=cm-1  y_unit=intensity  (not %T/A — A↔%T disabled for this fixture)
 wavenumber_cm-1,intensity
 800.0000,0.015380
 802.0000,0.030196
