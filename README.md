@@ -40,7 +40,7 @@ python -m chemspec.ui_app
 
 Then open **http://localhost:8080**.
 
-## LabRF Monitor (mock IQ UI)
+## LabRF Monitor (mock IQ UI — no dongle)
 
 ```bash
 pip install -e ".[ui]"
@@ -51,9 +51,16 @@ python -m labrf.ui_app
 
 Then open **http://localhost:8081**.
 
-- Educational presets (FM / ISM / …) with disclaimer banner
-- Capture mock spectrum / load `fixtures/labrf/mock_iq.npz`
-- Spectrum + simple waterfall heatmap + peak markers
+**Demo tips (showable without hardware):**
+
+1. Click **Start stream** — spectrum + waterfall update continuously from synthetic IQ.
+2. Use **quick preset** buttons (FM / ISM / …) to jump center/span.
+3. Set a **power threshold (dB)**; events appear in the log when peaks/max bin exceed it;
+   **Export events CSV** / **Clear events** as needed.
+4. **Load mock fixture** for a one-click synthetic capture from `fixtures/labrf/mock_iq.npz`.
+5. Provenance line shows source (mock/fixture), center, rate, frames, streaming mode.
+
+- Educational presets with disclaimer banner (not regulatory advice)
 - Live RTL-SDR only if `pip install -e ".[labrf]"` **and** a dongle is present
   (not required for tests or the mock UI)
 
@@ -78,7 +85,7 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 |------|------|
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks, baseline, overlay/stack, folder waterfall |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
-| `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, waterfall buffer, presets, optional RTL-SDR stub, NiceGUI UI |
+| `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `fixtures/` | Synthetic UV-Vis/IR + `waterfall/` + `labrf/mock_iq.npz` |
 | `tests/` | pytest (ChemSpec + LabRF mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
