@@ -10,6 +10,8 @@ Short, runnable walkthroughs for ChemSpec / `spectrum_core`.
 | [`benzene_uvvis_walkthrough.py`](benzene_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
 | [`acetone_uvvis_walkthrough.ipynb`](acetone_uvvis_walkthrough.ipynb) | ~5–10 min | Public NIST acetone UV-Vis JCAMP → plot (log₁₀(ε) intensity, **not** A) → baseline/smooth → peaks → optional CSV/session |
 | [`acetone_uvvis_walkthrough.py`](acetone_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
+| [`naphthalene_uvvis_walkthrough.ipynb`](naphthalene_uvvis_walkthrough.ipynb) | ~5–10 min | Public NIST naphthalene UV-Vis JCAMP → plot (log₁₀(ε) intensity, **not** A) → baseline/smooth → peaks → optional CSV/session |
+| [`naphthalene_uvvis_walkthrough.py`](naphthalene_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
 
 ## Setup
 
@@ -36,6 +38,9 @@ python examples/benzene_uvvis_walkthrough.py --save-dir /tmp/benzene_uvvis_demo
 
 python examples/acetone_uvvis_walkthrough.py
 python examples/acetone_uvvis_walkthrough.py --save-dir /tmp/acetone_uvvis_demo
+
+python examples/naphthalene_uvvis_walkthrough.py
+python examples/naphthalene_uvvis_walkthrough.py --save-dir /tmp/naphthalene_uvvis_demo
 ```
 
 ## Honesty

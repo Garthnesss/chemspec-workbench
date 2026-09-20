@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Acetone UV-Vis walkthrough twin (#31); ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene walkthrough (#26–#28)
+**As of:** 2026-09-19 (PT) — Naphthalene UV-Vis walkthrough twin (completes NIST UV-Vis tutorial set); acetone (#31); ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene (#26–#28)
 
 ## Implemented
 
@@ -82,6 +82,11 @@
   plot log₁₀(ε) as intensity (**not** absorbance; do not A↔%T without ε conversion),
   baseline+smooth, peaks with FWHM/area, optional CSV/session; no-compound-ID disclaimer;
   pytest smoke on the script (no nbconvert in CI yet); prominence default 0.05 (broad band)
+- **Naphthalene UV-Vis tutorial** — `examples/naphthalene_uvvis_walkthrough.ipynb` (+ `.py` twin):
+  load public `naphthalene_uvvis_nist.jdx`, cite `SOURCES.md` (NIST OSRD / INEP — not PNNL PD IR),
+  plot log₁₀(ε) as intensity (**not** absorbance; do not A↔%T without ε conversion),
+  baseline+smooth, peaks with FWHM/area, optional CSV/session; no-compound-ID disclaimer;
+  pytest smoke on the script (no nbconvert in CI yet); prominence default 0.1 (vibronic structure, benzene twin)
 - Docs: README (**Quick demo** + **Folder waterfall** multi-file section), PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`, `fixtures/waterfall/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
   Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, upgrade **`setuptools>=83`** then **`pip-audit`**
