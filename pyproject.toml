@@ -73,6 +73,7 @@ teachspec = [
 [project.scripts]
 chemspec-demo = "chemspec.demo:main"
 chemspec-ui = "chemspec.ui_app:main"
+chemspec-batch = "chemspec.batch:main"
 labrf-ui = "labrf.ui_app:main"
 teachspec-demo = "teachspec.demo:main"
 teachspec-ui = "teachspec.ui_app:main"
