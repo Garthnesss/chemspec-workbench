@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
+**As of:** 2026-09-19 (PT) — README Quick demo + folder-waterfall docs; CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
 
 ## Implemented
 
@@ -61,7 +61,7 @@
   load public `ethanol_ir_pnnl.jdx`, cite `SOURCES.md`, plot (matplotlib), pipeline
   baseline+smooth, peaks with FWHM/area, optional peaks CSV / `.csw.json` session;
   clear no-compound-ID disclaimer; pytest smoke on the script (no nbconvert in CI yet)
-- Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`
+- Docs: README (**Quick demo** + **Folder waterfall** multi-file section), PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`, `fixtures/waterfall/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
   Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, upgrade **`setuptools>=83`** then **`pip-audit`**
   (avoids GHA 3.11 image setuptools 79 advisory), LabRF `build_ui` smoke, `pytest -q`;

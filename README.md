@@ -51,6 +51,49 @@ pip install -e ".[labrf]"              # optional pyrtlsdr (hardware not require
 
 `jcamp` is a **required** dependency (not optional) so JCAMP ingest and public IR fixture tests work after a clean install.
 
+## Quick demo (showable in ~5 minutes)
+
+Honest MVP walkthrough — **analysis / visualization only**, not compound ID.
+LabRF steps use **mock IQ** (educational EMI awareness; no dongle, no TX).
+
+```bash
+cd chemspec-workbench
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev,ui,baselines]"
+pytest -q   # expect green before demos
+```
+
+**ChemSpec UI — public ethanol IR**
+
+```bash
+python -m chemspec.ui_app   # http://localhost:8080
+```
+
+1. Click **Load public: Ethanol IR** (PNNL/NIST JCAMP in `fixtures/public/`).
+2. Optional: turn on baseline, tweak prominence, note FWHM/area in the peak table.
+3. Optional: **Export peaks CSV** or save a `.csw.json` analysis session.
+4. **Folder waterfall:** click **Demo waterfall fixture** (or Load folder → `fixtures/waterfall/`)
+   for three synthetic UV-Vis CSVs stacked with y-offsets.
+
+Attribution: [`fixtures/public/SOURCES.md`](fixtures/public/SOURCES.md).
+Synthetic waterfall files are **not** real compounds.
+
+**LabRF Monitor — mock stream (no hardware)**
+
+```bash
+python -m labrf.ui_app   # http://localhost:8081
+```
+
+1. Read the dismissible disclaimer card (educational presets ≠ regulatory advice).
+2. Click **Start stream** — spectrum + waterfall update from synthetic IQ.
+3. Try a quick preset (FM / ISM / …); optionally set a power threshold and export events CSV.
+
+**MVP limits (do not oversell):** ChemSpec does **not** identify compounds or drive
+spectrometers. LabRF mock mode is **not** live RF until STATUS says hardware-verified.
+Folder waterfall is stack offsets only (sort by name/mtime) — no true time-axis metadata.
+
+Screenshot placeholder (optional local capture): `docs/screenshots/chemspec-ethanol-ir.png`
+
 ## ChemSpec interactive UI (NiceGUI)
 
 ```bash
@@ -123,6 +166,45 @@ See [`examples/README.md`](examples/README.md). Analysis path only — **no comp
 Attribution for the public fixture: [`fixtures/public/SOURCES.md`](fixtures/public/SOURCES.md).
 
 
+## Folder waterfall (multi-file)
+
+Load a directory of CSV / JCAMP spectra into a **stacked** (waterfall-style) view.
+Shared `x_unit` is required; y-offsets are display offsets only (not a time axis).
+
+**Fixture demo folder:** [`fixtures/waterfall/`](fixtures/waterfall/) — three synthetic
+UV-Vis absorbance CSVs (`t00`…`t02`). See [`fixtures/waterfall/README.md`](fixtures/waterfall/README.md).
+
+**From Python:**
+
+```python
+from spectrum_core import folder_waterfall, ingest_folder, list_spectrum_files
+
+paths = list_spectrum_files("fixtures/waterfall")
+raw = ingest_folder(
+    "fixtures/waterfall",
+    x_col="wavelength_nm",
+    y_col="absorbance",
+    x_unit="nm",
+    y_unit="A",
+)
+stacked = folder_waterfall(
+    "fixtures/waterfall",
+    x_col="wavelength_nm",
+    y_col="absorbance",
+    x_unit="nm",
+    y_unit="A",
+    offset=1.0,  # y offset between traces
+)
+# stacked[i].meta["stack_offset"] == i * offset
+```
+
+**From ChemSpec NiceGUI:** section **4 · Folder waterfall** — enter a folder path and
+**Load folder**, or one-click **Demo waterfall fixture**. **Clear waterfall** keeps the
+primary spectrum. Matching `x_unit` is enforced (mixed UV-Vis nm + IR cm⁻¹ fails).
+
+Headless plot without UI: `python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show`
+(single-file; use the Python API above for multi-file stack).
+
 ## Processing pipeline
 
 `spectrum_core.processing` keeps a **raw** spectrum separate from a **working** copy
@@ -190,6 +272,8 @@ Sessions are analysis snapshots — **not** compound identification.
 - `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
 - `examples/README.md` — tutorial index (ethanol IR walkthrough)
+- `fixtures/waterfall/README.md` — synthetic multi-file waterfall demo folder
+- `fixtures/public/SOURCES.md` — NIST/PNNL public IR attribution
 
 ## Non-goals
 
