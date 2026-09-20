@@ -6,6 +6,8 @@ Short, runnable walkthroughs for ChemSpec / `spectrum_core`.
 |------|------|--------|
 | [`ethanol_ir_walkthrough.ipynb`](ethanol_ir_walkthrough.ipynb) | ~5–10 min | Public PNNL/NIST ethanol IR JCAMP → plot → baseline/smooth → peaks (FWHM/area) → optional CSV/session |
 | [`ethanol_ir_walkthrough.py`](ethanol_ir_walkthrough.py) | headless twin | Same path; useful for smoke tests / CI without Jupyter |
+| [`benzene_uvvis_walkthrough.ipynb`](benzene_uvvis_walkthrough.ipynb) | ~5–10 min | Public NIST benzene UV-Vis JCAMP → plot (log₁₀(ε) intensity, **not** A) → baseline/smooth → peaks → optional CSV/session |
+| [`benzene_uvvis_walkthrough.py`](benzene_uvvis_walkthrough.py) | headless twin | Same path; pytest smoke / CI without Jupyter |
 
 ## Setup
 
@@ -26,6 +28,9 @@ Script:
 ```bash
 python examples/ethanol_ir_walkthrough.py
 python examples/ethanol_ir_walkthrough.py --save-dir /tmp/ethanol_ir_demo
+
+python examples/benzene_uvvis_walkthrough.py
+python examples/benzene_uvvis_walkthrough.py --save-dir /tmp/benzene_uvvis_demo
 ```
 
 ## Honesty

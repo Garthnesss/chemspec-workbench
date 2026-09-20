@@ -68,6 +68,11 @@
   load public `ethanol_ir_pnnl.jdx`, cite `SOURCES.md`, plot (matplotlib), pipeline
   baseline+smooth, peaks with FWHM/area, optional peaks CSV / `.csw.json` session;
   clear no-compound-ID disclaimer; pytest smoke on the script (no nbconvert in CI yet)
+- **Benzene UV-Vis tutorial** — `examples/benzene_uvvis_walkthrough.ipynb` (+ `.py` twin):
+  load public `benzene_uvvis_nist.jdx`, cite `SOURCES.md` (NIST OSRD / INEP — not PNNL PD IR),
+  plot log₁₀(ε) as intensity (**not** absorbance; do not A↔%T without ε conversion),
+  baseline+smooth, peaks with FWHM/area, optional CSV/session; no-compound-ID disclaimer;
+  pytest smoke on the script (no nbconvert in CI yet)
 - Docs: README (**Quick demo** + **Folder waterfall** multi-file section), PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`, `fixtures/waterfall/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
   Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, upgrade **`setuptools>=83`** then **`pip-audit`**
