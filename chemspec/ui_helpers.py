@@ -250,6 +250,70 @@ def axis_label(x_unit: XUnit, y_unit: YUnit) -> tuple[str, str]:
     return xlabel, ylabel
 
 
+def is_log_epsilon_meta(meta: dict[str, Any] | None) -> bool:
+    """True when spectrum meta notes say y is log₁₀(ε), not absorbance.
+
+    NIST UV/Vis JCAMP often has ``##YUNITS=Logarithm epsilon``; ingest stores
+    that as ``y_unit=intensity`` with an explicit ``unit_notes`` entry.
+    """
+    if not meta:
+        return False
+    notes = meta.get("unit_notes") or []
+    if isinstance(notes, str):
+        notes = [notes]
+    blob = " ".join(str(n) for n in notes).lower()
+    if "not absorbance" in blob and ("log" in blob or "ε" in blob or "epsilon" in blob):
+        return True
+    # Also accept raw JCAMP YUNITS preserved in meta
+    yunits = str(meta.get("yunits") or meta.get("YUNITS") or "").lower()
+    if "epsilon" in yunits or "ε" in yunits:
+        if "log" in yunits:
+            return True
+    return False
+
+
+def display_y_caption(
+    y_unit: YUnit | str,
+    meta: dict[str, Any] | None = None,
+) -> str:
+    """Plot / provenance-facing y-axis caption (honest for log₁₀(ε)).
+
+    When meta indicates NIST-style log₁₀(ε), return an explicit caption so
+    users do not read the curve as absorbance or enable A↔%T by mistake.
+    """
+    if is_log_epsilon_meta(meta):
+        return "log₁₀(ε) [intensity — not absorbance]"
+    # RF / optical defaults
+    return {
+        "A": "Absorbance",
+        "percent_T": "%T",
+        "intensity": "Intensity",
+        "dB": "Power (dB)",
+    }.get(str(y_unit), str(y_unit))
+
+
+def flip_y_blocked_reason(
+    y_unit: YUnit | str,
+    meta: dict[str, Any] | None = None,
+) -> str | None:
+    """Return a short reason when A↔%T must stay off, else ``None``.
+
+    Prefer the log₁₀(ε) message when unit notes say so — converting log-ε
+    with Beer–Lambert A↔%T would be scientifically wrong.
+    """
+    yu = str(y_unit)
+    if yu in ("A", "percent_T"):
+        return None
+    if is_log_epsilon_meta(meta):
+        return (
+            "A ↔ %T disabled: y is log₁₀(ε) (molar absorptivity), "
+            "not absorbance (A). Do not convert as A↔%T."
+        )
+    return (
+        f"A ↔ %T only when y_unit is A or percent_T (got {yu!r})"
+    )
+
+
 def peak_export_filename(title: str | None = None) -> str:
     """Safe download basename for a peak-table CSV."""
     stem = (title or "").strip()
