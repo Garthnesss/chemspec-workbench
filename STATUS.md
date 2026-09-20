@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — CSV/JCAMP ingest hardening + Ethanol IR tutorial + LICENSE/Dependabot/pip-audit + Processing + Session + Peak FWHM/area + public IR + LabRF + MVP
+**As of:** 2026-09-19 (PT) — LabRF NiceGUI 3.x disclaimer card + CSV/JCAMP ingest hardening + Ethanol IR tutorial + LICENSE/Dependabot/pip-audit + Processing + Session + Peak FWHM/area + public IR + LabRF + MVP
 
 ## Implemented
 
@@ -72,9 +72,10 @@
 
 - Package `labrf/` — mock IQ → FFT power spectrum → `Spectrum`; waterfall buffer; educational presets JSON
 - NiceGUI UI: `python -m labrf.ui_app` (port 8081); **no dongle required**
+  - Compatible with **NiceGUI 3.x** (disclaimer uses dismissible `ui.card`, not removed `ui.banner`)
   - **Streaming mock waterfall** (Start/Stop) with successive synthetic IQ frames
   - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export)
-  - Quick preset jump buttons, Load mock fixture, provenance strip, clearer disclaimer banner
+  - Quick preset jump buttons, Load mock fixture, provenance strip, clearer dismissible disclaimer card
 - Optional `[labrf]` / `[rtlsdr]` → pyrtlsdr adapter with clear ImportError if missing
 - pytest: mock FFT, presets, waterfall, **stream generator**, **threshold logic**, RTL missing-extra guard
 - Docs: `docs/family/labrf-monitor/status.md`; AGENTS receive-only / no chem-ID / educational-presets rules

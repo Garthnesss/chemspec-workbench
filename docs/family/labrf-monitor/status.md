@@ -17,7 +17,7 @@
   - **Streaming mock waterfall** — Start/Stop timer pulls successive synthetic IQ frames
   - **Threshold event log** — power threshold (dB); peak / max-bin events; clear; CSV export
   - Quick preset jump buttons, Load mock fixture, provenance strip (source / center / rate / frames)
-  - Clearer demo / educational disclaimer banner
+  - Clearer demo / educational disclaimer (dismissible `ui.card` on NiceGUI 3.x; not `ui.banner`)
 - `MockStreamGenerator` + `ThresholdEventLog` / `evaluate_threshold` (pure, unit-tested)
 - pytest: mock FFT→spectrum, presets, waterfall, stream frames, threshold logic, no-hardware RTL guard
 

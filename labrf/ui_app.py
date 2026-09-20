@@ -254,10 +254,8 @@ def build_ui() -> None:
         ui.label("LabRF Monitor").classes("text-h5")
         ui.label("receive-only · mock IQ · educational").classes("text-caption")
 
-    with ui.banner(result=None).classes("bg-amber-200 text-amber-950").props(
-        "rounded dense"
-    ) as banner:
-        with ui.row().classes("items-center w-full gap-2"):
+    with ui.card().classes("w-full bg-amber-200 text-amber-950 q-pa-sm") as banner:
+        with ui.row().classes("items-center w-full gap-2 no-wrap"):
             ui.icon("warning", color="orange").classes("text-2xl")
             with ui.column().classes("gap-0"):
                 ui.label(_BANNER_TEXT).classes("text-sm font-medium")
