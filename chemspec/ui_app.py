@@ -44,7 +44,10 @@ from chemspec.ui_helpers import (
     FIXTURE_PRESETS,
     WATERFALL_FIXTURE_DIR,
     axis_label,
+    display_y_caption,
+    flip_y_blocked_reason,
     guess_column_mapping,
+    is_log_epsilon_meta,
     peak_export_filename,
     provenance_from_state,
     sniff_csv_header,
@@ -331,6 +334,11 @@ def _load_from_path(
             f"Loaded {path.name} — {len(spec)} pts, "
             f"x={spec.x_unit}, y={spec.y_unit}, peaks={len(state.peaks)}"
         )
+        if is_log_epsilon_meta(spec.meta):
+            state.status += (
+                " · y is log₁₀(ε) stored as intensity — not absorbance; "
+                "A ↔ %T disabled"
+            )
 
 
 def _load_fixture(
@@ -467,7 +475,8 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
         )
         return fig
 
-    xlabel, ylabel = axis_label(work.x_unit, work.y_unit)
+    xlabel, _ = axis_label(work.x_unit, work.y_unit)
+    ylabel = display_y_caption(work.y_unit, work.meta)
     label = work.title or "primary"
     if state.baseline_on:
         label += f" (baseline {state.baseline_method})"
@@ -626,6 +635,28 @@ def create_app() -> WorkbenchState:
             state.primary is not None and can_convert_y(state.primary.y_unit)
         )
         widgets["flip_y"].set_enabled(convertible)
+        if "y_caption" in widgets:
+            if state.primary is not None:
+                widgets["y_caption"].set_text(
+                    "Y axis: "
+                    + display_y_caption(state.primary.y_unit, state.primary.meta)
+                )
+            else:
+                widgets["y_caption"].set_text("Y axis: (no spectrum)")
+        if "flip_y_warn" in widgets:
+            if state.primary is not None and not convertible:
+                reason = flip_y_blocked_reason(
+                    state.primary.y_unit, state.primary.meta
+                )
+                widgets["flip_y_warn"].set_text(reason or "")
+            elif convertible:
+                widgets["flip_y_warn"].set_text(
+                    "Limits: %T ≤ 0 or non-finite A → NaN."
+                )
+            else:
+                widgets["flip_y_warn"].set_text(
+                    "Limits: intensity cannot convert; %T ≤ 0 or non-finite A → NaN."
+                )
         if "notes_input" in widgets:
             widgets["notes_input"].value = state.notes
         if "session_path_input" in widgets and state.primary_path.endswith(
@@ -706,7 +737,9 @@ def create_app() -> WorkbenchState:
                 if state.flip_y_unit and not can_convert_y(state.primary.y_unit):
                     state.flip_y_unit = False
                     widgets["flip_y"].value = False
-                    state.error = (
+                    state.error = flip_y_blocked_reason(
+                        state.primary.y_unit, state.primary.meta
+                    ) or (
                         "A ↔ %T only when y_unit is A or percent_T "
                         f"(got {state.primary.y_unit!r})"
                     )
@@ -1159,11 +1192,14 @@ def create_app() -> WorkbenchState:
                 "text-caption font-mono text-grey-8"
             ).style("white-space: pre-wrap")
 
+            widgets["y_caption"] = ui.label("Y axis: (no spectrum)").classes(
+                "text-caption text-grey-8 font-mono"
+            )
             widgets["flip_y"] = ui.checkbox(
                 "A ↔ %T display (when y is A or percent_T)",
                 value=False,
             )
-            ui.label(
+            widgets["flip_y_warn"] = ui.label(
                 "Limits: intensity cannot convert; %T ≤ 0 or non-finite A → NaN."
             ).classes("text-caption text-grey-7")
             with ui.row().classes("q-gutter-sm"):

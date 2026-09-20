@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Public UV-Vis NIST fixtures (benzene/acetone/naphthalene) + JCAMP `Wavelength (nm)` / log-ε unit mapping; TeachSpec Phase-0 + Folder-waterfall + CI/LabRF/MVP polish
+**As of:** 2026-09-19 (PT) — Public UV-Vis log₁₀(ε) Y-caption + A↔%T warn; NIST fixtures + JCAMP unit mapping; TeachSpec Phase-0 + Folder-waterfall + CI/LabRF/MVP polish
 
 ## Implemented
 
@@ -21,6 +21,9 @@
 - **`peaks_to_csv`** — pure peak-table CSV helper (+ UI download)
 - **A ↔ %T** — `absorbance_to_percent_t` / `percent_t_to_absorbance` / `convert_spectrum_y`
   (intensity blocked; non-finite A and `%T ≤ 0` → NaN; `%T > 100` allowed with note)
+- **Public UV-Vis y-caption honesty (NiceGUI)** — when JCAMP `unit_notes` say log₁₀(ε),
+  plot Y caption shows `log₁₀(ε) [intensity — not absorbance]`; A↔%T stays disabled with an
+  explicit warn (`display_y_caption` / `flip_y_blocked_reason` in `ui_helpers`)
 - **UV-Vis fixture / guess mapping** — synthetic UV-Vis CSV meta + `guess_column_mapping`
   tag absorbance columns (`absorbance` / `A` / `AU` / `Abs` / `OD`) as `y_unit=A` so A↔%T works;
   IR `intensity` stays intensity unless header is clearly %T/A

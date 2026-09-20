@@ -5,8 +5,11 @@ from pathlib import Path
 from chemspec.ui_helpers import (
     FIXTURE_PRESETS,
     axis_label,
+    display_y_caption,
+    flip_y_blocked_reason,
     format_provenance,
     guess_column_mapping,
+    is_log_epsilon_meta,
     peak_export_filename,
     provenance_from_state,
     sniff_csv_header,
@@ -158,3 +161,62 @@ def test_provenance_from_state_respects_baseline_flag() -> None:
     )
     assert "baseline=asls" in on
     assert "baseline=none" in off
+
+
+def test_is_log_epsilon_meta_from_unit_notes() -> None:
+    assert is_log_epsilon_meta(
+        {
+            "unit_notes": [
+                "JCAMP YUNITS='Logarithm epsilon' is log₁₀(ε) (molar absorptivity); "
+                "stored as intensity — not absorbance (A)"
+            ]
+        }
+    )
+    assert not is_log_epsilon_meta({"unit_notes": ["scaled fraction to percent_T"]})
+    assert not is_log_epsilon_meta(None)
+    assert not is_log_epsilon_meta({})
+
+
+def test_display_y_caption_log_epsilon_not_absorbance() -> None:
+    meta = {
+        "unit_notes": [
+            "JCAMP YUNITS='Logarithm epsilon' is log₁₀(ε); stored as intensity — not absorbance (A)"
+        ]
+    }
+    cap = display_y_caption("intensity", meta)
+    assert "log" in cap.lower() or "ε" in cap
+    assert "not absorbance" in cap.lower()
+    assert display_y_caption("A") == "Absorbance"
+    assert display_y_caption("intensity") == "Intensity"
+
+
+def test_flip_y_blocked_reason_log_epsilon() -> None:
+    meta = {
+        "unit_notes": [
+            "log₁₀(ε) stored as intensity — not absorbance (A)"
+        ]
+    }
+    reason = flip_y_blocked_reason("intensity", meta)
+    assert reason is not None
+    assert "log" in reason.lower() or "ε" in reason
+    assert "absorbance" in reason.lower()
+    assert flip_y_blocked_reason("A") is None
+    assert flip_y_blocked_reason("percent_T") is None
+    plain = flip_y_blocked_reason("intensity")
+    assert plain is not None
+    assert "A or percent_T" in plain
+
+
+def test_public_benzene_fixture_caption_and_flip_block() -> None:
+    """Loaded NIST benzene UV-Vis must caption log-ε and block A↔%T."""
+    from spectrum_core import ingest_jcamp
+
+    path = FIXTURE_PRESETS["public_benzene_uvvis"]["path"]
+    spec = ingest_jcamp(path)
+    assert spec.y_unit == "intensity"
+    assert is_log_epsilon_meta(spec.meta)
+    cap = display_y_caption(spec.y_unit, spec.meta)
+    assert "not absorbance" in cap.lower()
+    reason = flip_y_blocked_reason(spec.y_unit, spec.meta)
+    assert reason is not None
+    assert "disabled" in reason.lower() or "log" in reason.lower()
