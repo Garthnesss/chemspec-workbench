@@ -25,5 +25,10 @@ jobs:
       - name: Install package (dev + ui + baselines)
         run: pip install -e ".[dev,ui,baselines]"
 
+      - name: Dependency vulnerability audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit
+
       - name: Run pytest
         run: pytest -q

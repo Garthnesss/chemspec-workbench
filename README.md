@@ -94,7 +94,8 @@ pytest -q
 ```
 
 ChemSpec tests (CSV/JCAMP/public fixtures) and LabRF mock tests (no dongle) should both pass.
-GitHub Actions (`.github/workflows/ci.yml`) runs the same install + `pytest -q` on Python 3.11 and 3.13 for every push/PR to `main`.
+GitHub Actions (`.github/workflows/ci.yml`) runs the same install + `pip-audit` + `pytest -q` on Python 3.11 and 3.13 for every push/PR to `main`.
+License: MIT (`LICENSE`). Dependency updates: Dependabot (`.github/dependabot.yml`, weekly pip + github-actions).
 
 ## Run ChemSpec demos (no UI)
 
