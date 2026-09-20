@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — Session load UX: auto-replay pipeline history onto working (status + 2b caption; raw preserved)
+
 **As of:** 2026-09-19 (PT) — NiceGUI optional 3-D surface for folder waterfall (`state.view_3d` → `chemspec.plot3d.build_surface_figure`; series index ≠ time)
 
 **As of:** 2026-09-19 (PT) — Measurement diagnostics (SNR + peak boundary / baseline advisories) + ChemSpec UI warnings strip
@@ -85,7 +87,7 @@
   - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)
   - **Folder waterfall** (path or demo `fixtures/waterfall/`) + optional **3-D surface** checkbox (`state.view_3d`; ≥2 traces; series index ≠ time; see `docs/viz3d.md`) — no compound ID
-  - **Session save/load** (download `.csw.json`, write/load path, upload; notes field; stores pipeline history)
+  - **Session save/load** (download `.csw.json`, write/load path, upload; notes field; stores pipeline history; **load auto-replays** history onto working — raw preserved)
   - **Processing pipeline** (history list; Apply baseline / smooth / normalize; Reset to raw)
 - Optional extras: `pip install -e ".[ui]"` (`nicegui`, `plotly`); `pip install -e ".[baselines]"` (`pybaselines`, BSD-3); recommended UI try: `pip install -e ".[ui,baselines]"`
 - **Ethanol IR tutorial** — `examples/ethanol_ir_walkthrough.ipynb` (+ `.py` twin):

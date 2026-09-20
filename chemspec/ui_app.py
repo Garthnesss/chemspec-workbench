@@ -270,10 +270,17 @@ def _load_session_path(state: WorkbenchState, path: Path | str) -> None:
     else:
         _recompute_peaks(state)
     n_pts = len(data.spectrum)
+    n_hist = len(state.history)
+    if n_hist > 0:
+        hist_note = (
+            f"replayed {n_hist} pipeline step(s) onto working "
+            "(raw spectrum preserved; live baseline toggle off)"
+        )
+    else:
+        hist_note = "no pipeline history (working = raw copy)"
     state.status = (
         f"Session loaded: {path.name} — {n_pts} pts, "
-        f"peaks={len(state.peaks)}, history={len(state.history)}, baseline="
-        f"{'on/' + state.baseline_method if state.baseline_on else 'off'}"
+        f"peaks={len(state.peaks)}, {hist_note}"
     )
 
 
@@ -1352,6 +1359,8 @@ def create_app() -> WorkbenchState:
             ui.label(
                 "Save / load a versioned .csw.json (or .chemspec.json) with "
                 "embedded raw spectrum, processing, pipeline history, peaks, notes, and provenance. "
+                "On load, pipeline history is auto-replayed onto a working copy "
+                "(raw stays unchanged; section 2a lists the steps). "
                 "Reproducible analysis snapshot — not compound ID."
             ).classes("text-caption text-grey-7")
             widgets["notes_input"] = ui.textarea(
