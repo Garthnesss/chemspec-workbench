@@ -34,6 +34,8 @@ from spectrum_core import (
     load_session,
     overlay,
     peaks_to_csv,
+    export_spectrum_png,
+    export_waterfall_png,
     replay_history,
     save_session,
     session_to_dict,
@@ -49,6 +51,7 @@ from chemspec.ui_helpers import (
     guess_column_mapping,
     is_log_epsilon_meta,
     peak_export_filename,
+    png_export_filename,
     provenance_from_state,
     sniff_csv_header,
 )
@@ -804,6 +807,46 @@ def create_app() -> WorkbenchState:
         state.error = ""
         refresh_ui()
 
+
+    def on_export_plot_png() -> None:
+        """Matplotlib PNG with honesty footer (parity with LabRF export)."""
+        import io
+
+        if state.waterfall_mode and state.waterfall:
+            buf = io.BytesIO()
+            export_waterfall_png(state.waterfall, buf)
+            name = "chemspec_waterfall.png"
+            ui.download(buf.getvalue(), name)
+            state.status = f"Exported waterfall PNG → {name}"
+            state.error = ""
+            refresh_ui()
+            return
+
+        work = _working_spectrum(state, state.primary)
+        if work is None:
+            state.error = "No spectrum to export — load a spectrum first."
+            refresh_ui()
+            return
+        ov = None
+        if state.overlay_spec is not None:
+            try:
+                ov = _working_spectrum(state, state.overlay_spec)
+            except Exception:  # noqa: BLE001
+                ov = state.overlay_spec
+        buf = io.BytesIO()
+        export_spectrum_png(
+            work,
+            buf,
+            peaks=state.peaks or None,
+            overlay=ov,
+            title=f"ChemSpec — {work.title}",
+        )
+        name = png_export_filename(work.title)
+        ui.download(buf.getvalue(), name)
+        state.status = f"Exported spectrum PNG → {name}"
+        state.error = ""
+        refresh_ui()
+
     def on_save_session() -> None:
         if state.primary is None:
             state.error = "No spectrum to save — load a spectrum first."
@@ -1207,6 +1250,9 @@ def create_app() -> WorkbenchState:
                 ui.button("Export peaks CSV", on_click=on_export_peaks).props(
                     "outline color=primary"
                 )
+                ui.button("Export plot PNG", on_click=on_export_plot_png).props(
+                    "outline color=primary"
+                )
 
             ui.separator()
             ui.label("2b · Analysis session").classes("text-subtitle1")
@@ -1294,9 +1340,13 @@ def create_app() -> WorkbenchState:
             )
             with ui.row().classes("items-center justify-between w-full q-mt-md"):
                 ui.label("Peak table").classes("text-subtitle1")
-                ui.button(
-                    "Download peaks CSV", on_click=on_export_peaks
-                ).props("dense outline")
+                with ui.row().classes("q-gutter-sm"):
+                    ui.button(
+                        "Download peaks CSV", on_click=on_export_peaks
+                    ).props("dense outline")
+                    ui.button(
+                        "Download plot PNG", on_click=on_export_plot_png
+                    ).props("dense outline")
             widgets["peak_table"] = ui.table(
                 columns=[
                     {
