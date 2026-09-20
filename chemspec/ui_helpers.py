@@ -415,11 +415,18 @@ def format_diagnostics_strip(
     """Format ``MeasurementDiagnostics`` (or None) for the NiceGUI warnings strip.
 
     Accepts the diagnostics object duck-typed so tests can pass a stub; when
-    ``None`` or empty, returns ``""``.
+    ``None`` or empty, returns ``""``. Prefixes a short **advisory** framing so
+    the amber strip never looks like an instrument LOD claim. The summary itself
+    already labels MAD-Δy SNR as a heuristic (dense/smooth IR can inflate it).
     """
     if diagnostics is None:
         return ""
     summary = getattr(diagnostics, "summary_line", None)
     if callable(summary):
-        return str(summary(max_items=max_items) or "")
+        line = str(summary(max_items=max_items) or "").strip()
+        if not line:
+            return ""
+        if line.lower().startswith("advisory"):
+            return line
+        return f"Advisory: {line}"
     return ""
