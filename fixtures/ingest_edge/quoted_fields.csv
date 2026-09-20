@@ -1,0 +1,5 @@
+# Synthetic quoted CSV (commas inside quotes must not split)
+"wavelength_nm","absorbance","note"
+"200.0","0.10","baseline, start"
+"250.0","0.55","peak, main"
+"300.0","0.20","tail, end"

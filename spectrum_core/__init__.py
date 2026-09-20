@@ -1,7 +1,15 @@
 """spectrum_core — shared spectrum model, ingest, peaks, baseline for ChemSpec / family."""
 
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
-from spectrum_core.ingest import ingest, ingest_csv, ingest_jcamp, is_jcamp_path
+from spectrum_core.ingest import (
+    ensure_ascending_x,
+    ingest,
+    ingest_csv,
+    ingest_jcamp,
+    is_jcamp_path,
+    x_direction,
+    y_unit_from_header,
+)
 from spectrum_core.peaks import find_peaks, Peak
 from spectrum_core.baseline import (
     ALL_BASELINE_METHODS,
@@ -54,6 +62,9 @@ __all__ = [
     "ingest_csv",
     "ingest_jcamp",
     "is_jcamp_path",
+    "ensure_ascending_x",
+    "x_direction",
+    "y_unit_from_header",
     "find_peaks",
     "Peak",
     "baseline_polynomial",

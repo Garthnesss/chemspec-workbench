@@ -1,0 +1,11 @@
+# Synthetic descending-x IR (common instrument export); not a real compound
+# x_unit=cm-1  y_unit=intensity
+wavenumber_cm-1,intensity
+4000.0,0.10
+3500.0,0.12
+3000.0,0.80
+2500.0,0.15
+2000.0,0.90
+1500.0,0.20
+1000.0,0.18
+800.0,0.11

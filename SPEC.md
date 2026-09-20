@@ -5,9 +5,10 @@
 | Module | Responsibility |
 |--------|----------------|
 | `Spectrum` | x (nm \| cm⁻¹), y (A \| %T \| intensity), title/meta |
-| `ingest_csv` | CSV primary; column index or header name |
-| `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers |
+| `ingest_csv` | CSV primary via stdlib `csv` (`,`/`;`/tab, quoted fields); column index or header name; skip non-finite by default |
+| `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers; preserves x-direction |
 | `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
+| `ensure_ascending_x` / `x_direction` / `y_unit_from_header` | Optional ascending-x normalize; header→y_unit hint (ingest does not auto-flip units) |
 | `find_peaks` | `scipy.signal.find_peaks`, configurable prominence; returns `Peak` with **FWHM** + **area** (half-max bounds; see `spectrum_core.peaks` docstring) |
 | `baseline_polynomial` | poly fit / subtract (always available) |
 | `baseline_correct` | dispatch: polynomial default; optional pybaselines `asls` / `mpls` (`[baselines]`, BSD-3) |
@@ -31,8 +32,10 @@
 
 ## Primary format
 
-CSV with column mapping (primary). JCAMP-DX basic (`.jdx`/`.dx`) via MIT `jcamp`.
-Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` stack demo.
+CSV with column mapping (primary; stdlib `csv`). JCAMP-DX basic (`.jdx`/`.dx`) via MIT `jcamp`.
+Native x-order preserved (descending IR common); use `ensure_ascending_x` if needed.
+Non-finite y/x rows skipped by default (`skip_nonfinite=True`); duplicate x / uneven spacing retained.
+Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` + `fixtures/ingest_edge/`.
 
 
 ## Session file format (`.csw.json` / `.chemspec.json`)

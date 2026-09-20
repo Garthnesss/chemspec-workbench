@@ -31,6 +31,13 @@ CSV `#` comments may include `x_unit=` / `y_unit=` hints. UI `guess_column_mappi
 
 LabRF IQ fixtures: see `fixtures/labrf/README.md`. Synthetic only — not live captures.
 
+## Ingest edge cases (`ingest_edge/`)
+
+Synthetic CSV/JCAMP snippets for ugly real-world ingest (descending x, duplicate x,
+uneven spacing, NaN/Inf y, `;`/tab/quoted CSV, missing cells, `%T`/Absorbance headers,
+empty/bad files). See `fixtures/ingest_edge/README.md` and `spectrum_core.ingest`
+module docs for skip / x-direction policies. **Not** real compounds.
+
 ## Public (NIST / PNNL — real IR)
 
 Real measured IR JCAMP-DX files with **clear redistribution rights** live in
