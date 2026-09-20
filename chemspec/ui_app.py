@@ -37,8 +37,18 @@ from chemspec.ui_helpers import (
     axis_label,
     guess_column_mapping,
     peak_export_filename,
+    provenance_from_state,
     sniff_csv_header,
 )
+
+def _package_version() -> str:
+    try:
+        from spectrum_core import __version__ as _v
+
+        return str(_v)
+    except Exception:  # noqa: BLE001
+        return ""
+
 
 try:
     import plotly.graph_objects as go
@@ -74,7 +84,7 @@ class WorkbenchState:
         self.x_col: int | str = 0
         self.y_col: int | str = 1
         self.x_unit: str = "nm"
-        self.y_unit: str = "intensity"
+        self.y_unit: str = "A"  # UV-Vis default; IR fixtures override to intensity
         self.prominence: float = 0.15
         self.use_auto_prominence: bool = False
         self.baseline_on: bool = False
@@ -454,13 +464,32 @@ def create_app() -> WorkbenchState:
         ui.label("MVP · spectrum_core · synthetic-safe").classes("text-caption")
 
     status_label = ui.label(state.status).classes("text-body2 q-px-md q-pt-sm")
+    provenance_label = ui.label("").classes(
+        "text-caption text-grey-8 q-px-md font-mono"
+    )
     error_label = ui.label("").classes("text-negative q-px-md")
 
     widgets: dict[str, Any] = {}
 
+    def _refresh_provenance() -> None:
+        primary = state.primary
+        provenance_label.set_text(
+            provenance_from_state(
+                primary_path=state.primary_path or None,
+                spectrum_title=primary.title if primary else None,
+                x_unit=primary.x_unit if primary else state.x_unit,
+                y_unit=primary.y_unit if primary else state.y_unit,
+                baseline_on=state.baseline_on and primary is not None,
+                baseline_method=state.baseline_method,
+                peak_count=len(state.peaks),
+                package_version=_package_version() or None,
+            )
+        )
+
     def refresh_ui() -> None:
         status_label.set_text(state.status)
         error_label.set_text(state.error or "")
+        _refresh_provenance()
         widgets["plot"].update_figure(_build_figure(state))
         table = widgets["peak_table"]
         table.rows = _peak_rows(state)

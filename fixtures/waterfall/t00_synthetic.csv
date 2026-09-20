@@ -1,4 +1,5 @@
 # Synthetic UV-Vis (waterfall demo) — not a real compound
+# x_unit=nm  y_unit=A
 wavelength_nm,absorbance
 200.0,0.050000
 201.0,0.050200

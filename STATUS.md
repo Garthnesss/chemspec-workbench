@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** Optional pybaselines baseline methods (AsLS / MPLS) + method picker
+**As of:** UV-Vis absorbance mapping fix + NiceGUI provenance strip
 
 ## Implemented
 
@@ -16,9 +16,14 @@
 - **`peaks_to_csv`** — pure peak-table CSV helper (+ UI download)
 - **A ↔ %T** — `absorbance_to_percent_t` / `percent_t_to_absorbance` / `convert_spectrum_y`
   (intensity blocked; non-finite A and `%T ≤ 0` → NaN; `%T > 100` allowed with note)
+- **UV-Vis fixture / guess mapping** — synthetic UV-Vis CSV meta + `guess_column_mapping`
+  tag absorbance columns (`absorbance` / `A` / `AU` / `Abs` / `OD`) as `y_unit=A` so A↔%T works;
+  IR `intensity` stays intensity unless header is clearly %T/A
+- **Provenance strip (NiceGUI)** — `format_provenance` / `provenance_from_state` helper + UI line
+  (source name, x/y units, active baseline or none, peak count, package version)
 - **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
 - Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
-- pytest: CSV + JCAMP ingest; peaks; baseline; units; export; folder; UI helper sniff/guess
+- pytest: CSV + JCAMP ingest; peaks; baseline; units; export; folder; UI helper sniff/guess/provenance
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`

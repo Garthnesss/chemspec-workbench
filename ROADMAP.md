@@ -6,7 +6,8 @@
 | 1 | Scaffold + fixtures | Done | `spectrum_core`, tests green, synthetic IR/UV |
 | 2 | MVP UI | Done | Open/plot/peaks/baseline/overlay (NiceGUI) |
 | 3 | Waterfall + polish | Done | Folder stacks, peak CSV export, A↔%T |
-| 3b | Advanced baselines | **Done (this branch)** | Optional pybaselines AsLS/MPLS + UI picker |
+| 3b | Advanced baselines | Done | Optional pybaselines AsLS/MPLS + UI picker |
+| 3c | Absorbance + provenance | **Done (this branch)** | UV-Vis y_unit=A mapping; NiceGUI provenance strip |
 | 4 | Family handoff | Planned | Core stable for TeachSpec / FID / LabRF |
 
 ## Phase 1 checklist

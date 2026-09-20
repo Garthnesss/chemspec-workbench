@@ -5,8 +5,8 @@ of real compounds and must never be described as such.
 
 | File | Format | X axis | Y axis | Intended peaks |
 |------|--------|--------|--------|----------------|
-| `uvvis_synthetic.csv` | CSV | `wavelength_nm` (nm) | `absorbance` (A) | ~280 nm, ~350 nm |
-| `ir_synthetic.csv` | CSV | `wavenumber_cm-1` (cm⁻¹) | `intensity` | ~1700 cm⁻¹, ~2900 cm⁻¹ (weaker ~1450) |
+| `uvvis_synthetic.csv` | CSV | `wavelength_nm` (nm) | `absorbance` → `y_unit=A` | ~280 nm, ~350 nm |
+| `ir_synthetic.csv` | CSV | `wavenumber_cm-1` (cm⁻¹) | `intensity` (not %T/A) | ~1700 cm⁻¹, ~2900 cm⁻¹ (weaker ~1450) |
 | `uvvis_synthetic.jdx` | JCAMP-DX | NANOMETERS → `nm` | ABSORBANCE → `A` | ~280 nm, ~350 nm |
 | `ir_synthetic.dx` | JCAMP-DX | 1/CM → `cm-1` | TRANSMITTANCE (fraction→%T) | dips ~1700, ~2900 cm⁻¹ |
 | `waterfall/t0{0,1,2}_synthetic.csv` | CSV folder | `wavelength_nm` | `absorbance` | slight peak drift for stack demo |
@@ -19,6 +19,9 @@ JCAMP files are minimal XYDATA text (no huge binary). Use
 
 Folder waterfall demos: `spectrum_core.folder_waterfall("fixtures/waterfall", ...)`
 or the UI **Demo waterfall fixture** button.
+
+
+CSV `#` comments may include `x_unit=` / `y_unit=` hints. UI `guess_column_mapping` maps absorbance-named columns (`absorbance`, `A`, `AU`, `Abs`, `OD`) to `y_unit=A`; IR intensity stays intensity.
 
 **Honesty:** ChemSpec Workbench does not claim compound identity from these
 (or any) spectra in Phase 0.
