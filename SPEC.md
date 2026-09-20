@@ -14,6 +14,7 @@
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
 | `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area`) |
+| `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`): embedded x/y + units/title, original path, processing, peaks (FWHM/area), notes, provenance snapshot |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
 | JCAMP advanced | Planned (multi-block / certification) |
 
@@ -24,11 +25,29 @@
 - NiceGUI + Plotly MVP: optional `[ui]` extra (`python -m chemspec.ui_app`); core demos run without it
   - Peak table + CSV download (incl. FWHM/area), A↔%T display toggle, folder waterfall
   - Baseline method picker (polynomial + optional AsLS/MPLS)
+  - Analysis session save/load (download / path / upload; reproducible snapshot, not compound ID)
 
 ## Primary format
 
 CSV with column mapping (primary). JCAMP-DX basic (`.jdx`/`.dx`) via MIT `jcamp`.
 Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` stack demo.
+
+
+## Session file format (`.csw.json` / `.chemspec.json`)
+
+Versioned JSON (`format_version: 1`) for reproducible analysis sessions:
+
+| Field | Contents |
+|-------|----------|
+| `format_version` | Schema version (currently `1`) |
+| `software_version` | `spectrum_core` / package version string |
+| `spectrum` | Embedded `x` / `y` arrays + `x_unit` / `y_unit` / `title` / `source_path` / JSON-safe `meta` |
+| `processing` | `baseline_on`, `baseline_method`, `baseline_degree`, `flip_y_unit` (A↔%T display), `prominence`, `use_auto_prominence` |
+| `peaks` | List of `{index,x,y,prominence,fwhm,area}` (non-finite → JSON `null`) |
+| `notes` | Optional free-text string |
+| `provenance` | Snapshot (`source`, units, baseline, peak_count, `summary` line) |
+
+Prefer embedded arrays so reload works if the original path moves; `source_path` is retained for provenance. **Not** compound ID.
 
 ## Non-goals
 

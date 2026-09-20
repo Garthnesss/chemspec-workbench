@@ -2,7 +2,8 @@
 
 Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks
 (center, height, prominence, **FWHM**, **area**), correct a simple baseline,
-overlay/stack traces, export peaks, A↔%T display, and folder waterfall. Built on a
+overlay/stack traces, export peaks, A↔%T display, folder waterfall, and
+**analysis session** save/load (`.csw.json`). Built on a
 reusable `spectrum_core` package (Spectrum Family).
 
 Sibling app **LabRF Monitor** (`labrf/`): receive-only RF power spectrum + waterfall
@@ -101,11 +102,37 @@ python -m chemspec.demo
 python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 ```
 
+
+## Analysis sessions
+
+Save a reproducible analysis snapshot from the NiceGUI UI (**2b · Analysis session**)
+or from Python:
+
+```python
+from spectrum_core import ingest, find_peaks, save_session, load_session
+
+spec = ingest("sample.csv")
+peaks = find_peaks(spec, prominence=0.15)
+save_session(
+    "analysis.csw.json",
+    spec,
+    processing={"baseline_on": True, "baseline_method": "polynomial", "baseline_degree": 1},
+    peaks=peaks,
+    notes="optional lab notes",
+    source_path="sample.csv",
+)
+session = load_session("analysis.csw.json")  # embedded x/y — path may have moved
+```
+
+File extensions: `.csw.json` or `.chemspec.json`. Schema is documented in `SPEC.md`
+(`format_version`, embedded spectrum, processing, peaks, notes, provenance).
+Sessions are analysis snapshots — **not** compound identification.
+
 ## Layout
 
 | Path | Role |
 |------|------|
-| `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall |
+| `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall, **session save/load** |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
