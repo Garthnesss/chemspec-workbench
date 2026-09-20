@@ -25,3 +25,8 @@ CSV `#` comments may include `x_unit=` / `y_unit=` hints. UI `guess_column_mappi
 
 **Honesty:** ChemSpec Workbench does not claim compound identity from these
 (or any) spectra in Phase 0.
+
+| `labrf/mock_iq.npz` | NumPy IQ | complex baseband | synthetic tones near 98 MHz (LabRF mock) |
+
+LabRF IQ fixtures: see `fixtures/labrf/README.md`. Synthetic only — not live captures.
+

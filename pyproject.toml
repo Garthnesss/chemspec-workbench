@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chemspec-workbench"
 version = "0.1.0"
-description = "Software-only UV-Vis / IR spectrum workbench (honest peaks, baseline, overlay)"
+description = "Software-only UV-Vis / IR spectrum workbench + LabRF Monitor (Spectrum Family)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -30,14 +30,24 @@ ui = [
 baselines = [
     "pybaselines>=1.0",
 ]
+labrf = [
+    "pyrtlsdr>=0.3.0",
+]
+rtlsdr = [
+    "pyrtlsdr>=0.3.0",
+]
 
 [project.scripts]
 chemspec-demo = "chemspec.demo:main"
 chemspec-ui = "chemspec.ui_app:main"
+labrf-ui = "labrf.ui_app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["spectrum_core*", "chemspec*"]
+include = ["spectrum_core*", "chemspec*", "labrf*"]
+
+[tool.setuptools.package-data]
+labrf = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

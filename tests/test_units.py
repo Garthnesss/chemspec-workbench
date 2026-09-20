@@ -82,3 +82,18 @@ def test_can_convert_y():
     assert can_convert_y("A") is True
     assert can_convert_y("percent_T") is True
     assert can_convert_y("intensity") is False
+
+
+def test_rf_spectrum_units_hz_db():
+    spec = Spectrum(
+        x=[97.0, 98.0, 99.0],
+        y=[-40.0, -10.0, -35.0],
+        x_unit="MHz",
+        y_unit="dB",
+        title="rf",
+    )
+    assert spec.x_unit == "MHz"
+    assert spec.y_unit == "dB"
+    assert can_convert_y("dB") is False
+    with pytest.raises(ValueError, match="dB"):
+        convert_spectrum_y(spec, "A")

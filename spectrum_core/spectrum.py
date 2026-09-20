@@ -7,8 +7,12 @@ from typing import Any, Literal
 
 import numpy as np
 
-XUnit = Literal["nm", "cm-1"]
-YUnit = Literal["A", "percent_T", "intensity"]
+# Optical (ChemSpec) + RF (LabRF) axis units. Keep Literal honest for type checkers.
+XUnit = Literal["nm", "cm-1", "Hz", "MHz"]
+YUnit = Literal["A", "percent_T", "intensity", "dB"]
+
+_X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz"})
+_Y_UNITS = frozenset({"A", "percent_T", "intensity", "dB"})
 
 
 @dataclass
@@ -33,9 +37,9 @@ class Spectrum:
             )
         if len(self.x) == 0:
             raise ValueError("spectrum must have at least one point")
-        if self.x_unit not in ("nm", "cm-1"):
+        if self.x_unit not in _X_UNITS:
             raise ValueError(f"unsupported x_unit: {self.x_unit!r}")
-        if self.y_unit not in ("A", "percent_T", "intensity"):
+        if self.y_unit not in _Y_UNITS:
             raise ValueError(f"unsupported y_unit: {self.y_unit!r}")
 
     def __len__(self) -> int:
