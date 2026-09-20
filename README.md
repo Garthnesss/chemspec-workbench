@@ -222,6 +222,8 @@ stacked = folder_waterfall(
 **From ChemSpec NiceGUI:** section **4 · Folder waterfall** — enter a folder path and
 **Load folder**, or one-click **Demo waterfall fixture**. **Clear waterfall** keeps the
 primary spectrum. Matching `x_unit` is enforced (mixed UV-Vis nm + IR cm⁻¹ fails).
+Optional **3-D surface** checkbox (`state.view_3d`) — series index ≠ time; see
+[`docs/viz3d.md`](docs/viz3d.md).
 
 Headless plot without UI: `python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show`
 (single-file; use the Python API above for multi-file stack).

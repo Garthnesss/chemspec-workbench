@@ -34,6 +34,6 @@ grid = spectra_to_surface(stacked)
 `chemspec.plot3d.build_surface_figure(traces, xlabel, ylabel)` builds a
 Plotly `Surface` (requires `pip install -e ".[ui]"`).
 
-Wire it from section **4 · Folder waterfall** with a checkbox that sets
-`state.view_3d` and swaps `_build_figure` to the surface when a waterfall
-with ≥2 traces is loaded.
+Wired from section **4 · Folder waterfall**: checkbox sets `state.view_3d`
+and `_build_figure` swaps to the surface when a waterfall with ≥2 traces is
+loaded (disabled / warn caption if fewer). Series index ≠ time; no compound ID.
