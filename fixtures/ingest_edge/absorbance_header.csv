@@ -1,0 +1,6 @@
+# Synthetic absorbance header
+wavelength_nm,Absorbance
+200.0,0.05
+250.0,0.80
+300.0,0.40
+350.0,0.10

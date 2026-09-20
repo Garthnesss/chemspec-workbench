@@ -1,13 +1,15 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Ethanol IR tutorial + LICENSE (MIT) + Dependabot + pip-audit CI + Processing pipeline + Session + Peak FWHM/area + public IR fixtures + LabRF + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — CSV/JCAMP ingest hardening + Ethanol IR tutorial + LICENSE/Dependabot/pip-audit + Processing + Session + Peak FWHM/area + public IR + LabRF + MVP
 
 ## Implemented
 
 - `spectrum_core.Spectrum` with `x` / `y`, `x_unit` (`nm` \| `cm-1` \| `Hz` \| `MHz`), `y_unit` (`A` \| `percent_T` \| `intensity` \| `dB`), title/meta
-- `ingest_csv(path, x_col, y_col, ...)` — header names or indices; `#` comments
-- `ingest_jcamp(path)` — JCAMP-DX via MIT `jcamp.readfile`; maps x/y + units from headers
+- `ingest_csv(path, x_col, y_col, ...)` — stdlib `csv` (`,`/`;`/tab, quoted fields); header names or indices; `#` comments; default skip NaN/Inf; missing cells skipped; extra cols ignored
+- `ingest_jcamp(path)` — JCAMP-DX via MIT `jcamp.readfile`; maps x/y + units from headers; preserves x-direction (often descending IR)
 - `ingest(path)` — dispatches `.jdx`/`.dx` → JCAMP, else CSV
+- `ensure_ascending_x` / `x_direction` / `y_unit_from_header` — optional ascending-x normalize; header→`A`/`percent_T` hint (ingest does not auto-override caller units)
+- **Ingest edge fixtures** (`fixtures/ingest_edge/`) — descending x, duplicates, uneven spacing, NaN/Inf, delimiters/quotes, missing/extra cols, %T vs Absorbance, empty/bad JCAMP
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
   - Each `Peak` includes **FWHM** (`abs` half-max width; ascending/descending `x`) and **area**
     (trapezoidal integral between the same half-max bounds; see `spectrum_core.peaks` docstring)
@@ -39,7 +41,7 @@
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
   labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
   NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
-- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
+- pytest: CSV + JCAMP ingest (**edge hardening**); **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`

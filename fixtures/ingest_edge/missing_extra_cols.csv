@@ -1,0 +1,8 @@
+# Synthetic: blank cells skipped; extra columns ignored
+wavelength_nm,absorbance,extra1,extra2
+200.0,0.10,keep,me
+210.0,,oops,skip
+220.0,0.40,ok,fine
+,0.50,missing_x,skip
+230.0,0.25,yes,here
+240.0,0.18

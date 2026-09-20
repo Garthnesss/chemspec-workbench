@@ -1,0 +1,7 @@
+# Synthetic: duplicate x values retained as-is
+wavelength_nm,absorbance
+200.0,0.1
+210.0,0.2
+210.0,0.25
+220.0,0.3
+230.0,0.15

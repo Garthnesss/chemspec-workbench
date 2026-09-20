@@ -1,0 +1,9 @@
+# Synthetic: non-finite y rows are skipped by default
+wavelength_nm,absorbance
+200.0,0.10
+210.0,nan
+220.0,0.40
+230.0,inf
+240.0,0.20
+250.0,-inf
+260.0,0.15

@@ -1,0 +1,8 @@
+# Synthetic: uneven Δx (no resampling on ingest)
+wavelength_nm,absorbance
+200.0,0.05
+205.0,0.10
+220.0,0.40
+221.0,0.55
+250.0,0.12
+300.0,0.08
