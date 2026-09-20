@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — LabRF demo polish (streaming + threshold) + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — Public NIST/PNNL IR fixtures + LabRF polish + ChemSpec MVP
 
 ## Implemented
 
@@ -23,11 +23,15 @@
   (source name, x/y units, active baseline or none, peak count, package version)
 - **Folder waterfall** — `list_spectrum_files` / `ingest_folder` / `folder_waterfall` (uses `stack`)
 - Synthetic fixtures: CSV + JCAMP (`uvvis_synthetic.jdx`, `ir_synthetic.dx`) + `fixtures/waterfall/`
-- pytest: CSV + JCAMP ingest; peaks; baseline; units; export; folder; UI helper sniff/guess/provenance
+- **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
+  labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
+  NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
+- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks; baseline; units; export; folder; UI helper sniff/guess/provenance
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
-  - CSV / JCAMP (`.jdx`/`.dx`) path + file picker; one-click UV-Vis / IR / JCAMP fixtures
+  - CSV / JCAMP (`.jdx`/`.dx`) path + file picker; one-click UV-Vis / IR / JCAMP synthetic
+    fixtures + **Load public: Ethanol/Methanol/Toluene IR**
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
   - Prominence control + peak table + **Export peaks CSV**
@@ -59,10 +63,10 @@
 - Hardware / TeachSpec drivers
 - NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
-- Chemistry sign-off on real (non-synthetic) example files
+- Broader chemistry sign-off / more public real examples (UV-Vis)
 - Time-axis metadata from filenames beyond sort-by-name / mtime (waterfall is stack offsets only)
 
 ## Blocked / human gates
 
-- Chemistry: confirm priority lab formats + 2–3 public real example files
+- Chemistry: confirm priority lab formats + additional public real examples (UV-Vis if openly available)
 - Product: release claims / tags — JARTH
