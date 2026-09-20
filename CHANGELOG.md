@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Quant layer** — SG derivative (pipeline step), user-window band integral,
+  compare (RMSE/MAE/Pearson/cosine), nm↔cm-1, Beer–Lambert with *user* ε and path
 - **FID/NMR NiceGUI playground** — `fidnmr-ui` / `python -m fidnmr.ui_app` (port 8083);
   mock FID time + real-FFT spectrum, lb/phc0/phc1, ppm/Hz toggle; synthetic only
 - **TeachSpec preview nm axis** — optional load of `teachspec.calibration` JSON in
