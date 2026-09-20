@@ -20,7 +20,7 @@ small fixes landed in the same PRs when safe.
 
 ## Larger follow-ups (not blocking 0.2 MI)
 
-1. UI replay of history on session load is still caller-driven (session stores raw + history); document UX if users expect auto-replay.
+1. ~~UI replay of history on session load~~ — NiceGUI `_load_session_path` auto-replays via `replay_history`; status + section 2b caption document UX (raw preserved; working gets steps).
 2. Peak table UI shows contract columns but not the full baseline_reference_note (CSV/session do).
 3. ~~baseline_correct bare ValueError~~ — Fixed: raises ProcessingError; ImportError for missing pybaselines unchanged.
 4. Units live in analysis_fingerprint, not raw_data_hash (arrays-only hash by design) — document for callers.
