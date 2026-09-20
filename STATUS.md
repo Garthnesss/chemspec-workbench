@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — LabRF NiceGUI 3.x disclaimer card + CSV/JCAMP ingest hardening + Ethanol IR tutorial + LICENSE/Dependabot/pip-audit + Processing + Session + Peak FWHM/area + public IR + LabRF + MVP
+**As of:** 2026-09-19 (PT) — CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
 
 ## Implemented
 
@@ -63,8 +63,10 @@
   clear no-compound-ID disclaimer; pytest smoke on the script (no nbconvert in CI yet)
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS, `examples/README.md`
 - **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
-  Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, **`pip-audit`** (fails on known vulns), `pytest -q`;
-  `jcamp` in main deps; `make test` / `scripts/ci-test.sh` mirror CI locally
+  Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, upgrade **`setuptools>=83`** then **`pip-audit`**
+  (avoids GHA 3.11 image setuptools 79 advisory), LabRF `build_ui` smoke, `pytest -q`;
+  `jcamp` in main deps; `make test` / `scripts/ci-test.sh` mirror CI locally;
+  NiceGUI API-drift tests assert every `ui.*` used by LabRF/ChemSpec exists
 - **License + Dependabot** — root `LICENSE` (MIT, ChemSpec Workbench contributors, 2026); `.github/dependabot.yml` weekly for pip + github-actions
 - JCAMP-DX **basic** ingest Implemented (MIT `jcamp`); clear UI error on parse failure
 
@@ -72,7 +74,7 @@
 
 - Package `labrf/` — mock IQ → FFT power spectrum → `Spectrum`; waterfall buffer; educational presets JSON
 - NiceGUI UI: `python -m labrf.ui_app` (port 8081); **no dongle required**
-  - Compatible with **NiceGUI 3.x** (disclaimer uses dismissible `ui.card`, not removed `ui.banner`)
+  - Compatible with **NiceGUI 3.x** (disclaimer uses dismissible `ui.card`, not removed `ui.banner`); CI/API-drift guards
   - **Streaming mock waterfall** (Start/Stop) with successive synthetic IQ frames
   - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export)
   - Quick preset jump buttons, Load mock fixture, provenance strip, clearer dismissible disclaimer card
