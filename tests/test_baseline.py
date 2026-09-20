@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from spectrum_core import (
+    ProcessingError,
     METHOD_ASLS,
     METHOD_MPLS,
     METHOD_POLYNOMIAL,
@@ -73,7 +74,7 @@ def test_baseline_correct_unknown_method(uvvis_csv):
         x_unit="nm",
         y_unit="A",
     )
-    with pytest.raises(ValueError, match="unknown baseline method"):
+    with pytest.raises(ProcessingError, match="unknown baseline method"):
         baseline_correct(spec, method="not-a-real-method")
 
 
@@ -146,3 +147,17 @@ def test_pybaselines_missing_raises_clear_import_error(uvvis_csv, monkeypatch):
             baseline_correct(spec, method=METHOD_ASLS)
     finally:
         sys.modules.update(held)
+
+
+def test_baseline_polynomial_degree_and_mask_raise_processing_error(uvvis_csv):
+    spec = ingest_csv(
+        uvvis_csv,
+        x_col="wavelength_nm",
+        y_col="absorbance",
+        x_unit="nm",
+        y_unit="A",
+    )
+    with pytest.raises(ProcessingError, match="degree must be >= 0"):
+        baseline_polynomial(spec, degree=-1)
+    with pytest.raises(ProcessingError, match="mask shape"):
+        baseline_polynomial(spec, degree=1, mask=np.ones(3, dtype=bool))
