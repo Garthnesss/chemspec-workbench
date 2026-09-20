@@ -20,7 +20,7 @@ class IqSource(Protocol):
     @property
     def center_freq(self) -> float: ...
 
-    def configure(self, *, center_freq: float, sample_rate: float) -> None: ...
+    def configure(self, *, center_freq: float, sample_rate: float) -> bool | None: ...
 
     def read_samples(self, n: int) -> np.ndarray: ...
 
@@ -45,29 +45,35 @@ class MockIqSource:
             self.sample_rate = float(meta["sample_rate"])
             self.center_freq = float(meta["center_freq"])
 
-    def configure(self, *, center_freq: float, sample_rate: float) -> None:
-        self.center_freq = float(center_freq)
-        self.sample_rate = float(sample_rate)
-        # Regenerating tones track the new center; drop fixture cursor loop
+    def configure(self, *, center_freq: float, sample_rate: float) -> bool:
+        """Update tune. Returns False when values were already set (no-op).
+
+        Seed advances only when the synthetic (non-fixture) path actually
+        retunes — avoids double-stepping the seed on every UI stream tick.
+        """
+        cf = float(center_freq)
+        sr = float(sample_rate)
+        if cf == float(self.center_freq) and sr == float(self.sample_rate):
+            return False
+        self.center_freq = cf
+        self.sample_rate = sr
+        # Regenerating tones track the new center; fixture IQ content is fixed
         if self._fixture_iq is None:
             self.seed = (self.seed or 0) + 1
+        return True
 
     def read_samples(self, n: int) -> np.ndarray:
         if n < 1:
             raise ValueError("n must be >= 1")
         if self._fixture_iq is not None:
             iq = self._fixture_iq
-            if len(iq) >= n:
-                # Loop through fixture
-                out = np.empty(n, dtype=np.complex128)
-                for i in range(n):
-                    out[i] = iq[self._cursor % len(iq)]
-                    self._cursor += 1
-                return out
-            # Pad by regenerating if fixture shorter than request
-            reps = int(np.ceil(n / len(iq)))
-            tiled = np.tile(iq, reps)[:n]
-            return tiled.astype(np.complex128)
+            length = len(iq)
+            if length < 1:
+                raise ValueError("IQ fixture is empty")
+            # Vectorized ring read — avoids per-sample Python loop (stream ticks)
+            idx = (np.arange(n, dtype=np.int64) + int(self._cursor)) % length
+            self._cursor = int((self._cursor + n) % length)
+            return np.asarray(iq[idx], dtype=np.complex128)
 
         iq, _meta = generate_synthetic_iq(
             n_samples=n,

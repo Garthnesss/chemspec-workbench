@@ -19,6 +19,11 @@
   - Quick preset jump buttons, Load mock fixture, provenance strip (source / center / rate / frames)
   - Clearer demo / educational disclaimer (dismissible `ui.card` on NiceGUI 3.x; not `ui.banner`)
 - `MockStreamGenerator` + `ThresholdEventLog` / `evaluate_threshold` (pure, unit-tested)
+  - Event log **maxlen** (default 500) so long mock streams stay bounded
+  - Waterfall **auto-resets** when the frequency axis changes (honest labels after retune)
+  - Mock `configure` is a no-op when tune unchanged (no seed thrash every stream tick)
+  - Fixture IQ ring-read is vectorized (stream-friendly)
+  - Status copy distinguishes mock vs fixture and keeps **receive-only demo** visible
 - pytest: mock FFT→spectrum, presets, waterfall, stream frames, threshold logic, no-hardware RTL guard
 
 ## Next

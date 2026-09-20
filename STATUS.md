@@ -76,7 +76,8 @@
 - NiceGUI UI: `python -m labrf.ui_app` (port 8081); **no dongle required**
   - Compatible with **NiceGUI 3.x** (disclaimer uses dismissible `ui.card`, not removed `ui.banner`); CI/API-drift guards
   - **Streaming mock waterfall** (Start/Stop) with successive synthetic IQ frames
-  - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export)
+  - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export; maxlen-capped)
+  - Waterfall auto-reset on retune; mock configure no-op when unchanged; vectorized fixture ring-read
   - Quick preset jump buttons, Load mock fixture, provenance strip, clearer dismissible disclaimer card
 - Optional `[labrf]` / `[rtlsdr]` → pyrtlsdr adapter with clear ImportError if missing
 - pytest: mock FFT, presets, waterfall, **stream generator**, **threshold logic**, RTL missing-extra guard
