@@ -1,3 +1,4 @@
+**As of:** 2026-09-20 (PT) — ChemSpec **0.2.0 release-prep Done** (Measurement Integrity + TeachSpec UVC story); PyPI/TestPyPI publish = **waiting on maintainer credentials** (see `docs/RELEASE_0.2.md`); classroom pilot one-pager added
 **As of:** 2026-09-20 (PT) — TeachSpec NiceGUI live preview (`teachspec-ui`; Mock default; intensity vs pixel)
 **As of:** 2026-09-19 (PT) — TeachSpec UVC ingest interface stub (`UvcIngestStub` → NotImplementedError; no OpenCV dep)
 **As of:** 2026-09-19 (PT) — EnvKit docs-only family sync (still parked)
@@ -159,8 +160,9 @@
   - UVC ingest: `OpticalFrameSource` + `UvcIngestStub` + optional live `UvcOpenCvSource` / `open_uvc_source` (`[teachspec]` OpenCV extra; CI camera-free)
   - **NiceGUI live preview** — `teachspec/ui_app.py` / `teachspec-ui` / `python -m teachspec.ui_app` (port 8082); Mock default; Live + device index; Plotly intensity vs pixel; honesty + SAFETY.md link; no CFL auto-cal / no waterfall
 - **Sensor lock (docs):** USB camera (UVC) = v1 primary; linear CCD/CMOS = Phase 2+ alternate
-- Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md skeleton + status/roadmap; software stub *Implemented*
-- **Not** Implemented: priced/vendor-locked BOM, hardware-verified calibration, compound ID, CFL auto-cal UI, nm-axis in live preview
+- Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md + status/roadmap; software stub *Implemented*
+- Classroom pilot ask: `docs/classroom_pilot_one_pager.md` (software-only vs USB kit tracks)
+- **Not** Implemented: vendor-locked dated-quote BOM, hardware-verified calibration, compound ID, CFL auto-cal UI, nm-axis in live preview
 
 ## FID / NMR Playground (sibling — Phase 0 software stub)
 
@@ -183,7 +185,7 @@
 - Multi-user / cloud-persisted sessions (local `.csw.json` save/load is Implemented)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
-- TeachSpec priced BOM + hardware-verified path + CFL auto-cal UI (sensor choice locked; optional OpenCV live + NiceGUI preview Implemented; Phase-0 software stub Implemented)
+- TeachSpec vendor-locked / dated-quote BOM + hardware-verified path + CFL auto-cal UI (sensor choice locked; optional OpenCV live + NiceGUI preview Implemented; Phase-0 software stub Implemented; purchasable-class BOM draft in PR B track)
 - FID/NMR licensed fixtures + UI (Phase-0 mock stub Implemented)
 - Hardware drivers beyond mock paths
 - FID/NMR licensed fixtures + UI mode (Phase-0 mock stub Implemented); LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
@@ -194,5 +196,6 @@
 ## Blocked / human gates
 
 - Chemistry: confirm priority lab formats + additional public real examples beyond current NIST UV-Vis set
-- Product: release claims / tags — JARTH
-- TeachSpec: classroom SAFETY.md review (drafted); BOM v0 price pass; CFL auto-cal / nm preview (nice-to-have)
+- Product: **PyPI / TestPyPI publish for 0.2.0** — waiting on maintainer credentials (prep Done: version bump, CHANGELOG, `docs/RELEASE_0.2.md`); git tag `v0.2.0` optional at publish time
+- TeachSpec: classroom SAFETY.md review (drafted); BOM purchasable-class pass (estimates only); CFL auto-cal / nm preview (nice-to-have)
+- Classroom pilot: instructor outreach / scheduling (one-pager Ready: `docs/classroom_pilot_one_pager.md`)
