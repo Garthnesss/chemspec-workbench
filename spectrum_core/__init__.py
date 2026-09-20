@@ -43,6 +43,7 @@ from spectrum_core.export_png import (
     export_waterfall_png,
 )
 from spectrum_core.folder import folder_waterfall, ingest_folder, list_spectrum_files
+from spectrum_core.viz3d import SurfaceGrid, spectra_to_surface
 from spectrum_core.session import (
     SESSION_FORMAT_VERSION,
     SessionData,
@@ -111,6 +112,8 @@ __all__ = [
     "list_spectrum_files",
     "ingest_folder",
     "folder_waterfall",
+    "SurfaceGrid",
+    "spectra_to_surface",
     "SESSION_FORMAT_VERSION",
     "SessionData",
     "SessionError",
