@@ -292,10 +292,11 @@ Sessions are analysis snapshots — **not** compound identification.
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall, **session save/load** |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
-| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames (no camera) |
+| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames (no live UVC) |
+| `fidnmr/` | FID/NMR Phase-0 stub: mock FID, FFT/phase, Hz/ppm → Spectrum (no magnet) |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR + NIST UV-Vis) + `waterfall/` + `labrf/mock_iq.npz` |
 | `examples/` | Tutorials (ethanol IR + benzene/acetone/naphthalene UV-Vis walkthrough notebook + script twins) |
-| `tests/` | pytest (ChemSpec + LabRF + TeachSpec mock; no hardware) |
+| `tests/` | pytest (ChemSpec + LabRF + TeachSpec + FID/NMR mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 
 ## Docs

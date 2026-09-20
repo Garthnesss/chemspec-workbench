@@ -1,8 +1,10 @@
 """TeachSpec — educational optical teaching spectrometer (software stub).
 
 Phase 0 ships **synthetic / mock** paths only: pixel→nm calibration math and
-``OpticalLiveFrame`` → ``spectrum_core.Spectrum`` conversion. No camera or
-linear-CCD drivers, no BOM prices, no hardware-verified claims.
+``OpticalLiveFrame`` → ``spectrum_core.Spectrum`` conversion. Docs lock **USB
+camera (UVC)** as v1 primary sensor; live UVC ingest is not Implemented.
+Linear CCD/CMOS is Phase 2+. No firm vendor BOM prices; no hardware-verified
+wavelength claims.
 
 Educational scope only — not compound identification, not lab-grade accuracy.
 """
