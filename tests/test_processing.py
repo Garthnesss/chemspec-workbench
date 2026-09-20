@@ -121,7 +121,7 @@ def test_op_normalize_area() -> None:
 
 
 def test_op_normalize_unknown_mode() -> None:
-    with pytest.raises(ValueError, match="unknown normalize mode"):
+    with pytest.raises(ValueError, match="unknown mode"):
         op_normalize(_synthetic_peak_spectrum(), mode="l2")
 
 

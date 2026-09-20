@@ -54,7 +54,7 @@
 
 - [x] Peak measurement contract (prominence-relative FWHM/area + explicit Peak fields / CSV / UI)
 - [x] Session hashes + computational identity (`raw_data_hash`, fingerprint, format_version 2 + v1 migrate)
-- [ ] Operation preconditions (smooth/baseline/normalize/despike clear errors)
+- [x] Operation preconditions (smooth/baseline/normalize/despike → ProcessingError)
 - [x] Schema migration fixtures (`tests/fixtures/sessions/session_v1.json` + current)
-- [ ] README Experimental framing for LabRF/TeachSpec + STATUS/ROADMAP polish
+- [x] README Experimental framing for LabRF/TeachSpec + STATUS/ROADMAP + AUDIT doc
 

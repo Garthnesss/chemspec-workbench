@@ -5,6 +5,7 @@
 | Module | Responsibility |
 |--------|----------------|
 | `Spectrum` | x (nm \| cm⁻¹), y (A \| %T \| intensity), title/meta |
+| `errors` | `SpectrumError` / `ProcessingError` hierarchy (ValueError-compatible) |
 | `ingest_csv` | CSV primary via stdlib `csv` (`,`/`;`/tab, quoted fields); column index or header name; skip non-finite by default |
 | `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers; preserves x-direction |
 | `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
@@ -15,7 +16,7 @@
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
 | `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area` + contract fields) |
-| `processing` | Append-only pipeline: `ProcessingHistory` / `apply_step`; ops baseline, smooth (Savitzky–Golay), despike, normalize (max\|area); raw vs working via `PipelineState` |
+| `processing` | Append-only pipeline: `ProcessingHistory` / `apply_step`; ops baseline, smooth (Savitzky–Golay), despike, normalize (max\|area); preconditions raise `ProcessingError`; raw vs working via `PipelineState` |
 | `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`, `format_version: 2`): embedded x/y + units/title, original path, processing, optional pipeline history, peaks (FWHM/area + contract), notes, provenance; **identity**: `raw_data_hash`, optional `source_path_hash`, `analysis_fingerprint` (timestamps excluded); v1 loads via migrate |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
 | JCAMP advanced | Planned (multi-block / certification) |

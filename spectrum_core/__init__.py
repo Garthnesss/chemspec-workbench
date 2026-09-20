@@ -1,6 +1,7 @@
 """spectrum_core — shared spectrum model, ingest, peaks, baseline for ChemSpec / family."""
 
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
+from spectrum_core.errors import ProcessingError, SpectrumError
 from spectrum_core.ingest import (
     ensure_ascending_x,
     ingest,
@@ -64,6 +65,8 @@ from spectrum_core.processing import (
 
 __all__ = [
     "Spectrum",
+    "SpectrumError",
+    "ProcessingError",
     "XUnit",
     "YUnit",
     "ingest",
