@@ -8,7 +8,7 @@
 | 3 | Waterfall + polish | Done | Folder stacks, peak CSV export, A↔%T |
 | 3b | Advanced baselines | Done | Optional pybaselines AsLS/MPLS + UI picker |
 | 3c | Absorbance + provenance | **Done (this branch)** | UV-Vis y_unit=A mapping; NiceGUI provenance strip |
-| 4 | Family handoff | Partial | LabRF mock demo polish (stream + threshold) in-repo; TeachSpec / FID still design |
+| 4 | Family handoff | Partial | LabRF mock demo polish in-repo; TeachSpec Phase-0 software stub Implemented; FID still design |
 
 ## Phase 1 checklist
 

@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Folder-waterfall test gaps + README Quick demo; CI setuptools/pip-audit + NiceGUI API drift guards + LabRF NiceGUI 3.x card + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
+**As of:** 2026-09-19 (PT) — TeachSpec Phase-0 software stub + Folder-waterfall tests + README Quick demo; CI setuptools/pip-audit + NiceGUI API drift + LabRF NiceGUI 3.x + ingest hardening + Ethanol IR + LICENSE/Dependabot + Processing/Session/peaks/public IR/LabRF/MVP
 
 ## Implemented
 
@@ -83,12 +83,24 @@
 - Docs: `docs/family/labrf-monitor/status.md`; AGENTS receive-only / no chem-ID / educational-presets rules
 - **Not** Implemented: live hardware-verified RTL captures, demodulation, TX, compliance claims
 
+
+## TeachSpec (sibling — Phase 0 software stub)
+
+- Package `teachspec/` — educational optical teaching spectrometer **software** path only
+  - Pixel→nm linear (+ optional quadratic) calibration from ≥2 known lines; JSON save/load
+  - `OpticalLiveFrame` → `spectrum_core.Spectrum` after calibration
+  - Synthetic CFL-like mock frames (`mock_source`); CLI `python -m teachspec.demo` / `teachspec-demo`
+  - pytest: fit correctness, bad inputs (1 point / duplicates), mock→Spectrum peaks, cal I/O
+- Docs: `docs/family/teachspec/` status/roadmap updated — software stub *Implemented*
+- **Not** Implemented: USB-cam vs linear CCD choice, BOM, live camera/CCD drivers, hardware-verified calibration, compound ID
+
 ## Planned (not Implemented)
 
 - Multi-user / cloud-persisted sessions (local `.csw.json` save/load is Implemented)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
-- Hardware / TeachSpec drivers
+- TeachSpec live camera / CCD drivers + sensor lock + BOM (Phase-0 software stub Implemented)
+- Hardware drivers beyond mock paths
 - NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
 - Broader chemistry sign-off / more public real examples (UV-Vis)
@@ -98,3 +110,4 @@
 
 - Chemistry: confirm priority lab formats + additional public real examples (UV-Vis if openly available)
 - Product: release claims / tags — JARTH
+- TeachSpec: USB-cam vs linear CCD sensor choice; Chemistry classroom safety review; BOM pricing

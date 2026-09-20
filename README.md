@@ -1,4 +1,4 @@
-# ChemSpec Workbench (+ LabRF Monitor)
+# ChemSpec Workbench (+ LabRF Monitor / TeachSpec stub)
 
 Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks
 (center, height, prominence, **FWHM**, **area**), correct a simple baseline,
@@ -11,8 +11,13 @@ Sibling app **LabRF Monitor** (`labrf/`): receive-only RF power spectrum + water
 from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness —
 **not** chemical ID, **not** regulatory advice, **no transmit**.
 
+Sibling **TeachSpec** (`teachspec/`): Phase-0 educational optical stub (mock frames +
+pixel→nm calibration → `Spectrum`; no camera / no sensor lock yet). Not compound ID;
+not hardware-verified.
+
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
+TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength.
 Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR fixtures (Owner: Public domain) live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims.
 
 ## Install / Developer setup
@@ -82,6 +87,7 @@ Synthetic waterfall files are **not** real compounds.
 
 ```bash
 python -m labrf.ui_app   # http://localhost:8081
+python -m teachspec.demo  # synthetic optical peaks (no camera)
 ```
 
 1. Read the dismissible disclaimer card (educational presets ≠ regulatory advice).
@@ -261,15 +267,17 @@ Sessions are analysis snapshots — **not** compound identification.
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall, **session save/load** |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
+| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames (no camera) |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
 | `examples/` | Tutorials (ethanol IR walkthrough notebook + script) |
-| `tests/` | pytest (ChemSpec + LabRF mock; no hardware) |
+| `tests/` | pytest (ChemSpec + LabRF + TeachSpec mock; no hardware) |
 | `docs/family/` | Per-app Truth / SPEC / roadmap / status |
 
 ## Docs
 
 - `PROJECT_TRUTH.md` / `SPEC.md` / `ROADMAP.md` / `STATUS.md` — ChemSpec
 - `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
+- `docs/family/teachspec/` — TeachSpec Truth / SPEC / roadmap / status (Phase-0 software stub)
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
 - `examples/README.md` — tutorial index (ethanol IR walkthrough)
 - `fixtures/waterfall/README.md` — synthetic multi-file waterfall demo folder

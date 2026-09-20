@@ -1,7 +1,7 @@
 # TeachSpec v1 — Locked Spec (Phase 0 design)
 
 **Depends on:** `spectrum-core` + ChemSpec UI patterns  
-**Status:** Planned — design lock only until ChemSpec MVP exists
+**Status:** Phase-0 software stub Implemented (mock/calibration); hardware design still Planned
 
 ## Hardware (v1 target)
 
