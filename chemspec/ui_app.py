@@ -9,12 +9,14 @@ Launch:
 
 from __future__ import annotations
 
+import json
 import tempfile
 from pathlib import Path
 from typing import Any
 
 from spectrum_core import (
     Peak,
+    SessionError,
     Spectrum,
     available_baseline_methods,
     baseline_correct,
@@ -27,9 +29,13 @@ from spectrum_core import (
     ingest_folder,
     ingest_jcamp,
     is_jcamp_path,
+    load_session,
     overlay,
     peaks_to_csv,
+    save_session,
+    session_to_dict,
 )
+from spectrum_core.session import session_download_filename
 
 from chemspec.ui_helpers import (
     FIXTURE_PRESETS,
@@ -92,6 +98,7 @@ class WorkbenchState:
         self.baseline_degree: int = 1
         self.flip_y_unit: bool = False  # A ↔ %T display conversion when allowed
         self.peaks: list[Peak] = []
+        self.notes: str = ""
         self.waterfall: list[Spectrum] = []
         self.waterfall_folder: str = ""
         self.waterfall_mode: bool = False
@@ -133,6 +140,63 @@ def _recompute_peaks(state: WorkbenchState) -> None:
         state.peaks = []
         return
     state.peaks = find_peaks(work, prominence=_prominence_arg(state))
+
+
+def _processing_from_state(state: WorkbenchState) -> dict[str, Any]:
+    return {
+        "baseline_on": bool(state.baseline_on),
+        "baseline_method": str(state.baseline_method or "polynomial"),
+        "baseline_degree": int(state.baseline_degree),
+        "flip_y_unit": bool(state.flip_y_unit),
+        "prominence": float(state.prominence),
+        "use_auto_prominence": bool(state.use_auto_prominence),
+    }
+
+
+def _load_session_path(state: WorkbenchState, path: Path | str) -> None:
+    """Load a .csw.json / .chemspec.json session into workbench state."""
+    path = Path(path)
+    state.error = ""
+    try:
+        data = load_session(path)
+    except SessionError as exc:
+        state.error = f"Session load failed: {exc}"
+        return
+    except Exception as exc:  # noqa: BLE001
+        state.error = f"Session load failed: {exc}"
+        return
+
+    state.primary = data.spectrum
+    state.primary_path = data.source_path or str(path)
+    state.overlay_spec = None
+    state.overlay_path = ""
+    state.waterfall = []
+    state.waterfall_mode = False
+    state.waterfall_folder = ""
+    state.headers = []
+    state.x_col = 0
+    state.y_col = 1
+    state.x_unit = data.spectrum.x_unit
+    state.y_unit = data.spectrum.y_unit
+    proc = data.processing
+    state.baseline_on = bool(proc.get("baseline_on", False))
+    state.baseline_method = str(proc.get("baseline_method") or "polynomial")
+    state.baseline_degree = int(proc.get("baseline_degree", 1))
+    state.flip_y_unit = bool(proc.get("flip_y_unit", False))
+    state.prominence = float(proc.get("prominence", 0.15))
+    state.use_auto_prominence = bool(proc.get("use_auto_prominence", False))
+    state.notes = data.notes or ""
+    # Prefer stored peaks (reproducible snapshot); fall back to recompute
+    if data.peaks:
+        state.peaks = list(data.peaks)
+    else:
+        _recompute_peaks(state)
+    n_pts = len(data.spectrum)
+    state.status = (
+        f"Session loaded: {path.name} — {n_pts} pts, "
+        f"peaks={len(state.peaks)}, baseline="
+        f"{'on/' + state.baseline_method if state.baseline_on else 'off'}"
+    )
 
 
 def _load_from_path(
@@ -516,6 +580,12 @@ def create_app() -> WorkbenchState:
             state.primary is not None and can_convert_y(state.primary.y_unit)
         )
         widgets["flip_y"].set_enabled(convertible)
+        if "notes_input" in widgets:
+            widgets["notes_input"].value = state.notes
+        if "session_path_input" in widgets and state.primary_path.endswith(
+            (".csw.json", ".chemspec.json")
+        ):
+            widgets["session_path_input"].value = state.primary_path
         if state.overlay_path:
             widgets["overlay_path_input"].value = state.overlay_path
         if state.waterfall_folder:
@@ -643,6 +713,93 @@ def create_app() -> WorkbenchState:
         )
         ui.download(text.encode("utf-8"), name)
         state.status = f"Exported {len(state.peaks)} peaks → {name}"
+        state.error = ""
+        refresh_ui()
+
+    def on_save_session() -> None:
+        if state.primary is None:
+            state.error = "No spectrum to save — load a spectrum first."
+            refresh_ui()
+            return
+        if "notes_input" in widgets:
+            state.notes = str(widgets["notes_input"].value or "")
+        try:
+            payload = session_to_dict(
+                state.primary,
+                processing=_processing_from_state(state),
+                peaks=state.peaks,
+                notes=state.notes,
+                source_path=state.primary_path or None,
+            )
+        except Exception as exc:  # noqa: BLE001
+            state.error = f"Session save failed: {exc}"
+            refresh_ui()
+            return
+        name = session_download_filename(
+            state.primary.title if state.primary else "session"
+        )
+        body = json.dumps(payload, indent=2, allow_nan=False) + "\n"
+        ui.download(body.encode("utf-8"), name)
+        state.status = (
+            f"Saved session → {name} "
+            f"(format_version={payload['format_version']}, "
+            f"peaks={len(state.peaks)})"
+        )
+        state.error = ""
+        refresh_ui()
+
+    def on_load_session_path() -> None:
+        raw = str(widgets["session_path_input"].value or "").strip()
+        if not raw:
+            state.error = "Enter a session path (.csw.json / .chemspec.json)."
+            refresh_ui()
+            return
+        _load_session_path(state, raw)
+        refresh_ui()
+
+    async def on_session_upload(e) -> None:  # noqa: ANN001
+        name = e.file.name
+        # Allow .json / .csw.json / .chemspec.json
+        tmp = (
+            Path(tempfile.gettempdir())
+            / f"chemspec_session_{Path(name).name}"
+        )
+        await e.file.save(tmp)
+        widgets["session_path_input"].value = str(tmp)
+        _load_session_path(state, tmp)
+        refresh_ui()
+
+    def on_save_session_to_path() -> None:
+        if state.primary is None:
+            state.error = "No spectrum to save — load a spectrum first."
+            refresh_ui()
+            return
+        raw = str(widgets["session_path_input"].value or "").strip()
+        if not raw:
+            # default under temp
+            raw = str(
+                Path(tempfile.gettempdir())
+                / session_download_filename(
+                    state.primary.title if state.primary else "session"
+                )
+            )
+            widgets["session_path_input"].value = raw
+        if "notes_input" in widgets:
+            state.notes = str(widgets["notes_input"].value or "")
+        try:
+            save_session(
+                raw,
+                state.primary,
+                processing=_processing_from_state(state),
+                peaks=state.peaks,
+                notes=state.notes,
+                source_path=state.primary_path or None,
+            )
+        except Exception as exc:  # noqa: BLE001
+            state.error = f"Session save failed: {exc}"
+            refresh_ui()
+            return
+        state.status = f"Wrote session file: {raw}"
         state.error = ""
         refresh_ui()
 
@@ -824,6 +981,40 @@ def create_app() -> WorkbenchState:
                 ui.button("Export peaks CSV", on_click=on_export_peaks).props(
                     "outline color=primary"
                 )
+
+            ui.separator()
+            ui.label("2b · Analysis session").classes("text-subtitle1")
+            ui.label(
+                "Save / load a versioned .csw.json (or .chemspec.json) with "
+                "embedded spectrum, processing, peaks, notes, and provenance. "
+                "Reproducible analysis snapshot — not compound ID."
+            ).classes("text-caption text-grey-7")
+            widgets["notes_input"] = ui.textarea(
+                label="Notes (optional)",
+                placeholder="Lab notes for this analysis…",
+                value=state.notes,
+            ).classes("w-full").props("rows=2")
+            widgets["session_path_input"] = ui.input(
+                label="Session path (.csw.json / .chemspec.json)",
+                placeholder="/path/to/analysis.csw.json",
+            ).classes("w-full")
+            with ui.row().classes("q-gutter-sm"):
+                ui.button("Save session (download)", on_click=on_save_session).props(
+                    "color=primary"
+                )
+                ui.button("Write session path", on_click=on_save_session_to_path).props(
+                    "outline"
+                )
+                ui.button("Load session path", on_click=on_load_session_path).props(
+                    "outline color=primary"
+                )
+            ui.upload(
+                label="Or upload a session file",
+                on_upload=on_session_upload,
+                auto_upload=True,
+            ).props('accept=".json,.csw.json,.chemspec.json,application/json"').classes(
+                "w-full"
+            )
 
             ui.separator()
             ui.label("3 · Overlay second spectrum").classes("text-subtitle1")

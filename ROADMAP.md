@@ -31,6 +31,7 @@
 - [x] Peak FWHM + half-max area on `Peak` / CSV / UI table
 - [x] Absorbance ↔ %T helper (core + UI display toggle; limits documented)
 - [x] Folder waterfall / stacked view (`ingest_folder` + `stack`)
+- [x] Analysis session save/load (`.csw.json` / `spectrum_core.session`)
 
 ## Phase 3b checklist
 

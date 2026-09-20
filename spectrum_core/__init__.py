@@ -23,6 +23,15 @@ from spectrum_core.units import (
 )
 from spectrum_core.export_peaks import PEAK_CSV_FIELDS, peaks_to_csv
 from spectrum_core.folder import folder_waterfall, ingest_folder, list_spectrum_files
+from spectrum_core.session import (
+    SESSION_FORMAT_VERSION,
+    SessionData,
+    SessionError,
+    load_session,
+    save_session,
+    session_from_dict,
+    session_to_dict,
+)
 
 __all__ = [
     "Spectrum",
@@ -54,6 +63,13 @@ __all__ = [
     "list_spectrum_files",
     "ingest_folder",
     "folder_waterfall",
+    "SESSION_FORMAT_VERSION",
+    "SessionData",
+    "SessionError",
+    "save_session",
+    "load_session",
+    "session_to_dict",
+    "session_from_dict",
 ]
 
 __version__ = "0.1.0"
