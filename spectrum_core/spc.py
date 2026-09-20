@@ -93,8 +93,8 @@ def ingest_spc(
     off += 32
     exp = subexp if subexp != 0 else fexp
     if exp == 0x80:
-    need = off + n * 4
-    if len(blob) < need:
+        need = off + n * 4
+        if len(blob) < need:
             raise ValueError(f"SPC truncated in float Y: {p}")
         y = np.frombuffer(blob, dtype="<f4", count=n, offset=off).astype(float)
     else:
