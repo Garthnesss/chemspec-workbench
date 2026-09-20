@@ -24,6 +24,7 @@ from spectrum_core import (
     baseline_correct,
     can_convert_y,
     convert_spectrum_y,
+    diagnose_measurement,
     find_peaks,
     folder_waterfall,
     has_pybaselines,
@@ -48,6 +49,7 @@ from chemspec.ui_helpers import (
     axis_label,
     display_y_caption,
     flip_y_blocked_reason,
+    format_diagnostics_strip,
     guess_column_mapping,
     is_log_epsilon_meta,
     peak_export_filename,
@@ -119,6 +121,7 @@ class WorkbenchState:
         self.waterfall_mode: bool = False
         self.status: str = "Load a CSV / JCAMP (.jdx/.dx) or pick a synthetic / public fixture to begin."
         self.error: str = ""
+        self.diagnostics_text: str = ""
 
 
 def _apply_y_flip(state: WorkbenchState, spec: Spectrum) -> Spectrum:
@@ -189,8 +192,18 @@ def _recompute_peaks(state: WorkbenchState) -> None:
     work = _working_spectrum(state, state.primary)
     if work is None:
         state.peaks = []
+        state.diagnostics_text = ""
         return
     state.peaks = find_peaks(work, prominence=_prominence_arg(state))
+    baseline_applied = bool(state.baseline_on) or (
+        "baseline_method" in (work.meta or {})
+    ) or any(s.name == "baseline" for s in state.history.steps)
+    diag = diagnose_measurement(
+        work,
+        state.peaks,
+        baseline_applied=baseline_applied,
+    )
+    state.diagnostics_text = format_diagnostics_strip(diag)
 
 
 def _processing_from_state(state: WorkbenchState) -> dict[str, Any]:
@@ -615,6 +628,9 @@ def create_app() -> WorkbenchState:
     provenance_label = ui.label("").classes(
         "text-caption text-grey-8 q-px-md font-mono"
     )
+    diagnostics_label = ui.label("").classes(
+        "text-caption text-amber-9 q-px-md q-pb-sm"
+    )
     error_label = ui.label("").classes("text-negative q-px-md")
 
     widgets: dict[str, Any] = {}
@@ -637,6 +653,7 @@ def create_app() -> WorkbenchState:
     def refresh_ui() -> None:
         status_label.set_text(state.status)
         error_label.set_text(state.error or "")
+        diagnostics_label.set_text(state.diagnostics_text or "")
         _refresh_provenance()
         widgets["plot"].update_figure(_build_figure(state))
         table = widgets["peak_table"]

@@ -405,3 +405,21 @@ def provenance_from_state(
         peak_count=peak_count,
         package_version=package_version,
     )
+
+
+def format_diagnostics_strip(
+    diagnostics: Any | None,
+    *,
+    max_items: int = 4,
+) -> str:
+    """Format ``MeasurementDiagnostics`` (or None) for the NiceGUI warnings strip.
+
+    Accepts the diagnostics object duck-typed so tests can pass a stub; when
+    ``None`` or empty, returns ``""``.
+    """
+    if diagnostics is None:
+        return ""
+    summary = getattr(diagnostics, "summary_line", None)
+    if callable(summary):
+        return str(summary(max_items=max_items) or "")
+    return ""
