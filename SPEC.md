@@ -16,7 +16,7 @@
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
 | `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area` + contract fields) |
 | `processing` | Append-only pipeline: `ProcessingHistory` / `apply_step`; ops baseline, smooth (Savitzky–Golay), despike, normalize (max\|area); raw vs working via `PipelineState` |
-| `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`): embedded x/y + units/title, original path, processing, optional pipeline history, peaks (FWHM/area), notes, provenance snapshot |
+| `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`, `format_version: 2`): embedded x/y + units/title, original path, processing, optional pipeline history, peaks (FWHM/area + contract), notes, provenance; **identity**: `raw_data_hash`, optional `source_path_hash`, `analysis_fingerprint` (timestamps excluded); v1 loads via migrate |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
 | JCAMP advanced | Planned (multi-block / certification) |
 
@@ -40,18 +40,21 @@ Fixtures: synthetic UV-Vis + IR (CSV and JCAMP) + `fixtures/waterfall/` + `fixtu
 
 ## Session file format (`.csw.json` / `.chemspec.json`)
 
-Versioned JSON (`format_version: 1`) for reproducible analysis sessions:
+Versioned JSON (`format_version: 2`; v1 migrates on load) for reproducible analysis sessions:
 
 | Field | Contents |
 |-------|----------|
-| `format_version` | Schema version (currently `1`) |
+| `format_version` | Schema version (currently `2`; supports load of `1` via migrate) |
 | `software_version` | `spectrum_core` / package version string |
 | `spectrum` | Embedded `x` / `y` arrays + `x_unit` / `y_unit` / `title` / `source_path` / JSON-safe `meta` |
 | `processing` | `baseline_on`, `baseline_method`, `baseline_degree`, `flip_y_unit` (A↔%T display), `prominence`, `use_auto_prominence` |
-| `history` | Optional append-only list of `{name,params,timestamp,software_note}` pipeline steps (replay onto raw → working) |
+| `history` | Optional append-only list of `{name,params,timestamp,software_note}` pipeline steps (replay onto raw → working). Timestamps are provenance only |
 | `peaks` | List of `{index,x,y,prominence,fwhm,area,width_definition,half_max_level,left_boundary_x,right_boundary_x,area_definition,baseline_reference_note}` (non-finite → JSON `null`) |
 | `notes` | Optional free-text string |
 | `provenance` | Snapshot (`source`, units, baseline, peak_count, `summary` line) |
+| `raw_data_hash` | SHA-256 of canonical x‖y encoding (computational identity) |
+| `source_path_hash` | Optional SHA-256 of UTF-8 `source_path` |
+| `analysis_fingerprint` | SHA-256 over identity fields (raw hash, units, processing, history name/params, peaks). **Excludes** history timestamps / notes wall-clock |
 
 Prefer embedded arrays so reload works if the original path moves; `source_path` is retained for provenance. `spectrum` is the **raw** copy; replay `history` for the working spectrum. **Not** compound ID.
 

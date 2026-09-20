@@ -1,0 +1,68 @@
+{
+  "format_version": 1,
+  "software_version": "0.1.0",
+  "spectrum": {
+    "x": [
+      400.0,
+      450.0,
+      500.0,
+      550.0,
+      600.0
+    ],
+    "y": [
+      0.1,
+      0.5,
+      1.0,
+      0.4,
+      0.1
+    ],
+    "x_unit": "nm",
+    "y_unit": "A",
+    "title": "session_v1 fixture",
+    "source_path": "/fixtures/sessions/demo_v1.csv",
+    "meta": {
+      "label": "migration-fixture"
+    }
+  },
+  "processing": {
+    "baseline_on": false,
+    "baseline_method": "polynomial",
+    "baseline_degree": 1,
+    "flip_y_unit": false,
+    "prominence": 0.15,
+    "use_auto_prominence": false
+  },
+  "peaks": [
+    {
+      "index": 2,
+      "x": 500.0,
+      "y": 1.0,
+      "prominence": 0.9,
+      "fwhm": 80.0,
+      "area": 40.0
+    }
+  ],
+  "notes": "v1 migration fixture \u2014 no identity hashes",
+  "provenance": {
+    "source": "/fixtures/sessions/demo_v1.csv",
+    "source_name": "demo_v1.csv",
+    "x_unit": "nm",
+    "y_unit": "A",
+    "baseline": "none",
+    "peak_count": 1,
+    "package_version": "0.1.0",
+    "title": "session_v1 fixture",
+    "summary": "source=demo_v1.csv \u00b7 x=nm \u00b7 y=A \u00b7 baseline=none \u00b7 peaks=1 \u00b7 v=0.1.0"
+  },
+  "history": [
+    {
+      "name": "smooth",
+      "params": {
+        "window_length": 5,
+        "polyorder": 2
+      },
+      "timestamp": "2026-01-01T00:00:00Z",
+      "software_note": "fixture"
+    }
+  ]
+}

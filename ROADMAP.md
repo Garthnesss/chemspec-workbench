@@ -53,7 +53,8 @@
 ## ChemSpec 0.2 — Measurement Integrity (in progress)
 
 - [x] Peak measurement contract (prominence-relative FWHM/area + explicit Peak fields / CSV / UI)
-- [ ] Session hashes + computational identity (`raw_data_hash`, fingerprint)
+- [x] Session hashes + computational identity (`raw_data_hash`, fingerprint, format_version 2 + v1 migrate)
 - [ ] Operation preconditions (smooth/baseline/normalize/despike clear errors)
-- [ ] Schema migration fixtures + README Experimental framing for LabRF/TeachSpec
+- [x] Schema migration fixtures (`tests/fixtures/sessions/session_v1.json` + current)
+- [ ] README Experimental framing for LabRF/TeachSpec + STATUS/ROADMAP polish
 
