@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Naphthalene UV-Vis walkthrough twin (completes NIST UV-Vis tutorial set); acetone (#31); ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene (#26–#28)
+**As of:** 2026-09-19 (PT) — Naphthalene UV-Vis walkthrough twin (#32; completes NIST UV-Vis tutorial set); acetone (#31); ChemSpec plot PNG export; LabRF peak-hold/PNG (#29); public UV-Vis + benzene (#26–#28)
 
 ## Implemented
 
