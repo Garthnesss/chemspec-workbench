@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — CI clean-install + public IR fixtures + LabRF polish + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — Peak FWHM + area characterization + CI clean-install + public IR fixtures + LabRF polish + ChemSpec MVP
 
 ## Implemented
 
@@ -9,6 +9,9 @@
 - `ingest_jcamp(path)` — JCAMP-DX via MIT `jcamp.readfile`; maps x/y + units from headers
 - `ingest(path)` — dispatches `.jdx`/`.dx` → JCAMP, else CSV
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
+  - Each `Peak` includes **FWHM** (`abs` half-max width; ascending/descending `x`) and **area**
+    (trapezoidal integral between the same half-max bounds; see `spectrum_core.peaks` docstring)
+  - NaN-safe: missing crossings / edge peaks → `fwhm`/`area` = NaN
 - `baseline_polynomial` — poly fit / subtract; baseline stored in `meta`
 - **`baseline_correct(spectrum, method=...)`** — polynomial always; optional **pybaselines** (BSD-3) methods `asls` / `mpls` via `[baselines]` extra; clear ImportError if missing
 - `available_baseline_methods()` / `has_pybaselines()` helpers
@@ -26,7 +29,7 @@
 - **Public IR fixtures** (`fixtures/public/`): PNNL/IARPA JCAMP ethanol / methanol / toluene
   labeled **Owner: Public domain** on NIST WebBook; `SOURCES.md` with URLs, attribution,
   NIST disclaimer; Coblentz **not** bundled; ChemSpec still makes no compound-ID claims
-- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks; baseline; units; export; folder; UI helper sniff/guess/provenance
+- pytest: CSV + JCAMP ingest; **public fixture load + ≥1 peak**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); folder; UI helper sniff/guess/provenance
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`
@@ -34,7 +37,7 @@
     fixtures + **Load public: Ethanol/Methanol/Toluene IR**
   - Header sniff + simple column / unit mapping
   - Zoomable / pannable Plotly plot
-  - Prominence control + peak table + **Export peaks CSV**
+  - Prominence control + peak table (x/y/prominence/**FWHM**/**area**) + **Export peaks CSV**
   - Baseline on/off + **method dropdown** (polynomial / asls / mpls) via `baseline_correct`
   - **A ↔ %T display toggle** (when units allow)
   - Overlay second spectrum (path or fixture; matching `x_unit` required)

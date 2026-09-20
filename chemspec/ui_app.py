@@ -435,12 +435,19 @@ def _build_figure(state: WorkbenchState) -> go.Figure:
 
 
 def _peak_rows(state: WorkbenchState) -> list[dict[str, Any]]:
+    def _round_or_none(v: float, nd: int) -> float | None:
+        if v != v:  # NaN
+            return None
+        return round(v, nd)
+
     return [
         {
             "index": p.index,
             "x": round(p.x, 4),
             "y": round(p.y, 6),
             "prominence": round(p.prominence, 6),
+            "fwhm": _round_or_none(p.fwhm, 6),
+            "area": _round_or_none(p.area, 6),
         }
         for p in state.peaks
     ]
@@ -887,6 +894,18 @@ def create_app() -> WorkbenchState:
                         "name": "prominence",
                         "label": "prominence",
                         "field": "prominence",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "fwhm",
+                        "label": "FWHM",
+                        "field": "fwhm",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "area",
+                        "label": "area",
+                        "field": "area",
                         "sortable": True,
                     },
                 ],

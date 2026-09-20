@@ -1,8 +1,9 @@
 # ChemSpec Workbench (+ LabRF Monitor)
 
-Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks,
-correct a simple baseline, overlay/stack traces, export peaks, A↔%T display, and
-folder waterfall. Built on a reusable `spectrum_core` package (Spectrum Family).
+Software-only workbench for **UV-Vis / IR** spectra: open CSV, plot, find peaks
+(center, height, prominence, **FWHM**, **area**), correct a simple baseline,
+overlay/stack traces, export peaks, A↔%T display, and folder waterfall. Built on a
+reusable `spectrum_core` package (Spectrum Family).
 
 Sibling app **LabRF Monitor** (`labrf/`): receive-only RF power spectrum + waterfall
 from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness —
@@ -104,7 +105,7 @@ python chemspec/plot_demo.py --fixture ir --save ir_demo.png --no-show
 
 | Path | Role |
 |------|------|
-| `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks, baseline, overlay/stack, folder waterfall |
+| `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR) + `waterfall/` + `labrf/mock_iq.npz` |
