@@ -14,10 +14,11 @@ Built on a reusable `spectrum_core` package (Spectrum Family).
 |-----|-------|------------------|
 | **LabRF Monitor** (`labrf/`) | **Experimental** | Receive-only RF power spectrum + waterfall from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness — **not** chemical ID, **not** regulatory advice, **no transmit**. |
 | **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **v1 sensor locked:** USB camera (UVC) primary; live UVC ingest **not** Implemented; **not** hardware-verified. |
+| **FID/NMR Playground** (`fidnmr/`) | **Experimental** | Phase-0 educational FID→FFT→phase stub (synthetic complex FID → `Spectrum` in Hz/ppm). **No** magnet / **no** compound ID / **not** structure elucidation. |
 
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
-TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength. USB-cam (UVC) is the documented v1 primary sensor; see `docs/family/teachspec/SAFETY.md` + `BOM_v0.md`.
+TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength. USB-cam (UVC) is the documented v1 primary sensor; see `docs/family/teachspec/SAFETY.md` + `BOM_v0.md`. FID/NMR mock FIDs are **not** real acquisitions and do **not** identify compounds.
 Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public domain) and NIST UV-Vis (log ε; INEP CP RAS / NIST OSRD) fixtures live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims. Public UV-Vis y is log₁₀(ε) → **intensity**, **not** absorbance.
 
 ## Install / Developer setup
@@ -90,6 +91,7 @@ Synthetic waterfall files are **not** real compounds.
 ```bash
 python -m labrf.ui_app   # http://localhost:8081
 python -m teachspec.demo  # or: teachspec-demo — synthetic optical peaks (no camera)
+python -m fidnmr.demo     # or: fidnmr-demo — synthetic FID→FFT peaks (no magnet)
 ```
 
 1. Read the dismissible disclaimer card (educational presets ≠ regulatory advice).
@@ -301,6 +303,7 @@ Sessions are analysis snapshots — **not** compound identification.
 - `PROJECT_TRUTH.md` / `SPEC.md` / `ROADMAP.md` / `STATUS.md` — ChemSpec
 - `docs/family/labrf-monitor/` — LabRF Truth / SPEC / roadmap / status
 - `docs/family/teachspec/` — TeachSpec Truth / SPEC / SAFETY / BOM_v0 / roadmap / status (Phase-0 software stub; USB-cam primary locked)
+- `docs/family/fid-nmr-playground/` — FID/NMR Truth / SPEC / roadmap / status (Phase-0 software stub)
 - `AGENTS.md` — hard rules (incl. receive-only LabRF, no chem ID, educational presets)
 - `examples/README.md` — tutorial index (ethanol IR + benzene/acetone/naphthalene UV-Vis walkthroughs)
 - `fixtures/waterfall/README.md` — synthetic multi-file waterfall demo folder

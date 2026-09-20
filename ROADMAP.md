@@ -8,7 +8,7 @@
 | 3 | Waterfall + polish | Done | Folder stacks, peak CSV export, A↔%T |
 | 3b | Advanced baselines | Done | Optional pybaselines AsLS/MPLS + UI picker |
 | 3c | Absorbance + provenance | Done | UV-Vis y_unit=A mapping; NiceGUI provenance strip |
-| 4 | Family handoff | Partial | Public NIST UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio Done; LabRF mock polish; TeachSpec Phase-0 software stub; FID still design |
+| 4 | Family handoff | Partial | Public NIST UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio Done; LabRF mock polish; TeachSpec Phase-0 + USB-cam lock; FID/NMR Phase-0 software stub |
 
 ## Phase 1 checklist
 
@@ -50,7 +50,7 @@
 - [x] LabRF mock demo polish in-repo (stream / threshold / peak-hold / PNG)
 - [x] TeachSpec Phase-0 software stub (cal + mock frames; no live camera)
 - [x] TeachSpec v1 sensor lock: USB camera (UVC) primary; SAFETY.md + BOM_v0 skeleton (docs)
-- [ ] FID-NMR playground beyond design docs
+- [x] FID-NMR Phase-0 software stub (mock FID→FFT/phase; no magnet)
 - [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures
 
 ## ChemSpec 0.2 — Measurement Integrity (in progress)
