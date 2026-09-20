@@ -19,7 +19,11 @@ from typing import Any
 
 import numpy as np
 
-from spectrum_core.peaks import Peak
+from spectrum_core.peaks import (
+    AREA_DEF_TRAPZ_HALF_MAX,
+    WIDTH_DEF_PROMINENCE_RELATIVE,
+    Peak,
+)
 from spectrum_core.processing import ProcessingHistory
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 
@@ -137,6 +141,12 @@ def peak_to_dict(peak: Peak) -> dict[str, Any]:
         "prominence": _json_float(peak.prominence),
         "fwhm": _json_float(peak.fwhm),
         "area": _json_float(peak.area),
+        "width_definition": str(peak.width_definition or ""),
+        "half_max_level": _json_float(peak.half_max_level),
+        "left_boundary_x": _json_float(peak.left_boundary_x),
+        "right_boundary_x": _json_float(peak.right_boundary_x),
+        "area_definition": str(peak.area_definition or ""),
+        "baseline_reference_note": str(peak.baseline_reference_note or ""),
     }
 
 
@@ -154,6 +164,18 @@ def peak_from_dict(data: dict[str, Any]) -> Peak:
         prominence=_parse_float(data.get("prominence"), default=0.0, name="peak.prominence"),
         fwhm=_parse_float(data.get("fwhm"), name="peak.fwhm"),
         area=_parse_float(data.get("area"), name="peak.area"),
+        width_definition=str(
+            data.get("width_definition") or WIDTH_DEF_PROMINENCE_RELATIVE
+        ),
+        half_max_level=_parse_float(data.get("half_max_level"), name="peak.half_max_level"),
+        left_boundary_x=_parse_float(
+            data.get("left_boundary_x"), name="peak.left_boundary_x"
+        ),
+        right_boundary_x=_parse_float(
+            data.get("right_boundary_x"), name="peak.right_boundary_x"
+        ),
+        area_definition=str(data.get("area_definition") or AREA_DEF_TRAPZ_HALF_MAX),
+        baseline_reference_note=str(data.get("baseline_reference_note") or ""),
     )
 
 

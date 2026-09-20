@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import pytest
 
 from spectrum_core import Peak, Spectrum, find_peaks, ingest_csv
 from spectrum_core.peaks import _fwhm_and_area
@@ -105,7 +106,7 @@ def test_fwhm_nan_when_peak_at_array_edge():
     # scipy.find_peaks often skips true edge samples; characterize index 0 directly.
     x = np.linspace(0, 10, 101)
     y = np.exp(-0.5 * ((x - 0.0) / 1.2) ** 2)
-    fwhm, area = _fwhm_and_area(x, y, peak_idx=0, prominence=float(y[0]))
+    fwhm, area, *_rest = _fwhm_and_area(x, y, peak_idx=0, prominence=float(y[0]))
     assert math.isnan(fwhm)
     assert math.isnan(area)
 
@@ -132,3 +133,92 @@ def test_peak_dataclass_defaults_allow_legacy_construction():
     p = Peak(index=1, x=2.0, y=3.0, prominence=0.5)
     assert math.isnan(p.fwhm)
     assert math.isnan(p.area)
+
+
+def test_prominence_relative_differs_from_zero_baseline_on_slope():
+    """Sloping continuum: prominence-relative half-max ≠ 0.5 * y_peak."""
+    x = np.linspace(0.0, 40.0, 801)
+    # Linear baseline + Gaussian so scipy prominence < y_peak.
+    baseline = 0.02 * x
+    amp = 1.0
+    sigma = 1.5
+    center = 20.0
+    y = baseline + amp * np.exp(-0.5 * ((x - center) / sigma) ** 2)
+    spec = Spectrum(x=x, y=y, x_unit="nm", y_unit="A", title="slope+gauss")
+    peaks = find_peaks(spec, prominence=0.2)
+    assert peaks
+    p = max(peaks, key=lambda q: q.y)
+    assert abs(p.x - center) < 0.2
+    assert p.width_definition == "prominence_relative_half_height"
+    assert p.area_definition == "trapz_between_half_max_bounds"
+    assert "prominence" in p.baseline_reference_note.lower()
+    # Prominence-relative half-max sits above 0.5 * y_peak on a positive slope.
+    zero_half = 0.5 * p.y
+    assert p.half_max_level == pytest.approx(p.y - 0.5 * p.prominence)
+    assert p.half_max_level > zero_half + 0.05
+    assert math.isfinite(p.left_boundary_x) and math.isfinite(p.right_boundary_x)
+    assert p.fwhm == pytest.approx(abs(p.right_boundary_x - p.left_boundary_x))
+
+
+def test_missing_crossing_keeps_nan_boundaries():
+    x = np.linspace(0, 10, 101)
+    y = np.exp(-0.5 * ((x - 0.0) / 1.2) ** 2)
+    fwhm, area, y_half, x_left, x_right, width_def, _note = _fwhm_and_area(
+        x, y, peak_idx=0, prominence=float(y[0])
+    )
+    assert math.isnan(fwhm) and math.isnan(area)
+    assert math.isfinite(y_half)
+    assert math.isnan(x_left)  # no left flank
+    assert width_def == "prominence_relative_half_height"
+
+
+def test_descending_ir_contract_boundaries_ordered_in_index_space():
+    """Descending cm-1: boundaries finite; fwhm uses abs(dx)."""
+    sigma = 3.0
+    amp = 1.0
+    spec, fwhm_true, _area_true = _gaussian_spectrum(
+        center=1700.0,
+        amp=amp,
+        sigma=sigma,
+        x=np.linspace(1700.0 - 10 * sigma, 1700.0 + 10 * sigma, 2501),
+        x_unit="cm-1",
+        descending=True,
+    )
+    peaks = find_peaks(spec, prominence=0.05)
+    p = max(peaks, key=lambda q: q.y)
+    assert math.isfinite(p.left_boundary_x) and math.isfinite(p.right_boundary_x)
+    # Index-walk left/right: on descending x, left_boundary_x > right_boundary_x.
+    assert p.left_boundary_x > p.right_boundary_x
+    assert p.fwhm == pytest.approx(abs(p.right_boundary_x - p.left_boundary_x))
+    assert abs(p.fwhm - fwhm_true) / fwhm_true < 0.02
+
+
+def test_uneven_spacing_area_uses_real_dx():
+    """Trapezoid area must honor uneven Δx (not assume uniform grid)."""
+    # Build a triangular peak on uneven x; analytic area via trapz on same points.
+    x = np.array([0.0, 1.0, 1.5, 2.0, 4.0, 5.0], dtype=float)
+    y = np.array([0.0, 0.0, 2.0, 0.0, 0.0, 0.0], dtype=float)
+    # Peak at index 2, y=2. Force prominence=2 → y_half=1.0.
+    # Crossings: between idx1–2 (y 0→2) at x=1.25; between 2–3 (2→0) at x=1.75.
+    fwhm, area, y_half, x_left, x_right, _wd, _note = _fwhm_and_area(
+        x, y, peak_idx=2, prominence=2.0
+    )
+    assert y_half == pytest.approx(1.0)
+    assert x_left == pytest.approx(1.25)
+    assert x_right == pytest.approx(1.75)
+    assert fwhm == pytest.approx(0.5)
+    # Manual trapz with endpoints at half-max: [1.25,1],[1.5,2],[1.75,1]
+    expected = abs(np.trapezoid([1.0, 2.0, 1.0], [1.25, 1.5, 1.75]))
+    assert area == pytest.approx(expected)
+    # Contrast: if someone wrongly used index-uniform dx=1, area would differ.
+    wrong_uniform = abs(np.trapezoid([1.0, 2.0, 1.0], [0.0, 1.0, 2.0]))
+    assert area != pytest.approx(wrong_uniform)
+
+
+def test_peak_contract_fields_defaults():
+    p = Peak(index=1, x=2.0, y=3.0, prominence=0.5)
+    assert p.width_definition == "prominence_relative_half_height"
+    assert p.area_definition == "trapz_between_half_max_bounds"
+    assert math.isnan(p.half_max_level)
+    assert math.isnan(p.left_boundary_x)
+    assert math.isnan(p.right_boundary_x)

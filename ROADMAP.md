@@ -49,3 +49,11 @@
 - [x] TeachSpec Phase-0 software stub (cal + mock frames; no camera/CCD)
 - [ ] FID-NMR playground beyond design docs
 - [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures
+
+## ChemSpec 0.2 — Measurement Integrity (in progress)
+
+- [x] Peak measurement contract (prominence-relative FWHM/area + explicit Peak fields / CSV / UI)
+- [ ] Session hashes + computational identity (`raw_data_hash`, fingerprint)
+- [ ] Operation preconditions (smooth/baseline/normalize/despike clear errors)
+- [ ] Schema migration fixtures + README Experimental framing for LabRF/TeachSpec
+

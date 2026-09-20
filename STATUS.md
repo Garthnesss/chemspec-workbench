@@ -1,4 +1,4 @@
-# Status — ChemSpec Workbench
+**As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity started: peak measurement contract (prominence-relative FWHM/area + explicit Peak fields); PR cooking
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
 
@@ -12,8 +12,14 @@
 - **Ingest edge fixtures** (`fixtures/ingest_edge/`) — descending x, duplicates, uneven spacing, NaN/Inf, delimiters/quotes, missing/extra cols, %T vs Absorbance, empty/bad JCAMP
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
   - Each `Peak` includes **FWHM** (`abs` half-max width; ascending/descending `x`) and **area**
-    (trapezoidal integral between the same half-max bounds; see `spectrum_core.peaks` docstring)
-  - NaN-safe: missing crossings / edge peaks → `fwhm`/`area` = NaN
+    (trapezoidal integral between the same half-max bounds) plus explicit contract fields:
+    `width_definition`, `half_max_level`, `left_boundary_x` / `right_boundary_x`,
+    `area_definition`, `baseline_reference_note`
+  - **FWHM is prominence-relative** (SciPy `peak_widths` / `rel_height=0.5` style:
+    `y_half = y_peak - 0.5*P`) — **not** absolute half-of-peak-above-zero unless
+    prominence=0 fallback (`0.5 * y_peak`)
+  - NaN-safe: missing crossings / edge peaks → `fwhm`/`area`/boundaries = NaN
+  - Peak CSV + NiceGUI table + session JSON export the contract fields
 - `baseline_polynomial` — poly fit / subtract; baseline stored in `meta`
 - **`baseline_correct(spectrum, method=...)`** — polynomial always; optional **pybaselines** (BSD-3) methods `asls` / `mpls` via `[baselines]` extra; clear ImportError if missing
 - `available_baseline_methods()` / `has_pybaselines()` helpers
