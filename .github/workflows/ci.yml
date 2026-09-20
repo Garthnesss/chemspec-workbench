@@ -27,8 +27,14 @@ jobs:
 
       - name: Dependency vulnerability audit (pip-audit)
         run: |
+          # GHA Python 3.11 images ship setuptools 79.x with a known advisory;
+          # upgrade before audit so pip-audit reflects what we actually need.
+          pip install -U "setuptools>=83"
           pip install pip-audit
           pip-audit
+
+      - name: LabRF NiceGUI build_ui smoke
+        run: python -c "from labrf.ui_app import build_ui; build_ui()"
 
       - name: Run pytest
         run: pytest -q
