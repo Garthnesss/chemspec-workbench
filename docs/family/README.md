@@ -13,3 +13,7 @@ Shared north star: **SDR-style spectrum literacy tools for science** — one `sp
 Each active project uses Orchid Push–style docs: `Project_Truth.md`, `SPEC.md`, `roadmap.md`, `status.md`.
 
 Process: [AI shipping checklist](sand-workflow:ai-shipping-checklist).
+
+## RamanSpec (parked pivot)
+
+Draft only — see `ramanspec/`. Not Implemented.
