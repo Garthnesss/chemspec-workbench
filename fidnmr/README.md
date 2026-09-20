@@ -28,6 +28,10 @@ fidnmr-demo
 python -m fidnmr.demo
 
 pytest -q tests/test_fidnmr.py
+
+# thin examples twin (plot + peaks CSV)
+python examples/fidnmr_walkthrough.py --save-dir /tmp/fidnmr_demo
+pytest -q tests/test_fidnmr_example.py
 ```
 
 See `docs/family/fid-nmr-playground/` for Project Truth, SPEC, roadmap, and status.

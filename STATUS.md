@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — FID/NMR thin examples walkthrough + pytest smoke (`examples/fidnmr_walkthrough.py`)
+
 **As of:** 2026-09-19 (PT) — Audit polish: peak table baseline_ref + session fingerprint units docs
 
 **As of:** 2026-09-19 (PT) — Diagnostics SNR strip labeled heuristic (MAD-Δy can read very high on dense/smooth IR / PNNL)
@@ -161,6 +163,7 @@
   - Complex `FID` + exp apodization + FFT + `phc0`/`phc1` phase
   - Hz or ppm axis → `spectrum_core.Spectrum` (`ppm` XUnit added)
   - Synthetic 1H-like mock FIDs; CLI `fidnmr-demo` / `python -m fidnmr.demo`
+  - Thin examples twin: `examples/fidnmr_walkthrough.py` + `tests/test_fidnmr_example.py` (no notebook yet)
   - pytest: axis math, peak recovery, phase, validation
 - Docs: `docs/family/fid-nmr-playground/` status/roadmap — software stub *Implemented*
 - **Not** Implemented: licensed FID fixtures, UI mode, live spectrometer drivers, compound ID / structure elucidation

@@ -12,6 +12,7 @@
 
 - [x] Project Truth / SPEC / roadmap  
 - [x] Software stub: `FID` + apodize + FFT/phase + Hz/ppm → `Spectrum` + mock source + tests  
+- [x] Thin examples walkthrough + pytest smoke (`examples/fidnmr_walkthrough.py`)  
 - [x] Gate: ChemSpec core accepts frequency-domain spectra (`Hz`/`ppm` x units)  
 - [ ] Chemistry: pick first teaching nuclei/examples  
 - [ ] Locate 2 licensed FID fixtures  
