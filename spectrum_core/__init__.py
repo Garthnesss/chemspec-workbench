@@ -12,6 +12,12 @@ from spectrum_core.ingest import (
     y_unit_from_header,
 )
 from spectrum_core.peaks import find_peaks, Peak
+from spectrum_core.diagnostics import (
+    DiagnosticFinding,
+    MeasurementDiagnostics,
+    diagnose_measurement,
+    estimate_snr,
+)
 from spectrum_core.baseline import (
     ALL_BASELINE_METHODS,
     METHOD_ASLS,
@@ -78,6 +84,10 @@ __all__ = [
     "y_unit_from_header",
     "find_peaks",
     "Peak",
+    "DiagnosticFinding",
+    "MeasurementDiagnostics",
+    "diagnose_measurement",
+    "estimate_snr",
     "baseline_polynomial",
     "baseline_correct",
     "available_baseline_methods",

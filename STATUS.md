@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — Measurement diagnostics (SNR + peak boundary / baseline advisories) + ChemSpec UI warnings strip
+
 **As of:** 2026-09-19 (PT) — ChemSpec 0.2 Measurement Integrity largely shipped: peak contract (#35), session identity (#36), op preconditions + README Experimental framing + spectrum_core audit
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
@@ -11,6 +13,9 @@
 - `ensure_ascending_x` / `x_direction` / `y_unit_from_header` — optional ascending-x normalize; header→`A`/`percent_T` hint (ingest does not auto-override caller units)
 - **Ingest edge fixtures** (`fixtures/ingest_edge/`) — descending x, duplicates, uneven spacing, NaN/Inf, delimiters/quotes, missing/extra cols, %T vs Absorbance, empty/bad JCAMP
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
+- **Measurement diagnostics** — `spectrum_core.diagnostics`: SNR estimate (MAD of first differences),
+  peak half-max boundary / edge warnings, baseline-applied advisories; NiceGUI amber warnings strip
+  via `format_diagnostics_strip` (heuristic / advisory — **not** compound ID or LOD claims)
   - Each `Peak` includes **FWHM** (`abs` half-max width; ascending/descending `x`) and **area**
     (trapezoidal integral between the same half-max bounds) plus explicit contract fields:
     `width_definition`, `half_max_level`, `left_boundary_x` / `right_boundary_x`,
@@ -63,7 +68,7 @@
   UI **Load public: Benzene/Acetone/Naphthalene UV-Vis**; no compound-ID claims
 - JCAMP unit aliases: ``Wavelength (nm)`` / ``NANOMETERS`` / ``NM`` → ``nm``;
   log₁₀(ε) YUNITS forms → intensity (documented)
-- pytest: CSV + JCAMP ingest (**edge hardening**); **public IR + UV-Vis fixture load**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); **PNG export** (magic + log-ε caption); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
+- pytest: **diagnostics** (SNR / boundary / baseline); CSV + JCAMP ingest (**edge hardening**); **public IR + UV-Vis fixture load**; peaks (**Gaussian FWHM/area tolerances**); baseline; units; export (`fwhm`,`area` columns); **PNG export** (magic + log-ε caption); folder (**mtime/recursive/hidden skip/auto-offset**); UI helper sniff/guess/provenance; **session save/load round-trip + schema**; **processing ops + history round-trip + session integration**
 - CLI demo: `python -m chemspec.demo`
 - Matplotlib demo: `chemspec/plot_demo.py`
 - **Interactive MVP UI (NiceGUI + Plotly)** — `python -m chemspec.ui_app` / `chemspec-ui`

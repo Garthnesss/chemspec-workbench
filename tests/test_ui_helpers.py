@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from chemspec.ui_helpers import (
+    format_diagnostics_strip,
     FIXTURE_PRESETS,
     axis_label,
     display_y_caption,
@@ -220,3 +221,15 @@ def test_public_benzene_fixture_caption_and_flip_block() -> None:
     reason = flip_y_blocked_reason(spec.y_unit, spec.meta)
     assert reason is not None
     assert "disabled" in reason.lower() or "log" in reason.lower()
+
+
+def test_format_diagnostics_strip_empty() -> None:
+    assert format_diagnostics_strip(None) == ""
+
+
+def test_format_diagnostics_strip_uses_summary() -> None:
+    class Stub:
+        def summary_line(self, *, max_items: int = 4) -> str:
+            return f"SNR≈12.0 · warnings: demo (max={max_items})"
+
+    assert "SNR≈12.0" in format_diagnostics_strip(Stub())
