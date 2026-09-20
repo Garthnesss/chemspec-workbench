@@ -30,6 +30,19 @@ from spectrum_core.baseline import (
     has_pybaselines,
 )
 from spectrum_core.overlay import overlay, stack, subtract_spectra
+from spectrum_core.quant import (
+    BandIntegral,
+    CompareResult,
+    band_integral,
+    beer_lambert_c,
+    compare_spectra,
+    convert_spectrum_x,
+    crossings,
+    derivative_spectrum,
+    nm_to_wavenumber,
+    series_stats,
+    wavenumber_to_nm,
+)
 from spectrum_core.units import (
     absorbance_to_percent_t,
     can_convert_y,
@@ -101,6 +114,17 @@ __all__ = [
     "overlay",
     "stack",
     "subtract_spectra",
+    "BandIntegral",
+    "CompareResult",
+    "band_integral",
+    "beer_lambert_c",
+    "compare_spectra",
+    "convert_spectrum_x",
+    "crossings",
+    "derivative_spectrum",
+    "nm_to_wavenumber",
+    "series_stats",
+    "wavenumber_to_nm",
     "absorbance_to_percent_t",
     "percent_t_to_absorbance",
     "convert_spectrum_y",
