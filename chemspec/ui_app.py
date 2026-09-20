@@ -151,6 +151,17 @@ def _working_spectrum(state: WorkbenchState, spec: Spectrum | None) -> Spectrum 
         return None
     if spec is state.primary:
         work = state.working if state.working is not None else spec
+        # Guard: if working was left over from a previous primary, discard it.
+        if (
+            work is not state.primary
+            and (
+                len(work) != len(state.primary)
+                or work.x_unit != state.primary.x_unit
+            )
+        ):
+            work = state.primary
+            state.working = state.primary.copy()
+            state.history = ProcessingHistory()
         if len(state.history) == 0 and state.baseline_on:
             work = baseline_correct(
                 state.primary,
@@ -332,6 +343,10 @@ def _load_from_path(
         state.waterfall_mode = False
         state.waterfall_folder = ""
         state.flip_y_unit = False
+        # New primary must not keep a prior fixture's working buffer / history
+        # (otherwise plot + peaks stay on the previous spectrum after reload).
+        state.baseline_on = False
+        _reset_pipeline(state)
         _recompute_peaks(state)
         state.status = (
             f"Loaded {path.name} — {len(spec)} pts, "
