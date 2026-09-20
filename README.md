@@ -12,23 +12,41 @@ from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness 
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
 Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR fixtures (Owner: Public domain) live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims.
 
-## Install
+## Install / Developer setup
+
+Fresh checkout (matches CI — includes `jcamp` from main deps plus pytest / UI / baselines):
 
 ```bash
 cd chemspec-workbench
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev,ui,baselines]"
+pytest -q
+```
+
+Or mirror CI with Make / script:
+
+```bash
+make test
+# or: ./scripts/ci-test.sh
+```
+
+Minimal install (core + pytest only):
+
+```bash
 pip install -e ".[dev]"
 ```
 
 Optional extras:
 
 ```bash
-pip install -e ".[baselines]"          # pybaselines (BSD-3)
+pip install -e ".[baselines]"          # pybaselines (BSD-3); also in [dev]
 pip install -e ".[ui]"                 # NiceGUI + Plotly
 pip install -e ".[ui,baselines]"
 pip install -e ".[labrf]"              # optional pyrtlsdr (hardware not required for CI)
 ```
+
+`jcamp` is a **required** dependency (not optional) so JCAMP ingest and public IR fixture tests work after a clean install.
 
 ## ChemSpec interactive UI (NiceGUI)
 
@@ -67,10 +85,13 @@ Then open **http://localhost:8081**.
 ## Test
 
 ```bash
-pytest
+pip install -e ".[dev,ui,baselines]"   # same extras as CI
+pytest -q
+# or: make test
 ```
 
-ChemSpec tests and LabRF mock tests (no dongle) should both pass.
+ChemSpec tests (CSV/JCAMP/public fixtures) and LabRF mock tests (no dongle) should both pass.
+GitHub Actions (`.github/workflows/ci.yml`) runs the same install + `pytest -q` on Python 3.11 and 3.13 for every push/PR to `main`.
 
 ## Run ChemSpec demos (no UI)
 

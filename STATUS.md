@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — Public NIST/PNNL IR fixtures + LabRF polish + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — CI clean-install + public IR fixtures + LabRF polish + ChemSpec MVP
 
 ## Implemented
 
@@ -41,6 +41,9 @@
   - **Folder waterfall** (path or demo `fixtures/waterfall/`)
 - Optional extras: `pip install -e ".[ui]"` (`nicegui`, `plotly`); `pip install -e ".[baselines]"` (`pybaselines`, BSD-3); recommended UI try: `pip install -e ".[ui,baselines]"`
 - Docs: README, PROJECT_TRUTH, SPEC, ROADMAP, STATUS, AGENTS
+- **CI / clean-install** — GitHub Actions `.github/workflows/ci.yml` on push/PR to `main`:
+  Python 3.11 + 3.13, `pip install -e ".[dev,ui,baselines]"`, `pytest -q`;
+  `jcamp` in main deps; `make test` / `scripts/ci-test.sh` mirror CI locally
 - JCAMP-DX **basic** ingest Implemented (MIT `jcamp`); clear UI error on parse failure
 
 ## LabRF Monitor (sibling app)
