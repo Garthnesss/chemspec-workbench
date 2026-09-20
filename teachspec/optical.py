@@ -3,8 +3,11 @@
 Synthetic / calibrated path only in Phase 0 — no camera libraries.
 
 Future ingest target (not Implemented): UVC webcam frame → extract a 1-D
-row (or column) of pixels → OpticalLiveFrame. Live OpenCV/UVC drivers are
-out of scope until a dedicated ingest spike; do not claim camera capture here.
+row (or column) of pixels → OpticalLiveFrame. See ``teachspec.uvc_ingest``
+(``OpticalFrameSource`` protocol + ``UvcIngestStub`` raising
+``NotImplementedError``; ``extract_row`` is a pure-NumPy helper). Live
+OpenCV/UVC drivers are out of scope until a dedicated ingest spike — no
+camera dependency required now; do not claim camera capture here.
 """
 
 from __future__ import annotations

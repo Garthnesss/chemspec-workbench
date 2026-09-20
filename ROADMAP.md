@@ -50,6 +50,7 @@
 - [x] LabRF mock demo polish in-repo (stream / threshold / peak-hold / PNG)
 - [x] TeachSpec Phase-0 software stub (cal + mock frames; no live camera)
 - [x] TeachSpec v1 sensor lock: USB camera (UVC) primary; SAFETY.md + BOM_v0 skeleton (docs)
+- [x] TeachSpec UVC ingest interface stub (`UvcIngestStub` → NotImplementedError; no OpenCV)
 - [x] FID-NMR Phase-0 software stub (mock FID→FFT/phase; no magnet)
 - [x] FID-NMR thin examples walkthrough + pytest smoke (`examples/fidnmr_walkthrough.py`; no notebook yet)
 - [ ] Broader chemistry sign-off / more public real examples beyond the three NIST UV-Vis fixtures

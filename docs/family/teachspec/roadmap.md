@@ -16,7 +16,8 @@
 - [x] Choose primary sensor — **USB camera (UVC)** for v1; linear CCD/CMOS = Phase 2+ alternate
 - [ ] Chemistry / classroom safety review (SAFETY.md drafting — next human gate)
 - [ ] BOM v0 priced skeleton (USB-cam path)
-- [ ] Live UVC ingest (UVC frame → 1-D row) — not Started; Phase-0 remains mock-only
+- [x] UVC ingest **interface stub** (`OpticalFrameSource` + `UvcIngestStub` → NotImplementedError; no OpenCV dep)
+- [ ] Live UVC driver (OpenCV/OS capture → 1-D row) — not Started; Phase-0 remains mock-only
 - [x] Gate: ChemSpec `spectrum-core` plot/peak stable (reuse Implemented)
 
 ## Exit Phase 0 (full)

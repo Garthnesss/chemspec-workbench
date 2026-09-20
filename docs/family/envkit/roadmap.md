@@ -12,4 +12,5 @@
 
 - [x] Truth / SPEC / roadmap / status  
 - [ ] Do not schedule engineering until ChemSpec + one other family project ship  
+- [x] Docs-only family sync note (ChemSpec/TeachSpec/LabRF/FID stubs exist; EnvKit remains parked)  
 - [ ] Chemistry: which environmental teaching problem is worth it?

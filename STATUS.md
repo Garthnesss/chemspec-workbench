@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — TeachSpec UVC ingest interface stub (`UvcIngestStub` → NotImplementedError; no OpenCV dep)
+**As of:** 2026-09-19 (PT) — EnvKit docs-only family sync (still parked)
 **As of:** 2026-09-19 (PT) — FID/NMR thin examples walkthrough + pytest smoke (`examples/fidnmr_walkthrough.py`)
 
 **As of:** 2026-09-19 (PT) — Audit polish: peak table baseline_ref + session fingerprint units docs
@@ -153,9 +155,10 @@
   - `OpticalLiveFrame` → `spectrum_core.Spectrum` after calibration
   - Synthetic CFL-like mock frames (`mock_source`); CLI `python -m teachspec.demo` / `teachspec-demo`
   - pytest: fit correctness, bad inputs (1 point / duplicates), mock→Spectrum peaks, cal I/O
+  - UVC ingest **interface stub** (`teachspec/uvc_ingest.py`): `OpticalFrameSource` + `UvcIngestStub` raises `NotImplementedError`; `extract_row` NumPy helper — **no** OpenCV dep
 - **Sensor lock (docs):** USB camera (UVC) = v1 primary; linear CCD/CMOS = Phase 2+ alternate
 - Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md skeleton + status/roadmap; software stub *Implemented*
-- **Not** Implemented: live UVC/camera drivers, priced/vendor-locked BOM, hardware-verified calibration, compound ID
+- **Not** Implemented: live UVC/camera **drivers**, priced/vendor-locked BOM, hardware-verified calibration, compound ID (interface stub is importable but does not capture)
 
 ## FID / NMR Playground (sibling — Phase 0 software stub)
 
@@ -168,12 +171,17 @@
 - Docs: `docs/family/fid-nmr-playground/` status/roadmap — software stub *Implemented*
 - **Not** Implemented: licensed FID fixtures, UI mode, live spectrometer drivers, compound ID / structure elucidation
 
+## EnvKit (sibling — Phase 0 parked)
+
+- Docs only under `docs/family/envkit/` — **not** in active build queue
+- Family sync note: ChemSpec/TeachSpec/LabRF/FID stubs exist; EnvKit stays parked until JARTH un-parks
+
 ## Planned (not Implemented)
 
 - Multi-user / cloud-persisted sessions (local `.csw.json` save/load is Implemented)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
-- TeachSpec live UVC ingest + priced BOM + hardware-verified path (sensor choice locked in docs; Phase-0 software stub Implemented)
+- TeachSpec live UVC **driver** + priced BOM + hardware-verified path (sensor choice locked; UVC interface stub importable; Phase-0 software stub Implemented)
 - FID/NMR licensed fixtures + UI (Phase-0 mock stub Implemented)
 - Hardware drivers beyond mock paths
 - FID/NMR licensed fixtures + UI mode (Phase-0 mock stub Implemented); LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
@@ -185,4 +193,4 @@
 
 - Chemistry: confirm priority lab formats + additional public real examples beyond current NIST UV-Vis set
 - Product: release claims / tags — JARTH
-- TeachSpec: classroom SAFETY.md review (drafting); BOM v0 price pass; live UVC ingest (not Started)
+- TeachSpec: classroom SAFETY.md review (drafted); BOM v0 price pass; live UVC driver (not Started)
