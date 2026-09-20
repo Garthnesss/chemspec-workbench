@@ -1,4 +1,4 @@
-# TeachSpec (Phase 0 software stub + optional live UVC)
+# TeachSpec (Phase 0 software stub + optional live UVC + NiceGUI preview)
 
 Educational optical teaching spectrometer **software** path for the Spectrum Family.
 
@@ -13,11 +13,12 @@ Educational optical teaching spectrometer **software** path for the Spectrum Fam
 - Synthetic CFL-like mock frames for demos and pytest (**no camera libraries**)
 - UVC ingest contract: `OpticalFrameSource` + pure-NumPy `extract_row` + `UvcIngestStub` (explicit no-camera placeholder)
 - **Live UVC OpenCV path (optional):** `UvcOpenCvSource` / `open_uvc_source()` via `opencv-python-headless` (`pip install -e ".[teachspec]"`)
+- **NiceGUI live preview (optional `[ui]`):** `teachspec-ui` / `python -m teachspec.ui_app` — intensity vs pixel; Mock default; Live optional
 
 ## What this package does **not** do yet
 
-- NiceGUI live camera view (can add later)
-- Auto-calibration from a live CFL frame in the same CLI pass
+- Auto-calibration from a live CFL frame / CFL auto-cal UI
+- Fancy waterfall / nm-axis cal UI in the live preview (pixel axis only for speed)
 - Priced / vendor-locked BOM (skeleton in `docs/family/teachspec/BOM_v0.md`)
 - Compound identification
 - Hardware-verified / metrology wavelength claims (teaching-calibrated only)
@@ -31,7 +32,12 @@ After `pip install -e ".[dev]"` (or editable install of the workbench):
 teachspec-demo
 teachspec-demo --mock --n-pixels 512 --prominence 0.2
 
-# live UVC (optional extra; needs a camera)
+# NiceGUI live preview (Mock default; no camera)
+pip install -e ".[ui,teachspec]"
+teachspec-ui                  # http://localhost:8082
+# or: python -m teachspec.ui_app
+
+# live UVC CLI (optional extra; needs a camera)
 pip install -e ".[teachspec]"
 teachspec-demo --live --device 0
 
@@ -39,8 +45,8 @@ teachspec-demo --live --device 0
 python -m teachspec.demo
 python -m teachspec.demo --live --device 0
 
-# unit tests (no hardware; OpenCV mocked)
-pytest -q tests/test_teachspec.py tests/test_teachspec_uvc_ingest.py
+# unit tests (no hardware; OpenCV mocked; UI helpers without server)
+pytest -q tests/test_teachspec.py tests/test_teachspec_uvc_ingest.py tests/test_teachspec_ui.py
 ```
 
 Expected mock output: a short peak table from a **synthetic** CFL-like frame, plus an
