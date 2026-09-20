@@ -36,6 +36,9 @@ labrf = [
 rtlsdr = [
     "pyrtlsdr>=0.3.0",
 ]
+teachspec = [
+    "opencv-python-headless>=4.8",
+]
 
 [project.scripts]
 chemspec-demo = "chemspec.demo:main"

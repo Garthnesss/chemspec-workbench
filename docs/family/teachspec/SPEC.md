@@ -1,7 +1,7 @@
 # TeachSpec v1 — Locked Spec (Phase 0 design)
 
 **Depends on:** `spectrum-core` + ChemSpec UI patterns  
-**Status:** Phase-0 software stub Implemented (mock/calibration); hardware design in progress (sensor locked; safety + BOM drafting)
+**Status:** Phase-0 software stub Implemented (mock/calibration); optional live UVC OpenCV ingest Implemented as `[teachspec]` extra; hardware bench still in progress (sensor locked; safety + BOM drafting)
 
 ## Hardware (v1 target)
 
@@ -16,8 +16,8 @@
 ## Software
 
 - Ingest adapter: `OpticalLiveFrame` → `Spectrum` (intensity vs pixel → vs nm after calibration)
-- **UVC ingest interface (stub):** `teachspec.uvc_ingest` — `OpticalFrameSource` + `UvcIngestStub` (raises `NotImplementedError`); `extract_row` NumPy helper
-- **Live UVC driver (not Implemented):** OpenCV/OS capture → 1-D row → `OpticalLiveFrame` (Phase-0 path remains mock-only; no camera dependency required)
+- **UVC ingest interface:** `teachspec.uvc_ingest` — `OpticalFrameSource` + `extract_row` + `UvcIngestStub` (explicit no-camera placeholder)
+- **Live UVC OpenCV path (Implemented, optional extra):** `UvcOpenCvSource` / `open_uvc_source()` via `opencv-python-headless` (`pip install -e ".[teachspec]"`); CI/default remain camera-free. Frames are intensity vs pixel until `teachspec.calibration`; not wavelength-calibrated by the camera alone. Live use subject to SAFETY.md
 - Calibration: user clicks ≥2 known lines → linear (then quadratic) fit; store calibration file
 - Reuse ChemSpec: plot, peak pick, baseline, export CSV
 - Claim class: *hardware-verified* only after named BOM + calibration log

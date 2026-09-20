@@ -13,12 +13,12 @@ Built on a reusable `spectrum_core` package (Spectrum Family).
 | App | Label | What it is today |
 |-----|-------|------------------|
 | **LabRF Monitor** (`labrf/`) | **Experimental** | Receive-only RF power spectrum + waterfall from **mock IQ** (CI/UI default) or optional RTL-SDR. Educational EMI awareness — **not** chemical ID, **not** regulatory advice, **no transmit**. |
-| **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **v1 sensor locked:** USB camera (UVC) primary; live UVC ingest **not** Implemented; **not** hardware-verified. |
+| **TeachSpec** (`teachspec/`) | **Experimental** | Phase-0 educational optical stub (mock frames + pixel→nm calibration → `Spectrum`). **v1 sensor locked:** USB camera (UVC) primary; optional live OpenCV UVC (`[teachspec]` extra); **not** hardware-verified wavelength by camera alone. |
 | **FID/NMR Playground** (`fidnmr/`) | **Experimental** | Phase-0 educational FID→FFT→phase stub (synthetic complex FID → `Spectrum` in Hz/ppm). **No** magnet / **no** compound ID / **not** structure elucidation. |
 
 **Honesty:** ChemSpec does **not** identify compounds or drive spectrometers.
 LabRF mock mode does **not** claim live RF until STATUS says hardware-verified.
-TeachSpec mock frames are **not** live camera captures and do **not** claim hardware-verified wavelength. USB-cam (UVC) is the documented v1 primary sensor; see `docs/family/teachspec/SAFETY.md` + `BOM_v0.md`. FID/NMR mock FIDs are **not** real acquisitions and do **not** identify compounds.
+TeachSpec mock frames are **not** live camera captures. Optional live UVC OpenCV frames are intensity vs pixel until calibrated and do **not** claim hardware-verified wavelength by the camera alone. USB-cam (UVC) is the documented v1 primary sensor; see `docs/family/teachspec/SAFETY.md` + `BOM_v0.md`. FID/NMR mock FIDs are **not** real acquisitions and do **not** identify compounds.
 Synthetic fixtures are labeled as synthetic; public NIST/PNNL IR (Owner: Public domain) and NIST UV-Vis (log ε; INEP CP RAS / NIST OSRD) fixtures live in `fixtures/public/` with attribution in `SOURCES.md` — still no compound-ID claims. Public UV-Vis y is log₁₀(ε) → **intensity**, **not** absorbance.
 
 ## Install / Developer setup
@@ -293,7 +293,7 @@ Sessions are analysis snapshots — **not** compound identification.
 | `spectrum_core/` | Shared Spectrum model (optical + RF units), CSV/JCAMP ingest, peaks (FWHM/area), baseline, overlay/stack, folder waterfall, **session save/load** |
 | `chemspec/` | UV-Vis/IR demos + NiceGUI MVP |
 | `labrf/` | LabRF Monitor: mock IQ, FFT→spectrum, stream generator, threshold events, waterfall, presets, optional RTL-SDR stub, NiceGUI UI |
-| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames; UVC interface stub (`UvcIngestStub` raises; no live capture / no OpenCV dep) |
+| `teachspec/` | TeachSpec Phase-0 stub: pixel→nm calibration, OpticalLiveFrame→Spectrum, synthetic mock frames; optional live UVC OpenCV (`UvcOpenCvSource`, `[teachspec]` extra); `UvcIngestStub` remains explicit no-camera |
 | `fidnmr/` | FID/NMR Phase-0 stub: mock FID, FFT/phase, Hz/ppm → Spectrum (no magnet) |
 | `fixtures/` | Synthetic UV-Vis/IR + `public/` (NIST/PNNL IR + NIST UV-Vis) + `waterfall/` + `labrf/mock_iq.npz` |
 | `examples/` | Tutorials (ethanol IR + benzene/acetone/naphthalene UV-Vis walkthrough notebook + script twins) |
