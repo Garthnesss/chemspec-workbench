@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: ChemSpec Workbench
+message: If you use ChemSpec, please cite this software.
+type: software
+authors:
+  - family-names: Elfstrom
+    given-names: Garth
+    alias: Garthnesss
+  - family-names: Elfstrom
+    given-names: Erik
+    alias: hardcoreerik
+license: MIT
+repository-code: https://github.com/Garthnesss/chemspec-workbench
+abstract: >
+  Software-only UV-Vis/IR spectrum workbench with shared spectrum_core.
+  Opens CSV/JCAMP, plots, measures peaks with an explicit FWHM/area
+  contract, corrects baselines, overlays and folder waterfalls, and
+  exports publication figures. Does not identify compounds.
+keywords:
+  - spectroscopy
+  - UV-Vis
+  - infrared
+  - peak measurement
+  - reproducible analysis
+version: "0.2.0"
+date-released: "2026-09-20"
