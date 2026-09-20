@@ -14,6 +14,8 @@ from spectrum_core.diagnostics import (
     CODE_MISSING_BOTH_BOUNDARIES,
     CODE_MISSING_LEFT_BOUNDARY,
     CODE_MISSING_RIGHT_BOUNDARY,
+    SNR_DISPLAY_MAD_DIFF,
+    SNR_HEURISTIC_NOTE,
     SNR_METHOD_MAD_DIFF,
     baseline_findings,
     diagnose_measurement,
@@ -158,7 +160,12 @@ def test_diagnose_measurement_summary_line_includes_snr():
     diag = diagnose_measurement(spec, peaks, baseline_applied=True)
     line = diag.summary_line()
     assert "SNR" in line
+    assert SNR_DISPLAY_MAD_DIFF in line
+    assert "heuristic" in line.lower()
+    assert SNR_HEURISTIC_NOTE.split("—")[0].strip() in line or "MAD-Δy" in line
     assert "baseline applied" in line
+    # Stable method tag still exposed on the object (not only display label)
+    assert diag.snr_method == SNR_METHOD_MAD_DIFF
 
 
 def test_diagnose_none_spectrum():
@@ -202,3 +209,48 @@ def test_real_find_peaks_edge_missing_crossing_surfaced():
         CODE_MISSING_RIGHT_BOUNDARY,
         CODE_MISSING_BOTH_BOUNDARIES,
     }, f"expected boundary warning, got codes={warn_codes} peak={p}"
+
+def test_summary_line_labels_mad_snr_as_heuristic_on_dense_ir_like_trace():
+    """Smooth, finely sampled peak → MAD-Δy SNR can be huge; strip must caveat."""
+    # Dense x + smooth Gaussian + tiny noise → first-diff MAD ≪ prominence
+    rng = np.random.default_rng(0)
+    x = np.linspace(400.0, 4000.0, 8000)
+    y = 1.0 * np.exp(-0.5 * ((x - 1050.0) / 25.0) ** 2)
+    y = y + rng.normal(0.0, 1e-6, size=y.shape)
+    spec = Spectrum(x=x, y=y, x_unit="cm-1", y_unit="intensity", title="dense-ir-like")
+    peaks = find_peaks(spec, prominence=0.05)
+    assert peaks
+    diag = diagnose_measurement(spec, peaks)
+    assert diag.snr_method == SNR_METHOD_MAD_DIFF
+    # Zero-noise dense traces may yield +inf; either way the strip must caveat.
+    assert diag.snr_estimate == float("inf") or (
+        math.isfinite(diag.snr_estimate) and diag.snr_estimate > 1e3
+    )
+    line = diag.summary_line()
+    assert "n/a" not in line.lower()
+    assert SNR_DISPLAY_MAD_DIFF in line
+    assert "heuristic" in line.lower()
+    assert "dense/smooth" in line.lower() or "PNNL" in line
+    assert "LOD" in line
+
+
+def test_public_pnnl_ethanol_snr_is_high_but_advisory():
+    """Public PNNL ethanol IR: SNR may be enormous; advisory text must still appear."""
+    from pathlib import Path
+
+    from spectrum_core import ingest
+
+    path = Path(__file__).resolve().parents[1] / "fixtures" / "public" / "ethanol_ir_pnnl.jdx"
+    if not path.is_file():
+        return  # fixture optional in stripped checkouts
+    spec = ingest(path)
+    peaks = find_peaks(spec, prominence=0.1)
+    diag = diagnose_measurement(spec, peaks)
+    assert diag.snr_method == SNR_METHOD_MAD_DIFF
+    assert math.isfinite(diag.snr_estimate)
+    # Observed ~6e5 on this fixture; keep a soft floor so regression is obvious
+    assert diag.snr_estimate > 100.0
+    line = diag.summary_line()
+    assert "heuristic" in line.lower()
+    assert "LOD" in line
+

@@ -1,3 +1,5 @@
+**As of:** 2026-09-19 (PT) — Diagnostics SNR strip labeled heuristic (MAD-Δy can read very high on dense/smooth IR / PNNL)
+
 **As of:** 2026-09-19 (PT) — Session load UX: auto-replay pipeline history onto working (status + 2b caption; raw preserved)
 
 **As of:** 2026-09-19 (PT) — NiceGUI optional 3-D surface for folder waterfall (`state.view_3d` → `chemspec.plot3d.build_surface_figure`; series index ≠ time)
@@ -19,7 +21,9 @@
 - `find_peaks` via `scipy.signal.find_peaks` (prominence configurable; default ~10% y-range)
 - **Measurement diagnostics** — `spectrum_core.diagnostics`: SNR estimate (MAD of first differences),
   peak half-max boundary / edge warnings, baseline-applied advisories; NiceGUI amber warnings strip
-  via `format_diagnostics_strip` (heuristic / advisory — **not** compound ID or LOD claims)
+  via `format_diagnostics_strip` (prefixed **Advisory:**; summary labels MAD-Δy as
+  **heuristic** and notes dense/smooth IR e.g. PNNL can inflate the number —
+  **not** compound ID, LOD, or instrument qualification)
   - Each `Peak` includes **FWHM** (`abs` half-max width; ascending/descending `x`) and **area**
     (trapezoidal integral between the same half-max bounds) plus explicit contract fields:
     `width_definition`, `half_max_level`, `left_boundary_x` / `right_boundary_x`,

@@ -17,6 +17,7 @@ small fixes landed in the same PRs when safe.
 | export_png.py | Honesty footer present. | OK. |
 | spectrum.py | Minimal validation; empty rejected. | OK. |
 | errors.py | New shared hierarchy. | Added (this PR). |
+| diagnostics.py | MAD-Δy SNR can read 10³–10⁶ on dense PNNL IR; strip previously showed raw method tag without heuristic caveat. | Fixed (this PR): summary_line / format_diagnostics_strip / UI caption + README/STATUS label as heuristic; not LOD. |
 
 ## Larger follow-ups (not blocking 0.2 MI)
 

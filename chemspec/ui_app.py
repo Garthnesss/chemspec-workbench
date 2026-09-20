@@ -655,8 +655,13 @@ def create_app() -> WorkbenchState:
         "text-caption text-grey-8 q-px-md font-mono"
     )
     diagnostics_label = ui.label("").classes(
-        "text-caption text-amber-9 q-px-md q-pb-sm"
+        "text-caption text-amber-9 q-px-md"
     )
+    ui.label(
+        "Measurement diagnostics are geometric/statistical heuristics "
+        "(MAD-Δy SNR can read very high on dense/smooth IR) — not LOD or "
+        "instrument qualification."
+    ).classes("text-caption text-grey-7 q-px-md q-pb-sm")
     error_label = ui.label("").classes("text-negative q-px-md")
 
     widgets: dict[str, Any] = {}

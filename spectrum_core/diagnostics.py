@@ -2,7 +2,14 @@
 
 Honesty: these are **geometric / statistical heuristics** on the loaded trace —
 not compound identification, not instrument qualification, and not a claim of
-analytical detection limits. Callers should surface messages as advisory.
+analytical detection limits (LOD) or instrument qualification. Callers should
+surface messages as advisory.
+
+**SNR caveat.** ``estimate_snr`` uses MAD of first differences
+(``mad_of_first_differences``). On dense, smooth library IR (e.g. public PNNL
+JCAMP) structured sample-to-sample Δy is tiny relative to peak prominence, so
+the numeric SNR can read **very high** (10³–10⁶). Treat the number as a relative
+heuristic for the loaded trace — never as a reported analytical SNR.
 """
 
 from __future__ import annotations
@@ -20,6 +27,13 @@ SEVERITY_WARNING = "warning"
 
 SNR_METHOD_MAD_DIFF = "mad_of_first_differences"
 SNR_METHOD_UNAVAILABLE = "unavailable"
+# Friendlier strip label (method tag above stays stable for callers/tests).
+SNR_DISPLAY_MAD_DIFF = "heuristic MAD-Δy"
+# Appended when MAD-Δy SNR is finite; dense/smooth IR often inflates the number.
+SNR_HEURISTIC_NOTE = (
+    "MAD-Δy heuristic — can read very high on dense/smooth IR (e.g. PNNL); "
+    "not LOD/qualification"
+)
 
 CODE_LOW_SNR = "low_snr"
 CODE_MISSING_LEFT_BOUNDARY = "missing_left_boundary"
@@ -65,12 +79,28 @@ class MeasurementDiagnostics:
         return [f for f in self.findings if f.severity == SEVERITY_INFO]
 
     def summary_line(self, *, max_items: int = 4) -> str:
-        """Compact one-line strip for status UIs."""
+        """Compact one-line strip for status UIs.
+
+        Labels MAD-Δy SNR as a **heuristic** and notes that dense/smooth IR
+        (e.g. PNNL library traces) can inflate the numeric value.
+        """
         parts: list[str] = []
+        method_disp = (
+            SNR_DISPLAY_MAD_DIFF
+            if self.snr_method == SNR_METHOD_MAD_DIFF
+            else self.snr_method
+        )
+        # +inf is a valid MAD-Δy outcome (zero noise floor) — do not label as n/a.
         if _finite(self.snr_estimate):
-            parts.append(f"SNR≈{self.snr_estimate:.1f} ({self.snr_method})")
+            parts.append(f"SNR≈{self.snr_estimate:.1f} ({method_disp})")
+            if self.snr_method == SNR_METHOD_MAD_DIFF:
+                parts.append(SNR_HEURISTIC_NOTE)
+        elif self.snr_estimate == float("inf"):
+            parts.append(f"SNR≈inf ({method_disp})")
+            if self.snr_method == SNR_METHOD_MAD_DIFF:
+                parts.append(SNR_HEURISTIC_NOTE)
         elif self.snr_method != SNR_METHOD_UNAVAILABLE:
-            parts.append(f"SNR=n/a ({self.snr_method})")
+            parts.append(f"SNR=n/a ({method_disp})")
         warns = self.warnings
         if warns:
             shown = warns[:max_items]
@@ -358,6 +388,8 @@ __all__ = [
     "MeasurementDiagnostics",
     "SEVERITY_INFO",
     "SEVERITY_WARNING",
+    "SNR_DISPLAY_MAD_DIFF",
+    "SNR_HEURISTIC_NOTE",
     "SNR_METHOD_MAD_DIFF",
     "SNR_METHOD_UNAVAILABLE",
     "baseline_findings",

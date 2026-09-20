@@ -116,6 +116,12 @@ python -m chemspec.ui_app
 
 Then open **http://localhost:8080**.
 
+The amber **measurement diagnostics** strip (SNR + peak/baseline advisories) is
+**heuristic / advisory only**. SNR uses MAD of first differences; on dense,
+smooth library IR (e.g. public PNNL JCAMP) the numeric value can read very high
+— not an LOD or instrument-qualification claim. See
+`spectrum_core.diagnostics` and `docs/AUDIT_spectrum_core.md`.
+
 ## LabRF Monitor (mock IQ UI — no dongle)
 
 ```bash

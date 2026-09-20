@@ -232,4 +232,14 @@ def test_format_diagnostics_strip_uses_summary() -> None:
         def summary_line(self, *, max_items: int = 4) -> str:
             return f"SNR≈12.0 · warnings: demo (max={max_items})"
 
-    assert "SNR≈12.0" in format_diagnostics_strip(Stub())
+    out = format_diagnostics_strip(Stub())
+    assert out.startswith("Advisory:")
+    assert "SNR≈12.0" in out
+
+
+def test_format_diagnostics_strip_keeps_existing_advisory_prefix() -> None:
+    class Stub:
+        def summary_line(self, *, max_items: int = 4) -> str:
+            return "Advisory: already framed"
+
+    assert format_diagnostics_strip(Stub()) == "Advisory: already framed"
