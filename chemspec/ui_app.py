@@ -585,6 +585,10 @@ def _peak_rows(state: WorkbenchState) -> list[dict[str, Any]]:
             "prominence": round(p.prominence, 6),
             "fwhm": _round_or_none(p.fwhm, 6),
             "area": _round_or_none(p.area, 6),
+            "half_max": _round_or_none(p.half_max_level, 6),
+            "left_x": _round_or_none(p.left_boundary_x, 4),
+            "right_x": _round_or_none(p.right_boundary_x, 4),
+            "width_def": p.width_definition,
         }
         for p in state.peaks
     ]
@@ -1388,6 +1392,30 @@ def create_app() -> WorkbenchState:
                         "name": "area",
                         "label": "area",
                         "field": "area",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "half_max",
+                        "label": "half-max",
+                        "field": "half_max",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "left_x",
+                        "label": "left x",
+                        "field": "left_x",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "right_x",
+                        "label": "right x",
+                        "field": "right_x",
+                        "sortable": True,
+                    },
+                    {
+                        "name": "width_def",
+                        "label": "width def",
+                        "field": "width_def",
                         "sortable": True,
                     },
                 ],

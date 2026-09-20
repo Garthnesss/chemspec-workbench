@@ -9,12 +9,12 @@
 | `ingest_jcamp` | JCAMP-DX basic via MIT `jcamp.readfile`; unit mapping from headers; preserves x-direction |
 | `ingest` | Suffix dispatch (`.jdx`/`.dx` → JCAMP; else CSV) |
 | `ensure_ascending_x` / `x_direction` / `y_unit_from_header` | Optional ascending-x normalize; header→y_unit hint (ingest does not auto-flip units) |
-| `find_peaks` | `scipy.signal.find_peaks`, configurable prominence; returns `Peak` with **FWHM** + **area** (half-max bounds; see `spectrum_core.peaks` docstring) |
+| `find_peaks` | `scipy.signal.find_peaks`, configurable prominence; returns `Peak` with **FWHM** + **area** plus explicit contract (`width_definition`, `half_max_level`, boundaries, `area_definition`); **prominence-relative** half-height (SciPy `peak_widths` style), not absolute half-of-peak-above-zero unless prominence=0 fallback — see `spectrum_core.peaks` docstring |
 | `baseline_polynomial` | poly fit / subtract (always available) |
 | `baseline_correct` | dispatch: polynomial default; optional pybaselines `asls` / `mpls` (`[baselines]`, BSD-3) |
 | `overlay` / `stack` | multi-spectrum helpers |
 | `units` | A ↔ %T pure conversion (`convert_spectrum_y`); intensity blocked |
-| `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area`) |
+| `export_peaks` | `peaks_to_csv` peak table serialization (`index,x,y,prominence,fwhm,area` + contract fields) |
 | `processing` | Append-only pipeline: `ProcessingHistory` / `apply_step`; ops baseline, smooth (Savitzky–Golay), despike, normalize (max\|area); raw vs working via `PipelineState` |
 | `session` | Versioned JSON session save/load (`.csw.json` / `.chemspec.json`): embedded x/y + units/title, original path, processing, optional pipeline history, peaks (FWHM/area), notes, provenance snapshot |
 | `folder` | `ingest_folder` / `folder_waterfall` (CSV+JCAMP → stack) |
@@ -49,7 +49,7 @@ Versioned JSON (`format_version: 1`) for reproducible analysis sessions:
 | `spectrum` | Embedded `x` / `y` arrays + `x_unit` / `y_unit` / `title` / `source_path` / JSON-safe `meta` |
 | `processing` | `baseline_on`, `baseline_method`, `baseline_degree`, `flip_y_unit` (A↔%T display), `prominence`, `use_auto_prominence` |
 | `history` | Optional append-only list of `{name,params,timestamp,software_note}` pipeline steps (replay onto raw → working) |
-| `peaks` | List of `{index,x,y,prominence,fwhm,area}` (non-finite → JSON `null`) |
+| `peaks` | List of `{index,x,y,prominence,fwhm,area,width_definition,half_max_level,left_boundary_x,right_boundary_x,area_definition,baseline_reference_note}` (non-finite → JSON `null`) |
 | `notes` | Optional free-text string |
 | `provenance` | Snapshot (`source`, units, baseline, peak_count, `summary` line) |
 
