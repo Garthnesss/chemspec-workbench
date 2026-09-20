@@ -9,8 +9,8 @@ These rules bind humans and coding agents. Prefer under-claiming.
    Implemented **and** STATUS.md says so. Synthetic fixtures are not real compounds.
    **LabRF does not identify chemicals via RF.**
 2. **No Planned-as-Done.** If it is not tested or demoed, it is Planned. Update STATUS.md.
-3. **No hardware / NMR / live RTL claims** without a hardware-verified STATUS row and
-   named capture log. Mock IQ / synthetic fixtures are not live RF.
+3. **No hardware / NMR / live RTL / live TeachSpec claims** without a hardware-verified
+   STATUS row and named capture log. Mock IQ / synthetic optical frames are not live hardware.
 4. **No clinical / regulated diagnostic language.**
 5. **Do not oversell JCAMP.** Basic `.jdx`/`.dx` ingest via MIT `jcamp` is Implemented;
    do not claim multi-block / vendor certification / compound ID unless STATUS says so.
@@ -21,6 +21,8 @@ These rules bind humans and coding agents. Prefer under-claiming.
 9. **Educational presets are not regulatory advice.** Never claim FCC/Ofcom compliance,
    “legal to monitor,” or certified EMI testing from LabRF presets or UI copy.
 10. **No demodulation / decryption claims** in LabRF Phase 1 (power spectrum + waterfall only).
+11. **TeachSpec is educational / mock-first.** Do not lock USB-cam vs linear CCD in code;
+    do not invent BOM prices; never claim hardware-verified wavelength or compound ID.
 
 ## Always
 
@@ -35,6 +37,7 @@ These rules bind humans and coding agents. Prefer under-claiming.
 7. **UI is optional.** Core + CLI/matplotlib demos must run without `pip install -e ".[ui]"`.
 8. **Advanced baselines are optional.** Polynomial must work without `pip install -e ".[baselines]"`; pybaselines is BSD-3 — note the license; never imply baseline correction identifies compounds.
 9. **LabRF hardware is optional.** Mock IQ mode must work without `pip install -e ".[labrf]"` / dongle; CI must not require RTL-SDR.
+10. **TeachSpec hardware is optional.** Mock optical frames + calibration math must work without cameras; CI must not require sensors.
 
 ## Preferred stack notes
 

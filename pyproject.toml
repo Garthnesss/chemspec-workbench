@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chemspec-workbench"
 version = "0.1.0"
-description = "Software-only UV-Vis / IR spectrum workbench + LabRF Monitor (Spectrum Family)"
+description = "Software-only UV-Vis / IR spectrum workbench + LabRF Monitor + TeachSpec stub (Spectrum Family)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -41,10 +41,11 @@ rtlsdr = [
 chemspec-demo = "chemspec.demo:main"
 chemspec-ui = "chemspec.ui_app:main"
 labrf-ui = "labrf.ui_app:main"
+teachspec-demo = "teachspec.demo:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["spectrum_core*", "chemspec*", "labrf*"]
+include = ["spectrum_core*", "chemspec*", "labrf*", "teachspec*"]
 
 [tool.setuptools.package-data]
 labrf = ["data/*.json"]
