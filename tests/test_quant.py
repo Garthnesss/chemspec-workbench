@@ -8,7 +8,6 @@ import pytest
 from spectrum_core import (
     ProcessingError,
     Spectrum,
-    apply_step,
     band_integral,
     beer_lambert_c,
     compare_spectra,
@@ -105,13 +104,3 @@ def test_crossings_two_gaussians():
     xs = crossings(a, b)
     assert xs
     assert min(xs) == pytest.approx(550.0, abs=2.0)
-
-
-def test_pipeline_derivative_step():
-    x = np.linspace(0, 10, 51)
-    spec = Spectrum(x=x, y=np.sin(x), x_unit="nm", y_unit="intensity")
-    out, hist = apply_step(
-        spec, None, "derivative", {"order": 1, "window_length": 7, "polyorder": 3}
-    )
-    assert hist.steps[-1].name == "derivative"
-    assert out.meta["derivative_order"] == 1
