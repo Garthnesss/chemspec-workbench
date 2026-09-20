@@ -3,9 +3,9 @@
 | Phase | Name | Status | Outcome |
 |-------|------|--------|---------|
 | 0 | Design lock | **Done** | Truth + SPEC |
-| 1 | Mock RF path | **Now (scaffold)** | Fixture IQ → spectrum / waterfall tests + UI |
+| 1 | Mock RF path | **Done (demo polish)** | Fixture IQ → spectrum / waterfall + stream + threshold UI |
 | 2 | Live RTL-SDR | Planned | Real dongle *hardware-verified* |
-| 3 | Presets + logging | Partial (presets done) | Threshold event log + session polish |
+| 3 | Presets + logging | **Done** (presets + threshold event log) | Threshold events + session polish |
 | 4 | Done | Goal | Truth table met |
 
 ## Phase 1 checklist
@@ -15,6 +15,6 @@
 - [x] FFT → `Spectrum` (Hz/MHz, dB) via `spectrum_core`
 - [x] Waterfall buffer
 - [x] Educational presets JSON + disclaimer
-- [x] Minimal NiceGUI mock UI
+- [x] NiceGUI mock UI (streaming waterfall + threshold log)
 - [x] pytest without hardware
 - [ ] Gate: hardware-verified live path (Phase 2)

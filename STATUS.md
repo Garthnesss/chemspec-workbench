@@ -1,6 +1,6 @@
 # Status — ChemSpec Workbench
 
-**As of:** 2026-09-19 (PT) — LabRF Phase-1 mock scaffold + ChemSpec MVP
+**As of:** 2026-09-19 (PT) — LabRF demo polish (streaming + threshold) + ChemSpec MVP
 
 ## Implemented
 
@@ -42,10 +42,13 @@
 ## LabRF Monitor (sibling app)
 
 - Package `labrf/` — mock IQ → FFT power spectrum → `Spectrum`; waterfall buffer; educational presets JSON
-- Minimal NiceGUI UI: `python -m labrf.ui_app` (port 8081); disclaimer banner; no dongle required
+- NiceGUI UI: `python -m labrf.ui_app` (port 8081); **no dongle required**
+  - **Streaming mock waterfall** (Start/Stop) with successive synthetic IQ frames
+  - **Threshold event log** (dB threshold → timestamped freq/level; clear; CSV export)
+  - Quick preset jump buttons, Load mock fixture, provenance strip, clearer disclaimer banner
 - Optional `[labrf]` / `[rtlsdr]` → pyrtlsdr adapter with clear ImportError if missing
-- pytest: mock FFT, presets, waterfall, RTL missing-extra guard (CI without hardware)
-- Docs: `docs/family/labrf-monitor/status.md` (Phase 1 scaffold); AGENTS receive-only / no chem-ID / educational-presets rules
+- pytest: mock FFT, presets, waterfall, **stream generator**, **threshold logic**, RTL missing-extra guard
+- Docs: `docs/family/labrf-monitor/status.md`; AGENTS receive-only / no chem-ID / educational-presets rules
 - **Not** Implemented: live hardware-verified RTL captures, demodulation, TX, compliance claims
 
 ## Planned (not Implemented)
