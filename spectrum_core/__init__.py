@@ -29,7 +29,7 @@ from spectrum_core.baseline import (
     baseline_polynomial,
     has_pybaselines,
 )
-from spectrum_core.overlay import overlay, stack
+from spectrum_core.overlay import overlay, stack, subtract_spectra
 from spectrum_core.units import (
     absorbance_to_percent_t,
     can_convert_y,
@@ -100,6 +100,7 @@ __all__ = [
     "ALL_BASELINE_METHODS",
     "overlay",
     "stack",
+    "subtract_spectra",
     "absorbance_to_percent_t",
     "percent_t_to_absorbance",
     "convert_spectrum_y",
