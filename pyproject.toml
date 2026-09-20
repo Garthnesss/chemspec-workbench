@@ -77,6 +77,7 @@ labrf-ui = "labrf.ui_app:main"
 teachspec-demo = "teachspec.demo:main"
 teachspec-ui = "teachspec.ui_app:main"
 fidnmr-demo = "fidnmr.demo:main"
+fidnmr-ui = "fidnmr.ui_app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

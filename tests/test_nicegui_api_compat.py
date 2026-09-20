@@ -12,6 +12,7 @@ _UI_MODULES = (
     _ROOT / "labrf" / "ui_app.py",
     _ROOT / "chemspec" / "ui_app.py",
     _ROOT / "teachspec" / "ui_app.py",
+    _ROOT / "fidnmr" / "ui_app.py",
 )
 
 

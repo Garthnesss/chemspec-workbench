@@ -12,11 +12,11 @@ no magnet required, **no compound ID / structure elucidation**.
 - FFT + zero/first-order phase (`phc0`, `phc1`)
 - Carrier-relative **Hz** or teaching **ppm** axis → `spectrum_core.Spectrum`
 - Synthetic 1H-like mock FIDs for demos and pytest
+- NiceGUI mock playground (`fidnmr-ui`, port 8083)
 
 ## What this package does **not** do yet
 
 - Licensed public FID fixture pack (still Planned)
-- UI mode / ChemSpec shell page
 - Autophase, 2D NMR, live spectrometer control
 - Compound identification or structure elucidation
 
@@ -26,8 +26,9 @@ no magnet required, **no compound ID / structure elucidation**.
 fidnmr-demo
 # or
 python -m fidnmr.demo
+python -m fidnmr.ui_app   # or: fidnmr-ui — NiceGUI mock playground :8083
 
-pytest -q tests/test_fidnmr.py
+pytest -q tests/test_fidnmr.py tests/test_fidnmr_ui.py
 
 # thin examples twin (plot + peaks CSV)
 python examples/fidnmr_walkthrough.py --save-dir /tmp/fidnmr_demo
