@@ -7,11 +7,11 @@ from typing import Any, Literal
 
 import numpy as np
 
-# Optical (ChemSpec) + RF (LabRF) axis units. Keep Literal honest for type checkers.
-XUnit = Literal["nm", "cm-1", "Hz", "MHz"]
+# Optical (ChemSpec) + RF (LabRF) + NMR (FID playground) axis units.
+XUnit = Literal["nm", "cm-1", "Hz", "MHz", "ppm"]
 YUnit = Literal["A", "percent_T", "intensity", "dB"]
 
-_X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz"})
+_X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz", "ppm"})
 _Y_UNITS = frozenset({"A", "percent_T", "intensity", "dB"})
 
 

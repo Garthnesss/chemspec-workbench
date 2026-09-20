@@ -44,7 +44,7 @@ SESSION_FORMAT_VERSION = 2
 SESSION_FORMAT_VERSION_MIN = 1
 SESSION_EXTENSIONS = (".csw.json", ".chemspec.json")
 
-_X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz"})
+_X_UNITS = frozenset({"nm", "cm-1", "Hz", "MHz", "ppm"})
 _Y_UNITS = frozenset({"A", "percent_T", "intensity", "dB"})
 
 DEFAULT_PROCESSING: dict[str, Any] = {

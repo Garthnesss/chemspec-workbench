@@ -12,6 +12,7 @@
 
 **As of:** 2026-09-19 (PT) — Docs polish: ROADMAP Phase-4 sync for UV-Vis fixtures + benzene/acetone/naphthalene tutorial trio; README Quick-demo lists all three public UV-Vis load buttons + log₁₀(ε) honesty; naphthalene (#32) / acetone (#31) / benzene (#26–#28) complete
 **As of:** 2026-09-19 (PT) — TeachSpec: USB-cam (UVC) primary locked; SAFETY.md + BOM_v0 skeleton
+**As of:** 2026-09-19 (PT) — FID/NMR Phase-0 software stub (mock FID→FFT/phase→Spectrum)
 
 ## Implemented
 
@@ -153,14 +154,25 @@
 - Docs: `docs/family/teachspec/` — SPEC + SAFETY.md + BOM_v0.md skeleton + status/roadmap; software stub *Implemented*
 - **Not** Implemented: live UVC/camera drivers, priced/vendor-locked BOM, hardware-verified calibration, compound ID
 
+## FID / NMR Playground (sibling — Phase 0 software stub)
+
+- Package `fidnmr/` — educational FID→FFT→phase **software** path only
+  - Complex `FID` + exp apodization + FFT + `phc0`/`phc1` phase
+  - Hz or ppm axis → `spectrum_core.Spectrum` (`ppm` XUnit added)
+  - Synthetic 1H-like mock FIDs; CLI `fidnmr-demo` / `python -m fidnmr.demo`
+  - pytest: axis math, peak recovery, phase, validation
+- Docs: `docs/family/fid-nmr-playground/` status/roadmap — software stub *Implemented*
+- **Not** Implemented: licensed FID fixtures, UI mode, live spectrometer drivers, compound ID / structure elucidation
+
 ## Planned (not Implemented)
 
 - Multi-user / cloud-persisted sessions (local `.csw.json` save/load is Implemented)
 - Advanced JCAMP (multi-block LINK, complex DIFDUP edge cases, vendor quirks, certification)
 - Reference peak libraries / similarity scores (Phase 1+ product; never oversell as ID)
 - TeachSpec live UVC ingest + priced BOM + hardware-verified path (sensor choice locked in docs; Phase-0 software stub Implemented)
+- FID/NMR licensed fixtures + UI (Phase-0 mock stub Implemented)
 - Hardware drivers beyond mock paths
-- NMR/FID adapters; LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
+- FID/NMR licensed fixtures + UI mode (Phase-0 mock stub Implemented); LabRF **live** RTL-SDR hardware-verified path (mock path Implemented)
 - Vendor-format certification
 - Broader chemistry sign-off / more public real examples (additional UV-Vis beyond the three NIST fixtures)
 - Time-axis metadata from filenames beyond sort-by-name / mtime (waterfall is stack offsets only)

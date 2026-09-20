@@ -26,6 +26,10 @@ NMR is the chemistry spectrum students hear about but rarely *touch*. FIDs are I
 | ppm axis with referenced solvent/TMS meta | J-coupling cursor helpers |
 | Peak pick + export | Minimal 13C example set |
 
+## Phase 0 note
+
+A **mock/synthetic** FID→FFT→phase path (`fidnmr/`) is Implemented for demos and tests. Public licensed FID fixtures and UI remain Planned. Educational only — no compound ID.
+
 ## Out of scope
 
 Pulse-sequence design, real spectrometer control, structure elucidation AI that overclaims, 2D NMR (later phase).

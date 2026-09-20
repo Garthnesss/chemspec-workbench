@@ -54,6 +54,7 @@ def _x_label(x_unit: str) -> str:
         "cm-1": "Wavenumber (cm⁻¹)",
         "Hz": "Frequency (Hz)",
         "MHz": "Frequency (MHz)",
+        "ppm": "Chemical shift (ppm)",
     }.get(str(x_unit), f"x ({x_unit})")
 
 

@@ -9,8 +9,8 @@ These rules bind humans and coding agents. Prefer under-claiming.
    Implemented **and** STATUS.md says so. Synthetic fixtures are not real compounds.
    **LabRF does not identify chemicals via RF.**
 2. **No Planned-as-Done.** If it is not tested or demoed, it is Planned. Update STATUS.md.
-3. **No hardware / NMR / live RTL / live TeachSpec claims** without a hardware-verified
-   STATUS row and named capture log. Mock IQ / synthetic optical frames are not live hardware.
+3. **No hardware / live NMR / live RTL / live TeachSpec claims** without a hardware-verified
+   STATUS row and named capture log. Mock IQ / synthetic optical frames / synthetic FIDs are not live hardware.
 4. **No clinical / regulated diagnostic language.**
 5. **Do not oversell JCAMP.** Basic `.jdx`/`.dx` ingest via MIT `jcamp` is Implemented;
    do not claim multi-block / vendor certification / compound ID unless STATUS says so.
@@ -24,12 +24,14 @@ These rules bind humans and coding agents. Prefer under-claiming.
 11. **TeachSpec is educational / mock-first.** v1 primary sensor is **USB camera (UVC)**
     (docs-locked); linear CCD/CMOS is Phase 2+. Do not claim live UVC drivers Implemented;
     do not invent firm vendor BOM prices; never claim hardware-verified wavelength or compound ID.
+12. **FID/NMR is educational / mock-first.** Do not claim live spectrometer drivers, structure
+    elucidation, or compound ID from the Phase-0 stub.
 
 ## Always
 
 1. **CSV-first** for ChemSpec. Primary ingest path remains CSV with explicit column mapping;
    JCAMP is an additional basic adapter (`ingest_jcamp`).
-2. **Honest units.** Store and display `nm` / `cm-1` / `Hz` / `MHz` and
+2. **Honest units.** Store and display `nm` / `cm-1` / `Hz` / `MHz` / `ppm` and
    `A` / `percent_T` / `intensity` / `dB` correctly.
 3. **Label synthetics.** Fixture README and plot titles must say synthetic.
 4. **Keep `spectrum_core` reusable** — no ChemSpec-only assumptions baked into the model.
@@ -39,6 +41,7 @@ These rules bind humans and coding agents. Prefer under-claiming.
 8. **Advanced baselines are optional.** Polynomial must work without `pip install -e ".[baselines]"`; pybaselines is BSD-3 — note the license; never imply baseline correction identifies compounds.
 9. **LabRF hardware is optional.** Mock IQ mode must work without `pip install -e ".[labrf]"` / dongle; CI must not require RTL-SDR.
 10. **TeachSpec hardware is optional.** Mock optical frames + calibration math must work without cameras; CI must not require sensors.
+11. **FID/NMR is educational / mock-first.** Synthetic FIDs + FFT/phase must work without magnets or vendor files; never claim compound ID or structure elucidation.
 
 ## Preferred stack notes
 
