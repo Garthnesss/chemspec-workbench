@@ -7,7 +7,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from spectrum_core import ingest_spc, write_spc_even_x
+from spectrum_core import (
+    Spectrum,
+    apply_step,
+    ingest,
+    ingest_spc,
+    list_spectrum_files,
+    write_spc_even_x,
+)
 from spectrum_core.spc import ingest_spc as ingest_spc_mod
 
 
@@ -16,7 +23,7 @@ def test_roundtrip_even_x_absorbance(tmp_path: Path) -> None:
     y = np.exp(-0.5 * ((x - 550.0) / 20.0) ** 2)
     path = tmp_path / "dye.spc"
     write_spc_even_x(path, x, y, x_type=3, y_type=2)
-    spec = ingest_spc(path)
+    spec = ingest(path)
     assert spec.x_unit == "nm"
     assert spec.y_unit == "A"
     np.testing.assert_allclose(spec.x, x, rtol=1e-5)
@@ -38,3 +45,20 @@ def test_rejects_short_file(tmp_path: Path) -> None:
     p.write_bytes(b"SPC")
     with pytest.raises(ValueError, match="too short"):
         ingest_spc_mod(p)
+
+
+def test_pipeline_derivative_step() -> None:
+    x = np.linspace(0, 10, 51)
+    spec = Spectrum(x=x, y=np.sin(x), x_unit="nm", y_unit="intensity")
+    out, hist = apply_step(
+        spec, None, "derivative", {"order": 1, "window_length": 7, "polyorder": 3}
+    )
+    assert hist.steps[-1].name == "derivative"
+    assert out.meta["derivative_order"] == 1
+
+
+def test_folder_lists_spc(tmp_path: Path) -> None:
+    x = np.linspace(0, 1, 10)
+    write_spc_even_x(tmp_path / "a.spc", x, x)
+    names = {p.name for p in list_spectrum_files(tmp_path)}
+    assert "a.spc" in names
