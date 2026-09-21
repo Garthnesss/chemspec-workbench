@@ -1,10 +1,13 @@
 """spectrum_core — shared spectrum model, ingest, peaks, baseline for ChemSpec / family."""
 
+from pathlib import Path
+from typing import Any
+
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 from spectrum_core.errors import ProcessingError, SpectrumError
 from spectrum_core.ingest import (
     ensure_ascending_x,
-    ingest,
+    ingest as _ingest_impl,
     ingest_csv,
     ingest_jcamp,
     is_jcamp_path,
@@ -12,6 +15,8 @@ from spectrum_core.ingest import (
     y_unit_from_header,
 )
 from spectrum_core.spc import ingest_spc, is_spc_path, write_spc_even_x
+from spectrum_core import pipeline_extra as _pipeline_extra  # noqa: F401
+from spectrum_core.pipeline_extra import op_derivative
 from spectrum_core.peaks import find_peaks, Peak
 from spectrum_core.diagnostics import (
     DiagnosticFinding,
@@ -83,6 +88,32 @@ from spectrum_core.processing import (
     op_smooth,
     replay_history,
 )
+
+
+def ingest(
+    path: str | Path,
+    *,
+    x_col: int | str = 0,
+    y_col: int | str = 1,
+    x_unit: XUnit = "nm",
+    y_unit: YUnit = "intensity",
+    title: str | None = None,
+    meta: dict[str, Any] | None = None,
+    **csv_kwargs: Any,
+):
+    """Dispatch ``.spc`` here; other suffixes go to ``spectrum_core.ingest``."""
+    if is_spc_path(path):
+        return ingest_spc(path, title=title, meta=meta)
+    return _ingest_impl(
+        path,
+        x_col=x_col,
+        y_col=y_col,
+        x_unit=x_unit,
+        y_unit=y_unit,
+        title=title,
+        meta=meta,
+        **csv_kwargs,
+    )
 
 __all__ = [
     "Spectrum",
@@ -164,6 +195,7 @@ __all__ = [
     "op_smooth",
     "op_despike",
     "op_normalize",
+    "op_derivative",
 ]
 
 __version__ = "0.2.0"
