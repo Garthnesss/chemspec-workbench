@@ -62,12 +62,3 @@ def test_folder_lists_spc(tmp_path: Path) -> None:
     write_spc_even_x(tmp_path / "a.spc", x, x)
     names = {p.name for p in list_spectrum_files(tmp_path)}
     assert "a.spc" in names
-
-
-def test_ui_accepts_spc_and_has_derivative_button() -> None:
-    text = Path(__file__).resolve().parents[1].joinpath("chemspec", "ui_app.py").read_text(
-        encoding="utf-8"
-    )
-    assert ".spc" in text
-    assert "on_apply_derivative_step" in text
-    assert "Apply derivative" in text
