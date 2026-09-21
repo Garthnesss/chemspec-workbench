@@ -1,4 +1,4 @@
-"""Load a folder of CSV / JCAMP spectra for overlay or waterfall / stack."""
+"""Load a folder of CSV / JCAMP / SPC spectra for overlay or waterfall / stack."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from spectrum_core.ingest import ingest, is_jcamp_path
 from spectrum_core.overlay import stack
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 
-_SPECTRUM_SUFFIXES = {".csv", ".tsv", ".txt", ".jdx", ".dx", ".jcm"}
+_SPECTRUM_SUFFIXES = {".csv", ".tsv", ".txt", ".jdx", ".dx", ".jcm", ".spc"}
 
 
 def list_spectrum_files(
@@ -20,7 +20,7 @@ def list_spectrum_files(
     """Return sorted spectrum file paths under ``folder``.
 
     Recognized suffixes: ``.csv``, ``.tsv``, ``.txt``, ``.jdx``, ``.dx``,
-    ``.jcm``. Hidden files (name starting with ``.``) are skipped.
+    ``.spc``, ``.jcm``. Hidden files (name starting with ``.``) are skipped.
     Sort is by lowercase file name (stable for ``t00``, ``t01``, …).
     """
     folder = Path(folder)
@@ -50,9 +50,9 @@ def ingest_folder(
     sort_by: Literal["name", "mtime"] = "name",
     require_matching_x_unit: bool = True,
 ) -> list[Spectrum]:
-    """Ingest all spectrum files in ``folder`` (CSV / JCAMP).
+    """Ingest all spectrum files in ``folder`` (CSV / JCAMP / SPC).
 
-    CSV files use the given column/unit args; JCAMP units come from headers.
+    CSV files use the given column/unit args; JCAMP/SPC units come from headers.
     Order: ``name`` (default, case-insensitive) or ``mtime`` (oldest first).
 
     When ``require_matching_x_unit`` is True (default), every spectrum must
@@ -64,7 +64,6 @@ def ingest_folder(
         paths.sort(key=lambda p: p.stat().st_mtime)
     elif sort_by != "name":
         raise ValueError(f"sort_by must be 'name' or 'mtime', got {sort_by!r}")
-    # name sort already applied in list_spectrum_files; re-apply if mtime not used
     if sort_by == "name":
         paths.sort(key=lambda p: p.name.lower())
 
