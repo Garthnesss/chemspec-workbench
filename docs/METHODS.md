@@ -2,6 +2,12 @@
 
 Short description of what the software *computes*. Not a paper. Not compound ID.
 
+## SPC ingest
+
+`ingest_spc` reads Thermo Galactic / GRAMS ``.spc`` **new little-endian (0x4B)**.
+Even-X or global TXVALS X; first subfile only. XYXY and old/big-endian raise.
+Units from ``fxtype`` / ``fytype`` (nm, cm-1, A, %T when those codes match).
+
 ## Peak metrics
 
 `find_peaks` wraps SciPy `find_peaks`. FWHM and area use a **prominence-relative

@@ -11,6 +11,7 @@ from spectrum_core.ingest import (
     x_direction,
     y_unit_from_header,
 )
+from spectrum_core.spc import ingest_spc, is_spc_path, write_spc_even_x
 from spectrum_core.peaks import find_peaks, Peak
 from spectrum_core.diagnostics import (
     DiagnosticFinding,
@@ -93,6 +94,9 @@ __all__ = [
     "ingest_csv",
     "ingest_jcamp",
     "is_jcamp_path",
+    "ingest_spc",
+    "is_spc_path",
+    "write_spc_even_x",
     "ensure_ascending_x",
     "x_direction",
     "y_unit_from_header",
