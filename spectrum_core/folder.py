@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from spectrum_core.ingest import ingest, is_jcamp_path
+from spectrum_core.spc import ingest_spc, is_spc_path
 from spectrum_core.overlay import stack
 from spectrum_core.spectrum import Spectrum, XUnit, YUnit
 
@@ -19,7 +20,7 @@ def list_spectrum_files(
 ) -> list[Path]:
     """Return sorted spectrum file paths under ``folder``.
 
-    Recognized suffixes: ``.csv``, ``.tsv``, ``.txt``, ``.jdx``, ``.dx``,
+    Recognized suffixes: ``.csv``, ``.tsv``, ``.txt``, ``.jdx", ".dx``,
     ``.spc``, ``.jcm``. Hidden files (name starting with ``.``) are skipped.
     Sort is by lowercase file name (stable for ``t00``, ``t01``, …).
     """
@@ -50,15 +51,7 @@ def ingest_folder(
     sort_by: Literal["name", "mtime"] = "name",
     require_matching_x_unit: bool = True,
 ) -> list[Spectrum]:
-    """Ingest all spectrum files in ``folder`` (CSV / JCAMP / SPC).
-
-    CSV files use the given column/unit args; JCAMP/SPC units come from headers.
-    Order: ``name`` (default, case-insensitive) or ``mtime`` (oldest first).
-
-    When ``require_matching_x_unit`` is True (default), every spectrum must
-    share the first file's ``x_unit`` or ``ValueError`` is raised — same
-    rule as ``overlay`` / ``stack``.
-    """
+    """Ingest all spectrum files in ``folder`` (CSV / JCAMP / SPC)."""
     paths = list_spectrum_files(folder, recursive=recursive)
     if sort_by == "mtime":
         paths.sort(key=lambda p: p.stat().st_mtime)
@@ -66,13 +59,13 @@ def ingest_folder(
         raise ValueError(f"sort_by must be 'name' or 'mtime', got {sort_by!r}")
     if sort_by == "name":
         paths.sort(key=lambda p: p.name.lower())
-
     if not paths:
         return []
-
     spectra: list[Spectrum] = []
     for path in paths:
-        if is_jcamp_path(path):
+        if is_spc_path(path):
+            spec = ingest_spc(path)
+        elif is_jcamp_path(path):
             spec = ingest(path)
         else:
             spec = ingest(
@@ -83,7 +76,6 @@ def ingest_folder(
                 y_unit=y_unit,
             )
         spectra.append(spec)
-
     if require_matching_x_unit and spectra:
         x0 = spectra[0].x_unit
         for i, s in enumerate(spectra):
@@ -101,9 +93,5 @@ def folder_waterfall(
     offset: float | None = None,
     **ingest_kwargs: Any,
 ) -> list[Spectrum]:
-    """Ingest a folder and return ``stack(...)`` traces for waterfall display.
-
-    Thin wrapper: ``stack(ingest_folder(...), offset=offset)``.
-    """
     spectra = ingest_folder(folder, **ingest_kwargs)
     return stack(spectra, offset=offset)
